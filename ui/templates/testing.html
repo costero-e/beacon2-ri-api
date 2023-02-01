@@ -1,0 +1,124 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <link rel="stylesheet" href="{% static 'css/testing.css' %}">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans&display=swap" rel="stylesheet"> <!-- font-family: 'Open Sans', sans-serif; -->	
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+
+
+    <title>Testing</title>
+</head>
+<body>
+    
+    <h1>Hello World!</h1>
+
+    <div class="container">
+        <div class="box">
+            <p>This is a test.</p>
+        </div>
+    </div>
+
+    <br>
+
+    <!-- <div class="w3-sidebar w3-bar-block w3-light-grey w3-card" style="width:130px">
+        <h5 class="w3-bar-item">Menu</h5>
+        <button class="w3-bar-item w3-button tablink" onclick="openVariant(event, 'London')">London</button>
+        <button class="w3-bar-item w3-button tablink" onclick="openVariant(event, 'Paris')">Paris</button>
+        <button class="w3-bar-item w3-button tablink" onclick="openVariant(event, 'Tokyo')">Tokyo</button>
+    </div>
+    
+    <div style="margin-left:130px">
+        <div class="w3-padding">Vertical Tab Example (sidebar)</div>
+        
+        <div id="London" class="w3-container variant" style="display:none">
+            <h2>London</h2>
+            <p>London is the capital city of England.</p>
+            <p>It is the most populous city in the United Kingdom, with a metropolitan area of over 13 million inhabitants.</p>
+        </div>
+        
+        <div id="Paris" class="w3-container variant" style="display:none">
+            <h2>Paris</h2>
+            <p>Paris is the capital of France.</p> 
+            <p>The Paris area is one of the largest population centers in Europe, with more than 12 million inhabitants.</p>
+        </div>
+        
+        <div id="Tokyo" class="w3-container variant" style="display:none">
+            <h2>Tokyo</h2>
+            <p>Tokyo is the capital of Japan.</p>
+            <p>It is the center of the Greater Tokyo Area, and the most populous metropolitan area in the world.</p>
+        </div>
+    </div> -->
+
+
+    <fieldset id="query-datasets">
+        <div id="datasets-header">
+            <p>Datasets</p>
+            <p><span>All</span>  <span>None</span></p>
+        </div>
+        <section>
+          {% for d in BEACON.datasets %}
+            {% if d.info.authorized == 'true' %}
+              <label>
+                <input type="checkbox" name="datasetIds" value="{{ d.id }}" {% if d.id in selected_datasets %}checked{% endif %}/>
+                {{ d.id }}{% if d.variantCount %} ({{ d.variantCount }} variants){% endif %}
+              </label>
+            {% else %}
+              <label class="dataset-not-authorized">
+                <input type="checkbox" disabled name="datasetIds" value="{{ d.id }}" />
+                {{ d.id }}
+              </label>
+            {% endif %}
+          {% endfor %}
+        </section>
+    </fieldset>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="{% static 'js/jquery.min.js' %}">\x3C/script>')</script>
+
+    
+    <script>
+        // function openVariant(evt, variantName) {
+        //     var i, x, tablinks;
+        //     x = document.getElementsByClassName("variant");
+        //     for (i = 0; i < x.length; i++) {
+        //         x[i].style.display = "none";
+        //         // maybe we should add the class HIDDEN instead of changing the display property directly
+        //     }
+        //     tablinks = document.getElementsByClassName("tablink");
+        //     for (i = 0; i < x.length; i++) {
+        //         tablinks[i].className = tablinks[i].className.replace(" w3-red", ""); 
+        //         // maybe instead removing the class, we should have two for selected/unselected
+        //     }
+            
+        //     document.getElementById(variantName).style.display = "block";
+        //     // maybe we should add the class VISIBLE instead of changing the display property directly
+        //     evt.currentTarget.className += " w3-red";
+        // }
+
+        // ----------------------------------------------
+        // Datasets
+        // ----------------------------------------------
+        var datasets = $( "#query-datasets" );
+        var datasetsSelectors = datasets.find( "input:not([disabled])" ); // enough
+        console.log(datasetsSelectors);
+        $( "#datasets-header" ).on(  "click", "span", function() {
+        var content = $( this ).text();
+        if( content == 'All' ){
+            console.log(datasetsSelectors);
+            datasetsSelectors.prop('checked', true);
+            console.log(datasetsSelectors);
+        }
+        if( content == 'None' ){
+            datasetsSelectors.prop('checked', false);
+        }
+        });
+    </script>
+
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+body#response > main {
+
+    display:flex;
+    flex-flow:row wrap;
+    align-items:flex-start;
+
+    justify-content:center;
+	
+	@import 'datasetAlleleResponses';
+	
+	&.per-variant {
+		margin: 0 auto;
+		padding: 0;
+
+		@import 'variantsPanel';
+	}
+
+	&.per-sample {
+		margin: 0 auto;
+		padding: 0;
+
+		@import 'samples';
+	}
+	
+}
+
+
+// .handover a:hover ~ .handover-note p { display:inline-block; }
+// .handover a:hover ~ .handover-note::after { display:block; }
+
+.handover-note:hover {
+	p { display:block; }
+	&::after { display:block; }
+}
+

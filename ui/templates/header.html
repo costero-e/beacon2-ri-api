@@ -1,0 +1,15 @@
+<header>
+  <a href="{{ conf.org_welcome_url }}"><img src="{{ conf.org_logo_url }}" alt="{{ conf.org_name }}" /></a>
+  
+  <h1><a href="/">{{ conf.beacon_name }}</a></h1>
+  <h2>{{ conf.description|safe }}</h2>
+
+  <nav>
+    {% if session.user %}
+      <!-- <span>Hi, {{ session.user.preferred_username }}</span> -->
+      <a href="{{ url('logout') }}?next={{ request.path }}" class="login-button">Logout</a>
+    {% else %} 
+      <a href="{{ url('login') }}?next={{ request.path }}" class="login-button">Login</a>
+    {% endif %}
+  </nav>
+</header>
