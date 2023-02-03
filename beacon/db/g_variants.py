@@ -2,7 +2,7 @@ import logging
 from typing import Dict, List, Optional
 from beacon.db.filters import apply_alphanumeric_filter, apply_filters
 from beacon.db.schemas import DefaultSchemas
-from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query
+from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query, get_cross_query_variants
 from beacon.request.model import AlphanumericFilter, Operator, RequestParams
 from beacon.db import client
 import json
@@ -135,7 +135,7 @@ def get_biosamples_of_variant(entry_id: Optional[str], qparams: RequestParams):
     biosample_ids = client.beacon.genomicVariations \
         .find_one(query, {"caseLevelData.biosampleId": 1, "_id": 0})
     
-    biosample_ids=get_cross_query(biosample_ids,'biosampleId','id')
+    biosample_ids=get_cross_query_variants(biosample_ids,'biosampleId','id')
     query = apply_filters(biosample_ids, qparams.query.filters)
 
     schema = DefaultSchemas.BIOSAMPLES
@@ -157,7 +157,7 @@ def get_individuals_of_variant(entry_id: Optional[str], qparams: RequestParams):
     individual_ids = client.beacon.genomicVariations \
         .find_one(query, {"caseLevelData.biosampleId": 1, "_id": 0})
 
-    individual_ids = get_cross_query(individual_ids,'biosampleId','id')
+    individual_ids = get_cross_query_variants(individual_ids,'biosampleId','id')
     query = apply_filters(individual_ids, qparams.query.filters)
 
     schema = DefaultSchemas.INDIVIDUALS
@@ -179,7 +179,7 @@ def get_runs_of_variant(entry_id: Optional[str], qparams: RequestParams):
     run_ids = client.beacon.genomicVariations \
         .find_one(query, {"caseLevelData.biosampleId": 1, "_id": 0})
     
-    run_ids=get_cross_query(run_ids,'biosampleId','biosampleId')
+    run_ids=get_cross_query_variants(run_ids,'biosampleId','biosampleId')
     query = apply_filters(run_ids, qparams.query.filters)
 
     schema = DefaultSchemas.RUNS
@@ -200,10 +200,8 @@ def get_analyses_of_variant(entry_id: Optional[str], qparams: RequestParams):
     count = get_count(client.beacon.genomicVariations, query)
     analysis_ids = client.beacon.genomicVariations \
         .find_one(query, {"caseLevelData.biosampleId": 1, "_id": 0})
-    LOG.debug(analysis_ids)
 
-    analysis_ids=get_cross_query(analysis_ids,'biosampleId','biosampleId')
-    LOG.debug(analysis_ids)
+    analysis_ids=get_cross_query_variants(analysis_ids,'biosampleId','biosampleId')
     query = apply_filters(analysis_ids, qparams.query.filters)
 
     schema = DefaultSchemas.ANALYSES

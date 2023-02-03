@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, List, Optional
 from beacon.db.filters import apply_alphanumeric_filter, apply_filters
-from beacon.db.utils import query_id, query_ids, get_count, get_documents
+from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query
 from beacon.db import client
 from beacon.request.model import AlphanumericFilter, Operator, RequestParams
 from beacon.db.filters import *
@@ -108,9 +108,17 @@ def get_biosample_with_id(entry_id: Optional[str], qparams: RequestParams):
 
 
 def get_variants_of_biosample(entry_id: Optional[str], qparams: RequestParams):
-    query = {"caseLevelData.biosampleId": entry_id}
+    query = {"$and": [{"id": entry_id}]}
     query = apply_request_parameters(query, qparams)
     query = apply_filters(query, qparams.query.filters)
+    count = get_count(client.beacon.biosamples, query)
+    biosamples_ids = client.beacon.biosamples \
+        .find_one(query, {"id": 1, "_id": 0})
+    LOG.debug(biosamples_ids)
+    biosamples_ids=get_cross_query(biosamples_ids,'id','caseLevelData.biosampleId')
+    LOG.debug(biosamples_ids)
+    query = apply_filters(biosamples_ids, qparams.query.filters)
+
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
     docs = get_documents(

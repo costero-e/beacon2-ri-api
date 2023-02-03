@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, List, Optional
 from beacon.db.filters import apply_alphanumeric_filter, apply_filters
-from beacon.db.utils import query_id, query_ids, get_count, get_documents
+from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query
 from beacon.db import client
 from beacon.request.model import AlphanumericFilter, Operator, RequestParams
 from beacon.db.schemas import DefaultSchemas
@@ -111,13 +111,19 @@ def get_run_with_id(entry_id: Optional[str], qparams: RequestParams):
 
 
 def get_variants_of_run(entry_id: Optional[str], qparams: RequestParams):
-    query = {"caseLevelData.runId": entry_id}
+    query = {"$and": [{"id": entry_id}]}
     query = apply_request_parameters(query, qparams)
     query = apply_filters(query, qparams.query.filters)
+    count = get_count(client.beacon.runs, query)
+    run_ids = client.beacon.runs \
+        .find_one(query, {"biosampleId": 1, "_id": 0})
+    run_ids=get_cross_query(run_ids,'biosampleId','caseLevelData.biosampleId')
+    query = apply_filters(run_ids, qparams.query.filters)
+
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
     docs = get_documents(
-        client.beacon.runs,
+        client.beacon.genomicVariations,
         query,
         qparams.query.pagination.skip,
         qparams.query.pagination.limit

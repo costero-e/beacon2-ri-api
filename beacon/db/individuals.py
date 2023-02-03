@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, List, Optional
 from beacon.db.filters import apply_alphanumeric_filter, apply_filters
-from beacon.db.utils import query_id, query_ids, get_count, get_documents
+from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query
 from beacon.db import client
 from beacon.request.model import AlphanumericFilter, Operator, RequestParams
 from beacon.db.schemas import DefaultSchemas
@@ -117,9 +117,17 @@ def get_individual_with_id(entry_id: Optional[str], qparams: RequestParams):
 
 
 def get_variants_of_individual(entry_id: Optional[str], qparams: RequestParams):
-    query = {"individualId": entry_id}
+    query = {"$and": [{"id": entry_id}]}
     query = apply_request_parameters(query, qparams)
     query = apply_filters(query, qparams.query.filters)
+    count = get_count(client.beacon.individuals, query)
+    individual_ids = client.beacon.individuals \
+        .find_one(query, {"id": 1, "_id": 0})
+    LOG.debug(individual_ids)
+    individual_ids=get_cross_query(individual_ids,'id','caseLevelData.biosampleId')
+    LOG.debug(individual_ids)
+    query = apply_filters(individual_ids, qparams.query.filters)
+
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
     docs = get_documents(
@@ -155,13 +163,6 @@ def get_runs_of_individual(entry_id: Optional[str], qparams: RequestParams):
     query = {"individualId": entry_id}
     query = apply_request_parameters(query, qparams)
     query = apply_filters(query, qparams.query.filters)
-    run_ids = client.beacon.genomicVariations.find_one(query, {"caseLevelData.runId": 1, "_id": 0})
-    run_ids = [r for r in run_ids] if run_ids else []
-
-    query = apply_request_parameters(query, qparams)
-    query = query_ids(query, run_ids)
-    query = apply_filters(query, qparams.query.filters)
-
     schema = DefaultSchemas.RUNS
     count = get_count(client.beacon.runs, query)
     docs = get_documents(
@@ -174,16 +175,9 @@ def get_runs_of_individual(entry_id: Optional[str], qparams: RequestParams):
 
 
 def get_analyses_of_individual(entry_id: Optional[str], qparams: RequestParams):
-    query = {"caseLevelData.individualId": entry_id}
+    query = {"individualId": entry_id}
     query = apply_request_parameters(query, qparams)
     query = apply_filters(query, qparams.query.filters)
-    analysis_ids = client.beacon.genomicVariations.find_one(query, {"caseLevelData.analysisId": 1, "_id": 0})
-    analysis_ids = [r for r in analysis_ids] if analysis_ids else []
-
-    query = apply_request_parameters({}, qparams)
-    query = query_ids(query, analysis_ids)
-    query = apply_filters(query, qparams.query.filters)
-
     schema = DefaultSchemas.ANALYSES
     count = get_count(client.beacon.analyses, query)
     docs = get_documents(

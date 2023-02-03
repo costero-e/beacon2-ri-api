@@ -42,19 +42,43 @@ def get_cross_query(ids: dict, cross_type: str, collection_id: str):
     id_list=[]
     dict_in={}
     id_dict={}
-    if cross_type != 'single':
-        for k, v in ids.items():
-            for item in v:
-                id_list.append(item[cross_type])
-        dict_in["$in"]=id_list
-
-    else:
-        list_item=ids[collection_id]
+    if cross_type == 'biosampleId' or cross_type=='id':
+        list_item=ids[cross_type]
         LOG.debug(str(list_item))
         id_list.append(str(list_item))
         dict_in["$in"]=id_list
         LOG.debug(id_list)
+        id_dict[collection_id]=dict_in
+        query = id_dict
+    elif cross_type == 'individualIds' or cross_type=='biosampleIds':
+        list_individualIds=ids[cross_type]
+        dict_in["$in"]=list_individualIds
+        LOG.debug(list_individualIds)
+        id_dict[collection_id]=dict_in
+        query = id_dict
+    else:
+        for k, v in ids.items():
+            for item in v:
+                id_list.append(item[cross_type])
+        dict_in["$in"]=id_list
+        id_dict[collection_id]=dict_in
+        query = id_dict
+
+
+    LOG.debug(query)
+    return query
+
+def get_cross_query_variants(ids: dict, cross_type: str, collection_id: str):
+    id_list=[]
+    dict_in={}
+    id_dict={}
+    for k, v in ids.items():
+        for item in v:
+            id_list.append(item[cross_type])
+    dict_in["$in"]=id_list
     id_dict[collection_id]=dict_in
     query = id_dict
+
+
     LOG.debug(query)
     return query

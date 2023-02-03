@@ -114,9 +114,7 @@ def get_variants_of_analysis(entry_id: Optional[str], qparams: RequestParams):
     count = get_count(client.beacon.analyses, query)
     analysis_ids = client.beacon.analyses \
         .find_one(query, {"biosampleId": 1, "_id": 0})
-    LOG.debug(analysis_ids)
-    analysis_ids=get_cross_query(analysis_ids,'single','biosampleId')
-    LOG.debug(analysis_ids)
+    analysis_ids=get_cross_query(analysis_ids,'biosampleId','caseLevelData.biosampleId')
     query = apply_filters(analysis_ids, qparams.query.filters)
 
     schema = DefaultSchemas.GENOMICVARIATIONS
@@ -129,20 +127,3 @@ def get_variants_of_analysis(entry_id: Optional[str], qparams: RequestParams):
     )
     return schema, count, docs
 
-
-
-
-'''
-    query = { "$and": [ { "biosampleId": entry_id } ] }
-    query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters)
-    schema = DefaultSchemas.GENOMICVARIATIONS
-    count = get_count(client.beacon.genomicVariations, query)
-    docs = get_documents(
-        client.beacon.genomicVariations,
-        query,
-        qparams.query.pagination.skip,
-        qparams.query.pagination.limit
-    )
-    return schema, count, docs
-    '''

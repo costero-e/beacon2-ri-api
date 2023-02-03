@@ -28,6 +28,8 @@ def apply_filters(query: dict, filters: List[dict]) -> dict:
             filter = OntologyFilter(**filter)
             LOG.debug("Ontology filter: %s", filter.id)
             partial_query = {"$text": defaultdict(str) }
+            #partial_query =  { "$text": { "$search": "" } } 
+            LOG.debug(partial_query)
             partial_query = apply_ontology_filter(partial_query, filter)
         else:
             filter = CustomFilter(**filter)
