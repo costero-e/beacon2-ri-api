@@ -106,8 +106,11 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter) -> dict:
 
 
 def apply_custom_filter(query: dict, filter: CustomFilter) -> dict:
-    if query["$text"]["$search"]:
+    LOG.debug(query)
+    search_dict={}
+    if "$text" in query:
         query["$text"]["$search"] += " "
-    query["$text"]["$search"] += filter.id
+    search_dict["$search"] = filter.id
+    query["$text"] = search_dict
     LOG.debug("QUERY: %s", query)
     return query
