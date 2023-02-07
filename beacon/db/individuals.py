@@ -32,6 +32,7 @@ INDIVIDUALS_PROPERTY_MAP = {
 def generate_position_filter_start(key: str, value: List[int]) -> List[AlphanumericFilter]:
     LOG.debug("len value = {}".format(len(value)))
     filters = []
+
     if len(value) == 1:
         filters.append(AlphanumericFilter(
             id=INDIVIDUALS_PROPERTY_MAP[key],
@@ -80,16 +81,22 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
     if len(qparams.query.request_parameters) > 0 and "$and" not in query:
         query["$and"] = []
     for k, v in qparams.query.request_parameters.items():
-        query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
-                id=INDIVIDUALS_PROPERTY_MAP[k],
-                value=v
-            )))
+        if k == 'measurementValue':
+            query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
+                    id=INDIVIDUALS_PROPERTY_MAP[k],
+                    value=float(v)
+                )))
+        else:
+            query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
+                    id=INDIVIDUALS_PROPERTY_MAP[k],
+                    value=v
+                )))
     return query
+
 
 def get_individuals(entry_id: Optional[str], qparams: RequestParams):
     query = apply_request_parameters({}, qparams)
     query = apply_filters(query, qparams.query.filters)
-    print(query)
     schema = DefaultSchemas.INDIVIDUALS
     count = get_count(client.beacon.individuals, query)
     docs = get_documents(

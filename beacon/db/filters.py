@@ -21,6 +21,7 @@ def apply_filters(query: dict, filters: List[dict]) -> dict:
     for filter in filters:
         partial_query = {}
         if "value" in filter:
+            LOG.debug(filter)
             filter = AlphanumericFilter(**filter)
             LOG.debug("Alphanumeric filter: %s %s %s", filter.id, filter.operator, filter.value)
             partial_query = apply_alphanumeric_filter(partial_query, filter)
@@ -98,9 +99,13 @@ def format_operator(operator: Operator) -> str:
         return "$lte"
 
 def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter) -> dict:
+    LOG.debug(filter.value)
     formatted_value = format_value(filter.value)
     formatted_operator = format_operator(filter.operator)
-    query[filter.id] = { formatted_operator: formatted_value }
+    if isinstance(formatted_value,list):
+        query[filter.id] = { formatted_operator: formatted_value }
+    else:
+        query[filter.id] = { formatted_operator: float(formatted_value) }
     LOG.debug("QUERY: %s", query)
     return query
 
