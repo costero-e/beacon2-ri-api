@@ -82,8 +82,9 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
     return query
 
 def get_runs(entry_id: Optional[str], qparams: RequestParams):
+    collection = 'runs'
     query = apply_request_parameters({}, qparams)
-    query = apply_filters(query, qparams.query.filters)
+    query = apply_filters(query, qparams.query.filters, collection)
     schema = DefaultSchemas.RUNS
     count = get_count(client.beacon.runs, query)
     docs = get_documents(
@@ -96,8 +97,9 @@ def get_runs(entry_id: Optional[str], qparams: RequestParams):
 
 
 def get_run_with_id(entry_id: Optional[str], qparams: RequestParams):
+    collection = 'runs'
     query = apply_request_parameters({}, qparams)
-    query = apply_filters(query, qparams.query.filters)
+    query = apply_filters(query, qparams.query.filters, collection)
     query = query_id(query, entry_id)
     schema = DefaultSchemas.RUNS
     count = get_count(client.beacon.runs, query)
@@ -111,14 +113,15 @@ def get_run_with_id(entry_id: Optional[str], qparams: RequestParams):
 
 
 def get_variants_of_run(entry_id: Optional[str], qparams: RequestParams):
+    collection = 'runs'
     query = {"$and": [{"id": entry_id}]}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters)
+    query = apply_filters(query, qparams.query.filters, collection)
     count = get_count(client.beacon.runs, query)
     run_ids = client.beacon.runs \
         .find_one(query, {"biosampleId": 1, "_id": 0})
     run_ids=get_cross_query(run_ids,'biosampleId','caseLevelData.biosampleId')
-    query = apply_filters(run_ids, qparams.query.filters)
+    query = apply_filters(run_ids, qparams.query.filters, collection)
 
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
@@ -132,9 +135,10 @@ def get_variants_of_run(entry_id: Optional[str], qparams: RequestParams):
 
 
 def get_analyses_of_run(entry_id: Optional[str], qparams: RequestParams):
+    collection = 'runs'
     query = {"runId": entry_id}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters)
+    query = apply_filters(query, qparams.query.filters, collection)
     schema = DefaultSchemas.ANALYSES
     count = get_count(client.beacon.analyses, query)
     docs = get_documents(

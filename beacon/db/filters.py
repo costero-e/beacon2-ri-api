@@ -13,8 +13,35 @@ LOG = logging.getLogger(__name__)
 
 CURIE_REGEX = r'^([a-zA-Z0-9]*):\/?[a-zA-Z0-9]*$'
 
+BIOSAMPLES_FILTERS_MAP = [
+    {"biosampleStatus.label" : {"$regex": ""}},
+    {"characteristics.organism.text" : {"$regex": ""}},
+    {"sampleOriginType.label" : {"$regex": ""}}
+]
 
-def apply_filters(query: dict, filters: List[dict]) -> dict:
+DATASETS_FILTERS_MAP = [
+    {"collections.dataUseConditions.duoDataUse.label" : {"$regex": ""}},
+    {"description" : {"$regex": ""}}
+]
+
+GENOMIC_VARIATIONS_FILTERS_MAP = [
+    {"molecularAttributes.molecularEffects.label" : {"$regex": ""}}
+]
+
+INDIVIDUALS_FILTERS_MAP = [
+    {"ethnicity.label" : {"$regex": ""}},
+    {"measurementValue.quantity.unit.label":{"$regex": ""}},
+    {"geographicOrigin.label":{"$regex": ""}},
+    {"measures.assayCode.label":{"$regex": ""}},
+    {"diseases.diseaseCode.label":{"$regex": ""}}
+]
+
+RUNS_FILTERS_MAP = [
+    {"platformModel.label" : {"$regex": ""}},
+    {"librarySource.label":{"$regex": ""}}
+]
+
+def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
     LOG.debug("Filters len = {}".format(len(filters)))
     if len(filters) > 0:
         query["$and"] = []
@@ -32,6 +59,11 @@ def apply_filters(query: dict, filters: List[dict]) -> dict:
             #partial_query =  { "$text": { "$search": "" } } 
             LOG.debug(partial_query)
             partial_query = apply_ontology_filter(partial_query, filter)
+        elif "text" in filter:
+            LOG.debug(filter)
+            filter = CustomFilter(**filter)
+            LOG.debug("Text filter: %s ", filter.id)
+            partial_query = apply_text_filter(filter, collection)
         else:
             filter = CustomFilter(**filter)
             LOG.debug("Custom filter: %s", filter.id)
@@ -104,9 +136,54 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter) -> dict:
     formatted_operator = format_operator(filter.operator)
     if isinstance(formatted_value,list):
         query[filter.id] = { formatted_operator: formatted_value }
-    else:
+    elif formatted_value.count('.') == 1:
         query[filter.id] = { formatted_operator: float(formatted_value) }
+    else:
+        query[filter.id] = { formatted_operator: formatted_value }
     LOG.debug("QUERY: %s", query)
+    return query
+
+def apply_text_filter(filter: CustomFilter, collection: str) -> dict:
+    if collection == 'individuals':
+        for dict in INDIVIDUALS_FILTERS_MAP:
+            for k, v in dict.items():
+                v["$regex"] = f".*{filter.id}.*"
+        search_dict={}
+        search_dict["$or"] = INDIVIDUALS_FILTERS_MAP
+        query = search_dict
+        LOG.debug("QUERY: %s", query)
+    elif collection == 'biosamples':
+        for dict in BIOSAMPLES_FILTERS_MAP:
+            for k, v in dict.items():
+                v["$regex"] = f".*{filter.id}.*"
+        search_dict={}
+        search_dict["$or"] = BIOSAMPLES_FILTERS_MAP
+        query = search_dict
+        LOG.debug("QUERY: %s", query)
+    elif collection == 'datasets':
+        for dict in DATASETS_FILTERS_MAP:
+            for k, v in dict.items():
+                v["$regex"] = f".*{filter.id}.*"
+        search_dict={}
+        search_dict["$or"] = DATASETS_FILTERS_MAP
+        query = search_dict
+        LOG.debug("QUERY: %s", query)
+    elif collection == 'g_variants':
+        for dict in GENOMIC_VARIATIONS_FILTERS_MAP:
+            for k, v in dict.items():
+                v["$regex"] = f".*{filter.id}.*"
+        search_dict={}
+        search_dict["$or"] = GENOMIC_VARIATIONS_FILTERS_MAP
+        query = search_dict
+        LOG.debug("QUERY: %s", query)
+    elif collection == 'runs':
+        for dict in RUNS_FILTERS_MAP:
+            for k, v in dict.items():
+                v["$regex"] = f".*{filter.id}.*"
+        search_dict={}
+        search_dict["$or"] = RUNS_FILTERS_MAP
+        query = search_dict
+        LOG.debug("QUERY: %s", query)
     return query
 
 
