@@ -6,6 +6,7 @@ from copy import deepcopy
 
 from beacon.request import ontologies
 from beacon.request.model import AlphanumericFilter, CustomFilter, OntologyFilter, Operator, Similarity
+from beacon.semantic_similarity import semantic_similarity
 
 import logging
 
@@ -79,7 +80,13 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter) -> dict:
     # Search similar
     if filter.similarity != Similarity.EXACT:
         is_filter_id_required = False
-        similar_terms = ontologies.get_similar_ontology_terms(filter.id, filter.similarity)
+        if filter.similarity == Similarity.HIGH:
+            cutoff = 0.9
+        elif filter.similarity == Similarity.MEDIUM:
+            cutoff = 0.7
+        elif filter.similarity == Similarity.LOW:
+            cutoff = 0.5
+        similar_terms = semantic_similarity(filter.id, cutoff)
         LOG.debug("Similar: {}".format(similar_terms))
         for term in similar_terms:
             if query["$text"]["$search"]:

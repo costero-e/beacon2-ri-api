@@ -29,14 +29,12 @@ def extract_ontologies_urls(pages, depth=None):
         pages = indexed_url
     return indexed_url
 
-def extract_terms(urls):
+def extract_terms(urls, ontology):
     substring = 'terms'
-    term1 = '/hp/'
-
     new_urls = []
     for url in urls:
         if substring in url:
-            if term1 in url:
+            if ontology in url:
                 new_urls.append(url)
         else:
             continue
@@ -61,7 +59,7 @@ def extract_urls_length(new_urls):
                 print(page_complete)
     return list_of_pages
 
-def download_html(list_of_pages):
+def create_json(list_of_pages, ontology):
     list = []
     print(list_of_pages)
     for item in list_of_pages:
@@ -89,17 +87,18 @@ def download_html(list_of_pages):
                 n = 0
                     
 
-
+    path = ontology.replace('/','')
+    complete_path = 'ontologies/' + path + '.json'
     print(list)
     print(len(list))
-    with open("ontologies/ontologies.json", "w") as f:
+    with open(complete_path, "w") as f:
         json.dump(list, f)
 
 
-
+ontology = '/hp/'
 pagelist=["https://www.ebi.ac.uk/ols/ontologies"]
 urls = extract_ontologies_urls(pagelist, depth=1)
-urls_terms = extract_terms(urls)
+urls_terms = extract_terms(urls, ontology)
 list_new = extract_urls_length(urls_terms)
 #list = ['https://www.ebi.ac.uk/ols/ontologies/zp/terms?page=2913', 'https://www.ebi.ac.uk/ols/ontologies/zp/terms?page=2914']
-download_html(list_new)
+create_json(list_new, ontology)
