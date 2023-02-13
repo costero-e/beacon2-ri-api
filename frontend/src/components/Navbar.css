@@ -1,0 +1,165 @@
+.navBar {
+    background-image: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+    position: sticky;
+    width: 100vw;
+    height: 76px;
+    display: flex;
+    align-items: center;
+    flex-direction: row-reverse;
+    justify-content: space-between;
+    box-shadow: 6px 5px 5px #a3a0a0;
+}
+
+.members {
+    font-size: 27px !important;
+}
+
+.home {
+    width: 30px;
+}
+
+.navBar a {
+    text-decoration: none;
+    font-size: 20px;
+    color: white;
+    font-variant: all-petite-caps;
+    margin-right: 80px;
+    margin-left: 40px;
+    display: flex;
+    align-items: center;
+}
+
+.mainPage {
+    margin-right: 11% !important;
+}
+
+.homeIcon {
+    width: 50px;
+    margin-top: 6px;
+    margin-right: 3vw;
+}
+
+.searchIcon2 {
+    width: 40px;
+    margin-top: 6px;
+    margin-right: 3vw;
+}
+
+.selectedHome {
+    display: flex;
+    justify-content: center;
+    color: black;
+}
+
+.home {
+    display: flex;
+    justify-content: center;
+    color: white
+}
+
+.network {
+    color: white;
+}
+
+.selectedNetwork {
+    color: black !important;
+    ;
+}
+
+.login {
+    color: white;
+}
+
+.selectedLogin {
+    color: black !important;
+}
+
+
+.dropdown-menu {
+    position: absolute;
+    top: 80px;
+    right: 19px;
+    background-color: var(--secondary-bg);
+    border-radius: var(--border-radius);
+    padding: 4px;
+    width: 150px;
+    color: aliceblue;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+
+.active2 {
+    background-color: #6ac5ff;
+    border-radius: 1px;
+    position: absolute;
+    margin-top: -31px;
+    margin-right: 52px;
+    border: none;
+    width: 98px;
+}
+
+
+.navBar a:hover {
+    color: #E45A51 !important;
+    cursor: pointer;
+}
+
+.dropdownItem {
+    display: flex;
+    margin-top: 10px auto;
+}
+
+
+.userIcon {
+    width: 26px;
+    margin-right: 10px;
+}
+
+.positionLink {
+
+    font-size: 14px !important;
+    padding-bottom: 7px;
+    padding-top: 18px;
+
+}
+
+.userMenu {
+    display: flex;
+    flex-direction: column;
+    margin-left: -63px;
+
+}
+
+@media (max-width: 800px) {
+    .navBar a {
+        text-decoration: none;
+        font-size: 18px;
+        color: white;
+        font-variant: all-petite-caps;
+        margin-right: 10px;
+        margin-left: 10px;
+        display: flex;
+        align-items: center;
+    }
+
+    .userMenu {
+        display: flex;
+        flex-direction: column;
+        margin-left: -51%;
+    }
+
+    .active2 {
+        background-color: #6ac5ff;
+        border-radius: 1px;
+        position: absolute;
+        margin-top: -31px;
+        margin-right: -1%;
+        border: none;
+        width: 89px;
+    }    
+
+    .homeIcon {
+        width: 50px;
+    }
+}
