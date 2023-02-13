@@ -179,7 +179,7 @@ def semantic_similarity(term:str, x:float):
     neighbours_list = []
 
     for a in final_neighbours:
-        #print(data[a])
+        print(data[a])
         neighbours_list.append(data[a]['id'])
     
     if x != 1:
@@ -188,8 +188,8 @@ def semantic_similarity(term:str, x:float):
     return neighbours_list
 
 
-#list_neighbours = semantic_similarity('UBERON:0005913', 0.9)
-#print(list_neighbours)
+list_neighbours = semantic_similarity('UBERON:0005913', 0.9)
+print(list_neighbours)
 
 
 

@@ -143,12 +143,20 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter) -> dict:
     formatted_operator = format_operator(filter.operator)
     if isinstance(formatted_value,list):
         query[filter.id] = { formatted_operator: formatted_value }
-    elif formatted_value.count('.') == 1:
-        query[filter.id] = { formatted_operator: float(formatted_value) }
+    #elif formatted_value.is_integer:
+        #query[filter.id] = { formatted_operator: formatted_value }
     else:
-        query[filter.id] = { formatted_operator: formatted_value }
-    LOG.debug("QUERY: %s", query)
-    return query
+        query[filter.id] = { formatted_operator: float(formatted_value) }
+    query['assayCode.label']='Weight'
+    LOG.debug(query)
+    dict_elemmatch={}
+    dict_elemmatch['$elemMatch']=query
+    dict_measures={}
+    dict_measures['measures']=dict_elemmatch
+
+
+    LOG.debug("QUERY: %s", dict_measures)
+    return dict_measures
 
 def apply_text_filter(filter: CustomFilter, collection: str) -> dict:
     if collection == 'individuals':
