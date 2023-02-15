@@ -4,14 +4,11 @@ import obonet
 url = '/Users/oriol/Desktop/ncit.obo'
 graph = obonet.read_obo(url)
 
-
-
 # Number of nodes
 len(graph)
 
 # Number of edges
 graph.number_of_edges()
-
 
 networkx.is_directed_acyclic_graph(graph)
 
@@ -26,4 +23,3 @@ networkx.is_directed_acyclic_graph(graph)
 descendants = networkx.ancestors(graph, 'NCIT:C173381')
 
 print(descendants)
-

@@ -10,75 +10,19 @@ from beacon.request.model import RequestParams
 
 LOG = logging.getLogger(__name__)
 
-RUNS_PROPERTY_MAP = {
-    "biosampleId": "biosampleId",
-    "individualId": "individualId",
-    "libraryLayout": "libraryLayout",
-    "librarySelection": "librarySelection",
-    "librarySourceId": "librarySource.id",
-    "librarySourceLabel": "librarySource.label",
-    "libraryStrategy": "libraryStrategy",
-    "platform": "platform",
-    "platformModelId": "platformModel.id",
-    "platformModelLabel": "platformModel.label",
-    "runDate": "runDate"
-}
-
-def generate_position_filter_start(key: str, value: List[int]) -> List[AlphanumericFilter]:
-    LOG.debug("len value = {}".format(len(value)))
-    filters = []
-    if len(value) == 1:
-        filters.append(AlphanumericFilter(
-            id=RUNS_PROPERTY_MAP[key],
-            value=[value[0]],
-            operator=Operator.GREATER_EQUAL
-        ))
-    elif len(value) == 2:
-        filters.append(AlphanumericFilter(
-            id=RUNS_PROPERTY_MAP[key],
-            value=[value[0]],
-            operator=Operator.GREATER_EQUAL
-        ))
-        filters.append(AlphanumericFilter(
-            id=RUNS_PROPERTY_MAP[key],
-            value=[value[1]],
-            operator=Operator.LESS_EQUAL
-        ))
-    return filters
-
-
-def generate_position_filter_end(key: str, value: List[int]) -> List[AlphanumericFilter]:
-    LOG.debug("len value = {}".format(len(value)))
-    filters = []
-    if len(value) == 1:
-        filters.append(AlphanumericFilter(
-            id=RUNS_PROPERTY_MAP[key],
-            value=[value[0]],
-            operator=Operator.LESS_EQUAL
-        ))
-    elif len(value) == 2:
-        filters.append(AlphanumericFilter(
-            id=RUNS_PROPERTY_MAP[key],
-            value=[value[0]],
-            operator=Operator.GREATER_EQUAL
-        ))
-        filters.append(AlphanumericFilter(
-            id=RUNS_PROPERTY_MAP[key],
-            value=[value[1]],
-            operator=Operator.LESS_EQUAL
-        ))
-    return filters
-
 
 def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParams):
     LOG.debug("Request parameters len = {}".format(len(qparams.query.request_parameters)))
-    if len(qparams.query.request_parameters) > 0 and "$and" not in query:
-        query["$and"] = []
     for k, v in qparams.query.request_parameters.items():
-        query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
-                id=RUNS_PROPERTY_MAP[k],
-                value=v
-            )))
+        query["$text"] = {}
+        if ',' in v:
+            v_list = v.split(',')
+            v_string=''
+            for val in v_list:
+                v_string += f'"{val}"'
+            query["$text"]["$search"]=v_string
+        else:
+            query["$text"]["$search"]=v
     return query
 
 def get_runs(entry_id: Optional[str], qparams: RequestParams):
