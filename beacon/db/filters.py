@@ -222,7 +222,7 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                         dict_text['$or'].append(dict_filter)
                     query['$and'].append(dict_text)
                     query['$and'].append(dict_text_2)
-                if collection == 'runs':
+                elif collection == 'runs':
                     query['$and']=[]
                     dict_text={}
                     dict_text['$or']=[]
@@ -410,7 +410,7 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                 query['$and'].append(dict_text_2)
     else:
         query['measurementValue.quantity.value'] = { formatted_operator: float(formatted_value) }
-        query['assayCode.label']=filter.id
+        query['assayCode.id']=filter.id
         LOG.debug(query)
         dict_elemmatch={}
         dict_elemmatch['$elemMatch']=query

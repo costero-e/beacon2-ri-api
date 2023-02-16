@@ -11,6 +11,7 @@ import progressbar
 from bson.objectid import ObjectId
 from owlready2 import OwlReadyOntologyParsingError
 from tqdm import tqdm
+import obonet
 
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
@@ -46,56 +47,42 @@ def insert_all_ontology_terms_used():
 
 
 def get_ontology_name(ontology: owlready2.Ontology) -> str:
-    ontology_url = "https://www.ebi.ac.uk/ols/api/ontologies/{}".format(ontology.name)
+    path = "ontologies/{}.obo".format(ontology)
     try:
-        return requests.get(ontology_url).json()["config"]["title"]
+        graph = obonet.read_obo(path)
+        name = graph.graph['remark']
+        if '.' in name[0]:
+            list_name = name[0].split('.')
+            name = list_name[0]
+        return name
     except:
-        return ontology.name
+        pass
 
-
-def load_ontology_obo(ontology_id: str) -> Optional[owlready2.Ontology]:
+def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
     if ontology_id.isalpha():
-        url = "https://www.ebi.ac.uk/{}/{}.obo".format(ontology_id.lower(), ontology_id.lower())
+        url = "http://purl.obolibrary.org/obo/{}.obo".format(ontology_id.lower())
         path = "ontologies/{}.obo".format(ontology_id)
         try:
             if not os.path.exists(path):
                 urllib.request.urlretrieve(url, path, MyProgressBar())
-            return owlready2.get_ontology(path).load()
+            return '{}'.format(ontology_id)
         except HTTPError:
             # TODO: Handle error
             print("ERROR", HTTPError)
             pass
-        except OwlReadyOntologyParsingError:
-            # TODO: Handle error
-            pass
-
-def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
-    if ontology_id.isalpha():
-        url = "https://www.ebi.ac.uk/ols/ontologies/{}/download".format(ontology_id)
-        path = "ontologies/{}.owl".format(ontology_id)
-        try:
-            if not os.path.exists(path):
-                urllib.request.urlretrieve(url, path, MyProgressBar())
-            return owlready2.get_ontology(path).load()
-        except HTTPError:
-            # TODO: Handle error
-            print("ERROR", HTTPError)
-            pass
-        except OwlReadyOntologyParsingError:
-            # TODO: Handle error
+        except ValueError:
+            print("ERROR", ValueError)
             pass
 
 
 def get_ontology_term_label(ontology: owlready2.Ontology, term: str) -> Optional[str]:
-    ontology_class_name = term.replace(':', '_')
-    res = ontology.search(iri="*{}".format(ontology_class_name))
-    for c in res:
-        if c.name == ontology_class_name:
-            if len(c.label) > 0:
-                return c.label.first()
-            else:
-                return c.name
-    return None
+    path = "ontologies/{}.obo".format(ontology.lower())
+    try:
+        graph = obonet.read_obo(path)
+        id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
+        return id_to_name['{}:{}'.format(ontology,term)]
+    except:
+        pass
 
 
 def get_ontology_term_count(collection_name: str, term: str) -> int:
@@ -128,7 +115,7 @@ def find_ontology_terms_used(collection_name: str) -> List[Dict]:
                     terms.append({
                         'type': get_ontology_name(ontologies[ontology_id]),
                         'id': term,
-                        'label': get_ontology_term_label(ontologies[ontology_id], term),
+                        'label': get_ontology_term_label(ontology_id, term_id),
                         # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
                         'count': get_ontology_term_count(collection_name, term),
                         'collection': collection_name,
@@ -205,5 +192,9 @@ def insert_all_alphanumeric_terms_used():
 
 #insert_all_ontology_terms_used()
 #insert_all_alphanumeric_terms_used()
-terms=find_ontology_terms_used("individuals")
-print(terms)
+#terms=find_ontology_terms_used("individuals")
+#print(terms)
+#hola = get_ontology_term_label('NCIT','C173381')
+#print(hola)
+find_alphanumeric_terms_used('analyses')
+
