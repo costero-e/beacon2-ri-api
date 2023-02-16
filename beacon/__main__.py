@@ -103,9 +103,9 @@ def main(path=None):
         # TODO: add the CA chain
 
     # Load ontologies
-    LOG.info("Loading ontologies... (this might take a while)")
-    ontologies.load_obo()
-    LOG.info("Finished loading the ontologies...")
+    #LOG.info("Loading ontologies... (this might take a while)")
+    #ontologies.load_obo()
+    #LOG.info("Finished loading the ontologies...")
 
     # Run beacon
     if path:

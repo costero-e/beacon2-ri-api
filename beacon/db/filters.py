@@ -147,7 +147,11 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
     LOG.debug(filter.value)
     formatted_value = format_value(filter.value)
     formatted_operator = format_operator(filter.operator)
-    if isinstance(formatted_value,str):
+    if collection == 'g_variants':
+        formatted_value = format_value(filter.value)
+        formatted_operator = format_operator(filter.operator)
+        query[filter.id] = { formatted_operator: formatted_value }
+    elif isinstance(formatted_value,str):
         if formatted_operator == "$eq":
             if '%' in filter.value:
                 if collection == 'individuals':

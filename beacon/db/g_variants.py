@@ -72,6 +72,7 @@ def generate_position_filter_end(key: str, value: List[int]) -> List[Alphanumeri
 
 
 def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParams):
+    collection = 'g_variants'
     LOG.debug("Request parameters len = {}".format(len(qparams.query.request_parameters)))
     if len(qparams.query.request_parameters) > 0 and "$and" not in query:
         query["$and"] = []
@@ -81,20 +82,20 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
                 v = v.split(',')
             filters = generate_position_filter_start(k, v)
             for filter in filters:
-                query["$and"].append(apply_alphanumeric_filter({}, filter))
+                query["$and"].append(apply_alphanumeric_filter({}, filter, collection))
         elif k == "end":
             if isinstance(v, str):
                 v = v.split(',')
             filters = generate_position_filter_end(k, v)
             for filter in filters:
-                query["$and"].append(apply_alphanumeric_filter({}, filter))
+                query["$and"].append(apply_alphanumeric_filter({}, filter, collection))
         elif k == "variantMinLength" or k == "variantMaxLength" or k == "mateName":
             continue
         else:
             query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
                 id=VARIANTS_PROPERTY_MAP[k],
                 value=v
-            )))
+            ), collection))
     return query
 
 
