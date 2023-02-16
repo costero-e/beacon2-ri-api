@@ -1,3 +1,4 @@
+'''
 #from sentence_transformers import SentenceTransformer
 from scipy.spatial import distance
 import networkx as nx
@@ -192,6 +193,6 @@ list_neighbours = semantic_similarity('UBERON:0000178', 0.9)
 print(list_neighbours)
 
 
-
+'''
 
 

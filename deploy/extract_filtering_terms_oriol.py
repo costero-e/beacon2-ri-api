@@ -182,19 +182,20 @@ def insert_all_alphanumeric_terms_used():
     collections = client.beacon.list_collection_names()
     if 'filtering_terms' in collections:
         collections.remove('filtering_terms')
+    collections = ['runs']
     print("Collections:", collections)
     for c_name in collections:
         terms = find_alphanumeric_terms_used(c_name)
         print(terms)
-        #if len(terms) > 0:
-            #client.beacon.filtering_terms.insert_many(terms)
+        if len(terms) > 0:
+            client.beacon.filtering_terms.insert_many(terms)
 
 
-#insert_all_ontology_terms_used()
+insert_all_ontology_terms_used()
 #insert_all_alphanumeric_terms_used()
 #terms=find_ontology_terms_used("individuals")
 #print(terms)
 #hola = get_ontology_term_label('NCIT','C173381')
 #print(hola)
-find_alphanumeric_terms_used('analyses')
-
+#hola = find_alphanumeric_terms_used('analyses')
+#print(hola)
