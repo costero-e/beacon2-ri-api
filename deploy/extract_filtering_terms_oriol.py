@@ -20,7 +20,9 @@ import os
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
-    "mongodb://127.0.0.1:27017/"
+    #"mongodb://127.0.0.1:27017/"
+    "mongodb://root:example@mongo:27017/beacon?authSource=admin"
+
 )
 
 class MyProgressBar:
@@ -76,16 +78,19 @@ def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
         except ValueError:
             print("ERROR", ValueError)
             pass
-        print (os.stat(path).st_size)
-        if os.stat(path).st_size == 0:
-            try:
-                urllib.request.urlretrieve(url_alt, path, MyProgressBar())
-            except HTTPError:
-                # TODO: Handle error
-                print("ERROR", HTTPError)
-                pass
-            except ValueError:
-                print("ERROR", ValueError)
+        try:
+            print (os.stat(path).st_size)
+            if os.stat(path).st_size == 0:
+                try:
+                    urllib.request.urlretrieve(url_alt, path, MyProgressBar())
+                except HTTPError:
+                    # TODO: Handle error
+                    print("ERROR", HTTPError)
+                    pass
+                except ValueError:
+                    print("ERROR", ValueError)
+                    pass
+        except Exception:
                 pass
     return '{}'.format(ontology_id)
 
@@ -134,7 +139,7 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                         break 
             elif isinstance(v, list):
                 for item in v:
-                    print(item)
+                    #print(item)
                     if isinstance(item, str): 
                         if item == ontology_id + ':' + term_id:
                             field = item
@@ -157,12 +162,16 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                                                 field = k2 + '.' + k3 + '.' + k4
                                                 break
 
-        print(field)
+        #print(field)
     return field
 
 def get_descendants(ontology_id:str, ontology_term:str):        
     url = 'ontologies/{}.obo'.format(ontology_id.upper())
-    graph = obonet.read_obo(url)
+    url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
+    try:
+        graph = obonet.read_obo(url)
+    except Exception:
+        graph = obonet.read_obo(url_alt)
     ontology = ontology_id + ':' + ontology_term
     networkx.is_directed_acyclic_graph(graph)
     try:
@@ -172,7 +181,7 @@ def get_descendants(ontology_id:str, ontology_term:str):
     if not descendants:
         descendants = {ontology}
     descendants = list(descendants)
-    print(descendants)
+    #print(descendants)
     return descendants
 
 def find_ontology_terms_used(collection_name: str) -> List[Dict]:
@@ -191,6 +200,7 @@ def find_ontology_terms_used(collection_name: str) -> List[Dict]:
                 if ontology_id not in ontologies:
                     ontologies[ontology_id] = load_ontology(ontology_id)
                 if ontologies[ontology_id] is not None:
+                    descendants = get_descendants(ontology_id, term_id)
                     terms.append({
                         'type': get_ontology_name(ontologies[ontology_id]),
                         'id': term,
@@ -199,7 +209,8 @@ def find_ontology_terms_used(collection_name: str) -> List[Dict]:
                         'count': get_ontology_term_count(collection_name, term),
                         'collection': collection_name,
                         'field': get_ontology_field_name(ontology_id, term_id, collection_name),
-                        'descendants': get_descendants(ontology_id, term_id)
+                        'descendants': descendants,
+                        #'similarity':
                     })
     xs.close()
     return terms
@@ -268,7 +279,7 @@ def insert_all_alphanumeric_terms_used():
     print("Collections:", collections)
     for c_name in collections:
         terms = find_alphanumeric_terms_used(c_name)
-        print(terms)
+        #print(terms)
         if len(terms) > 0:
             client.beacon.filtering_terms.insert_many(terms)
 

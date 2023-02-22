@@ -24,7 +24,7 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
                 v_string += f'"{val}"'
             query["$text"]["$search"]=v_string
         else:
-            query["$text"]["$search"]=v
+            query["$text"]["$search"]=f'"{v}"'
     return query
 
 
