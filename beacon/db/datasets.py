@@ -103,8 +103,16 @@ def filter_public_datasets(requested_datasets_ids):
 
 
 def get_filtering_terms_of_dataset(entry_id: Optional[str], qparams: RequestParams):
-    # TODO
-    pass
+    query = {'collection': 'datasets'}
+    schema = DefaultSchemas.FILTERINGTERMS
+    count = get_count(client.beacon.filtering_terms, query)
+    docs = get_documents(
+        client.beacon.filtering_terms,
+        query,
+        qparams.query.pagination.skip,
+        qparams.query.pagination.limit
+    )
+    return schema, count, docs
 
 
 def get_runs_of_dataset(entry_id: Optional[str], qparams: RequestParams):

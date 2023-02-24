@@ -76,3 +76,15 @@ def get_variants_of_analysis(entry_id: Optional[str], qparams: RequestParams):
     )
     return schema, count, docs
 
+def get_filtering_terms_of_analyse(entry_id: Optional[str], qparams: RequestParams):
+    query = {'collection': 'analyses'}
+    schema = DefaultSchemas.FILTERINGTERMS
+    count = get_count(client.beacon.filtering_terms, query)
+    docs = get_documents(
+        client.beacon.filtering_terms,
+        query,
+        qparams.query.pagination.skip,
+        qparams.query.pagination.limit
+    )
+    return schema, count, docs
+

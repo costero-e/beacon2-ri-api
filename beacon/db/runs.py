@@ -92,3 +92,15 @@ def get_analyses_of_run(entry_id: Optional[str], qparams: RequestParams):
         qparams.query.pagination.limit
     )
     return schema, count, docs
+
+def get_filtering_terms_of_run(entry_id: Optional[str], qparams: RequestParams):
+    query = {'collection': 'runs'}
+    schema = DefaultSchemas.FILTERINGTERMS
+    count = get_count(client.beacon.filtering_terms, query)
+    docs = get_documents(
+        client.beacon.filtering_terms,
+        query,
+        qparams.query.pagination.skip,
+        qparams.query.pagination.limit
+    )
+    return schema, count, docs

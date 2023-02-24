@@ -13,6 +13,21 @@ from bson import json_util
 LOG = logging.getLogger(__name__)
 
 
+def include_resultset_responses(query: Dict[str, List[dict]], qparams: RequestParams):
+    LOG.debug("Include Resultset Responses = {}".format(len(qparams.query.include_resultset_responses)))
+    include = qparams.query.include_resultset_responses
+    if include == 'HIT':
+        query = query
+    elif include == 'MISS':
+        query['$not']=query
+    elif include == 'ALL':
+        query = {}
+    elif query == 'NONE':
+        query = {'$text': {'$search': {'asfaoaoiaiohoiashohaofhanasonsonfsaofnasofoasfaofaofnoasf'}}}
+    else:
+        query = query
+    return query
+
 def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParams):
     LOG.debug("Request parameters len = {}".format(len(qparams.query.request_parameters)))
     for k, v in qparams.query.request_parameters.items():
@@ -34,12 +49,14 @@ def get_individuals(entry_id: Optional[str], qparams: RequestParams):
     query = apply_filters(query, qparams.query.filters, collection)
     schema = DefaultSchemas.INDIVIDUALS
     count = get_count(client.beacon.individuals, query)
+    query = include_resultset_responses(query, qparams)
     docs = get_documents(
-        client.beacon.individuals,
-        query,
-        qparams.query.pagination.skip,
-        qparams.query.pagination.limit
-    )
+            client.beacon.individuals,
+            query,
+            qparams.query.pagination.skip,
+            qparams.query.pagination.limit
+        )
+
     return schema, count, docs
 
 
@@ -100,8 +117,16 @@ def get_biosamples_of_individual(entry_id: Optional[str], qparams: RequestParams
 
 
 def get_filtering_terms_of_individual(entry_id: Optional[str], qparams: RequestParams):
-    # TODO
-    pass
+    query = {'collection': 'individuals'}
+    schema = DefaultSchemas.FILTERINGTERMS
+    count = get_count(client.beacon.filtering_terms, query)
+    docs = get_documents(
+        client.beacon.filtering_terms,
+        query,
+        qparams.query.pagination.skip,
+        qparams.query.pagination.limit
+    )
+    return schema, count, docs
 
 
 def get_runs_of_individual(entry_id: Optional[str], qparams: RequestParams):
@@ -118,7 +143,6 @@ def get_runs_of_individual(entry_id: Optional[str], qparams: RequestParams):
         qparams.query.pagination.limit
     )
     return schema, count, docs
-
 
 def get_analyses_of_individual(entry_id: Optional[str], qparams: RequestParams):
     collection = 'individuals'

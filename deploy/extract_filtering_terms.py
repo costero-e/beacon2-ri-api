@@ -11,11 +11,18 @@ import progressbar
 from bson.objectid import ObjectId
 from owlready2 import OwlReadyOntologyParsingError
 from tqdm import tqdm
+import obonet
+from bson.json_util import dumps
+import json
+import networkx
+import os
 
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
-    "mongodb://127.0.0.1:27017/"
+    #"mongodb://127.0.0.1:27017/"
+    "mongodb://root:example@mongo:27017/beacon?authSource=admin"
+
 )
 
 class MyProgressBar:
@@ -33,70 +40,60 @@ class MyProgressBar:
         else:
             self.pbar.finish()
 
-
 def insert_all_ontology_terms_used():
     collections = client.beacon.list_collection_names()
     if 'filtering_terms' in collections:
         collections.remove('filtering_terms')
     print("Collections:", collections)
     for c_name in collections:
-        terms = find_ontology_terms_used(c_name)
+        terms_ids = find_ontology_terms_used(c_name)
+        terms = get_filtering_object(terms_ids, c_name)
         if len(terms) > 0:
             client.beacon.filtering_terms.insert_many(terms)
 
 
 def get_ontology_name(ontology: owlready2.Ontology) -> str:
-    ontology_url = "https://www.ebi.ac.uk/ols/api/ontologies/{}".format(ontology.name)
+    path = "ontologies/{}.obo".format(ontology)
     try:
-        return requests.get(ontology_url).json()["config"]["title"]
+        graph = obonet.read_obo(path)
+        name = graph.graph['remark']
+        if '.' in name[0]:
+            list_name = name[0].split('.')
+            name = list_name[0]
+        return name
     except:
-        return ontology.name
+        pass
 
-
-def load_ontology_obo(ontology_id: str) -> Optional[owlready2.Ontology]:
+def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
     if ontology_id.isalpha():
-        url = "https://www.ebi.ac.uk/{}/{}.obo".format(ontology_id.lower(), ontology_id.lower())
+        url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
+        url = "http://purl.obolibrary.org/obo/{}.obo".format(ontology_id.lower())
         path = "ontologies/{}.obo".format(ontology_id)
         try:
             if not os.path.exists(path):
                 urllib.request.urlretrieve(url, path, MyProgressBar())
-            return owlready2.get_ontology(path).load()
         except HTTPError:
             # TODO: Handle error
             print("ERROR", HTTPError)
             pass
-        except OwlReadyOntologyParsingError:
-            # TODO: Handle error
+        except ValueError:
+            print("ERROR", ValueError)
             pass
-
-def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
-    if ontology_id.isalpha():
-        url = "https://www.ebi.ac.uk/ols/ontologies/{}/download".format(ontology_id)
-        path = "ontologies/{}.owl".format(ontology_id)
         try:
-            if not os.path.exists(path):
-                urllib.request.urlretrieve(url, path, MyProgressBar())
-            return owlready2.get_ontology(path).load()
-        except HTTPError:
-            # TODO: Handle error
-            print("ERROR", HTTPError)
-            pass
-        except OwlReadyOntologyParsingError:
-            # TODO: Handle error
-            pass
-
-
-def get_ontology_term_label(ontology: owlready2.Ontology, term: str) -> Optional[str]:
-    ontology_class_name = term.replace(':', '_')
-    res = ontology.search(iri="*{}".format(ontology_class_name))
-    for c in res:
-        if c.name == ontology_class_name:
-            if len(c.label) > 0:
-                return c.label.first()
-            else:
-                return c.name
-    return None
-
+            print (os.stat(path).st_size)
+            if os.stat(path).st_size == 0:
+                try:
+                    urllib.request.urlretrieve(url_alt, path, MyProgressBar())
+                except HTTPError:
+                    # TODO: Handle error
+                    print("ERROR", HTTPError)
+                    pass
+                except ValueError:
+                    print("ERROR", ValueError)
+                    pass
+        except Exception:
+                pass
+    return '{}'.format(ontology_id)
 
 def get_ontology_term_count(collection_name: str, term: str) -> int:
     query = {
@@ -108,11 +105,110 @@ def get_ontology_term_count(collection_name: str, term: str) -> int:
         .get_collection(collection_name)\
         .count_documents(query)
 
+def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
+    query = {
+        '$text': {
+            '$search': '\"' + ontology_id + ":" + term_id + '\"'
+        }
+    }
+    results = client.beacon.get_collection(collection).find(query)
+    results = list(results)
+    results = dumps(results)
+    results = json.loads(results)
+    field = ''
+    for result in results:
+        for k, v in result.items():
+            if isinstance(v, str): 
+                if v == ontology_id + ':' + term_id:
+                    field = k
+                    break
+            elif isinstance(v, dict):
+                for k2, v2 in v.items():
+                    if v2 == ontology_id + ':' + term_id:
+                        field = k + '.' + k2
+                        break 
+            elif isinstance(v, list):
+                for item in v:
+                    #print(item)
+                    if isinstance(item, str): 
+                        if item == ontology_id + ':' + term_id:
+                            field = item
+                            break
+                    elif isinstance(item, dict):
+                        for k2, v2 in item.items():
+                            if isinstance(v2, str):
+                                if v2 == ontology_id + ':' + term_id:
+                                    field = k2
+                                    break 
+                            elif isinstance(v2, dict):
+                                for k3, v3 in v2.items():
+                                    if isinstance(v3, str):
+                                        if v3 == ontology_id + ':' + term_id:
+                                            field = k2 + '.' + k3
+                                            break 
+                                    elif isinstance(v3, dict):
+                                        for k4, v4 in v3.items():
+                                            if v4 == ontology_id + ':' + term_id:
+                                                field = k2 + '.' + k3 + '.' + k4
+                                                break
+
+        #print(field)
+    return field
+
+def get_descendants(ontology_id:str, ontology_term:str):        
+    url = 'ontologies/{}.obo'.format(ontology_id.upper())
+    url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
+    label=''
+    try:
+        graph = obonet.read_obo(url)
+    except Exception:
+        graph = obonet.read_obo(url_alt)
+    try:
+        id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
+        label = id_to_name['{}:{}'.format(ontology_id,ontology_term)]
+    except Exception:
+        pass
+    ontology = ontology_id + ':' + ontology_term
+    networkx.is_directed_acyclic_graph(graph)
+    try:
+        descendants = networkx.ancestors(graph, ontology)
+    except Exception:
+        descendants = ''
+    if not descendants:
+        descendants = {ontology}
+    descendants = list(descendants)
+    dict = {}
+    dict['label']=label
+    dict['descendants']=descendants
+    dict['list']=id_to_name
+    dict['ontology']='{}'.format(ontology_id)
+    #print(descendants)
+    return dict
+
+def get_descendants_with_list(ontology_id:str, ontology_term:str):        
+    url = 'ontologies/{}.obo'.format(ontology_id.upper())
+    url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
+    try:
+        graph = obonet.read_obo(url)
+    except Exception:
+        graph = obonet.read_obo(url_alt)
+    ontology = ontology_id + ':' + ontology_term
+    networkx.is_directed_acyclic_graph(graph)
+    try:
+        descendants = networkx.ancestors(graph, ontology)
+    except Exception:
+        descendants = ''
+    if not descendants:
+        descendants = {ontology}
+    descendants = list(descendants)
+    dict = {}
+    dict['descendants']=descendants
+    dict['ontology']='{}'.format(ontology_id)
+    #print(descendants)
+    return dict
 
 def find_ontology_terms_used(collection_name: str) -> List[Dict]:
-    terms = []
-    terms_ids = set()
-    ontologies = dict()
+    terms_ids = []
     count = client.beacon.get_collection(collection_name).estimated_document_count()
     xs = client.beacon.get_collection(collection_name).find()
     for r in tqdm(xs, total=count):
@@ -121,18 +217,45 @@ def find_ontology_terms_used(collection_name: str) -> List[Dict]:
             term = ':'.join([ontology_id, term_id])
             print(term, ontology_id)
             if term not in terms_ids:
-                terms_ids.add(term)
-                if ontology_id not in ontologies:
-                    ontologies[ontology_id] = load_ontology(ontology_id)
-                if ontologies[ontology_id] is not None:
-                    terms.append({
+                terms_ids.append(term)
+    print(terms_ids)
+    return terms_ids
+
+def get_filtering_object(terms_ids: list, collection_name: str):
+    terms = []
+    ontologies = dict()
+    array = []
+    for onto in terms_ids:
+        ontology = onto.split(':')
+        ontology_id = ontology[0]
+        term_id = ontology[1]
+        if ontology_id not in ontologies:
+            ontologies[ontology_id] = load_ontology(ontology_id)
+        if ontology_id not in array:
+            if ontologies[ontology_id] is not None:
+                dict_descendants = get_descendants(ontology_id, term_id)
+                array = dict_descendants['ontology']
+                ontologies['list'] = dict_descendants['list']
+        if ontology_id in array:
+            dict_descendants = get_descendants_with_list(ontology_id, term_id)
+            id_to_name = ontologies['list']
+            try:
+                dict_descendants['label']= id_to_name['{}:{}'.format(ontology_id,term_id)]
+            except Exception:
+                dict_descendants['label']=''
+        if dict_descendants['label'] != '':
+                terms.append({
                         'type': get_ontology_name(ontologies[ontology_id]),
-                        'id': term,
-                        'label': get_ontology_term_label(ontologies[ontology_id], term),
+                        'id': onto,
+                        'label': dict_descendants['label'],
                         # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
-                        'count': get_ontology_term_count(collection_name, term),
+                        'count': get_ontology_term_count(collection_name, onto),
                         'collection': collection_name,
+                        'field': get_ontology_field_name(ontology_id, term_id, collection_name),
+                        'descendants': dict_descendants['descendants'],
+                        #'similarity':
                     })
+        print(terms)
     return terms
 
 
@@ -195,15 +318,20 @@ def insert_all_alphanumeric_terms_used():
     collections = client.beacon.list_collection_names()
     if 'filtering_terms' in collections:
         collections.remove('filtering_terms')
+    collections = ['runs']
     print("Collections:", collections)
     for c_name in collections:
         terms = find_alphanumeric_terms_used(c_name)
-        print(terms)
-        #if len(terms) > 0:
-            #client.beacon.filtering_terms.insert_many(terms)
+        #print(terms)
+        if len(terms) > 0:
+            client.beacon.filtering_terms.insert_many(terms)
 
 
-#insert_all_ontology_terms_used()
+insert_all_ontology_terms_used()
 #insert_all_alphanumeric_terms_used()
-terms=find_ontology_terms_used("individuals")
-print(terms)
+#terms=find_ontology_terms_used("individuals")
+#print(terms)
+#hola = get_ontology_term_label('NCIT','C173381')
+#print(hola)
+#hola = find_alphanumeric_terms_used('analyses')
+#print(hola)
