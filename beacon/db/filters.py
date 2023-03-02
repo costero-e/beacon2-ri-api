@@ -70,7 +70,13 @@ def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
             list_of_filters.append(partial_query['$text']['$search'])
         string = ''
         for filt in list_of_filters:
-            string += f'"{filt}"' + ' '
+            length = len(list_of_filters)
+            LOG.debug(length)
+            print(length)
+            if length > 1:
+                string += f'{filt}'
+            else:
+                string += f'"{filt}"' + ' '
         dict_search={}
         dict_search['$search']=string
         dict_text={}
