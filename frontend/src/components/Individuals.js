@@ -3,8 +3,10 @@ import '../App.css';
 import { useState, useEffect } from 'react';
 import axios from "axios";
 
+
 function Individuals(props) {
 
+   
     const [error, setError] = useState(null)
     const [response, setResponse] = useState(null)
     const [numberResults, setNumberResults] = useState(0)
