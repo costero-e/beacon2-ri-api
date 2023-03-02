@@ -50,7 +50,7 @@ function Layout() {
 
   const handleExQueries = () => {
     if (collection === 'Individuals') {
-      setExampleQ(['sex= male, ethnicity=Han Chinese', 'sex=female'])
+      setExampleQ(['sex= male, ethnicity=White and Black Caribbean', 'sex=female,cardiomyopathy', 'ethnicity=NCIT:C16352,weight>50'])
     }
   }
 
