@@ -80,8 +80,10 @@ def main(path=None):
     # Configure the endpoints
     beacon.add_routes(routes)
 
+
+
     cors = aiohttp_cors.setup(beacon, defaults={
-    "*": aiohttp_cors.ResourceOptions(
+    "http://localhost:3000/": aiohttp_cors.ResourceOptions(
             allow_credentials=True,
             expose_headers="*",
             allow_headers="*",
@@ -103,9 +105,9 @@ def main(path=None):
         # TODO: add the CA chain
 
     # Load ontologies
-    LOG.info("Loading ontologies... (this might take a while)")
-    ontologies.load_obo()
-    LOG.info("Finished loading the ontologies...")
+    #LOG.info("Loading ontologies... (this might take a while)")
+    #ontologies.load_obo()
+    #LOG.info("Finished loading the ontologies...")
 
     # Run beacon
     if path:
