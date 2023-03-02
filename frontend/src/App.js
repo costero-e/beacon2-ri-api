@@ -119,19 +119,31 @@ function Layout() {
           </select>
           <form className="d-flex" onSubmit={onSubmit}>
             <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
-           {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+            {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
           </form>
         </div>
-        { !showAdvSearch && <button className="advSearch" onClick={handleAdvancedSearch}>
+        {!showAdvSearch && <button className="advSearch" onClick={handleAdvancedSearch}>
           Advanced search
-        </button> }
+        </button>}
         {showAdvSearch && <form className='advSearchForm'>
-          <label>SKIP</label>
-          <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => search(e)} aria-label="Search" />
-          <label>LIMIT</label>
-          <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => search(e)} aria-label="Search" />
-          <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>
-          </form>}
+          <div className='advSearchModule'>
+            <label>SKIP</label>
+            <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => search(e)} aria-label="Search" />
+            <label>LIMIT</label>
+            <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => search(e)} aria-label="Search" />
+          </div>
+
+          <div className='advSearchModule'>
+            <label>Include Resultset Responses</label>
+            <input className="limitForm" type="text" autoComplete='on' placeholder={""} onChange={(e) => search(e)} aria-label="Search" />
+            <label>Similarity</label>
+            <input className="limitForm" type="text" autoComplete='on' placeholder={""} onChange={(e) => search(e)} aria-label="Search" />
+            <label>Include Descendant Terms</label>
+            <input className="limitForm" type="text" autoComplete='on' placeholder={""} onChange={(e) => search(e)} aria-label="Search" />
+          </div>
+          <button className="searchButton2" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>
+        </form>}
+
       </nav>
       <div className="example">
         <button className="exampleQueries" onClick={handleExQueries}>Query Examples</button>
@@ -146,7 +158,7 @@ function Layout() {
 
       </div>
       {showAdvSearch && <button className='returnBasic' onClick={handleBasicSearch}>RETURN TO BASIC SEARCH</button>}
-    
+
       <hr></hr>
       <div className="results">
         {results === null && <ResultsDatasets />}

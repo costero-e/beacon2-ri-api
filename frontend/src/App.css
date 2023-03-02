@@ -18,22 +18,36 @@ html {
 .searchButton {
   height: 40px;
   background-color: white;
-  border: 2px solid #c11524;
+  border: 2px solid rgb(60 145 214);
   border-radius: 2px;
   box-shadow: 6px 5px 5px #a3a0a0;
   cursor: pointer;
 }
 
+.searchButton2 {
+  margin-left: 93%;
+  height: 40px;
+  background-color: white;
+  border: 2px solid rgb(60 145 214);
+  border-radius: 2px;
+  box-shadow: 6px 5px 5px #a3a0a0;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
 
 .container-fluid {
   display: flex;
+  width: 100%;
   margin-right: 10px;
   margin-left: 10px;
+  justify-content: center;
 }
+
 
 .form-select {
   height: 40px;
-  width: 80%;
+  width: 10%;
   margin-right: 3px;
   cursor: pointer;
 }
@@ -61,7 +75,6 @@ html {
   display: flex;
   flex-direction: column;
   align-content: center;
-  align-items: flex-end;
 }
 
 .container1 {
@@ -81,7 +94,6 @@ html {
 select {
   background: white;
   border: 2px solid #c11524;
-  width: 300px;
   font-size: large;
   border-radius: 2px;
   box-shadow: 6px 5px 5px #a3a0a0;
@@ -139,11 +151,17 @@ hr {
 .advSearch {
   background: white;
   border: 2px solid #c11524;
-  margin-top: 35px;
+  margin-top: 50px;
   padding: 8px;
+  font-feature-settings: "pcap", "c2pc";
   font-variant: all-petite-caps;
   font-size: 17px;
   cursor: pointer;
+  width: fit-content;
+}
+
+.advSearchModule{
+  margin: 20px;
 }
 
 .skipForm {
@@ -164,8 +182,9 @@ hr {
 
 .advSearchForm {
   display: flex;
-  margin-top: 28px;
+  margin-top: 45px;
   align-items: center;
+  flex-direction: column;
 }
 
 .returnBasic{
@@ -177,6 +196,7 @@ hr {
   border-radius: 3px;
   font-variant: all-petite-caps;
   font-size: 17px;
+  cursor: pointer;
 }
 
 @media (max-width: 800px) {

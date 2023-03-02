@@ -17,6 +17,7 @@ function Individuals2(props) {
   const [show3, setShow3] = useState(false)
   const [label, setLabel] = useState([])
   const [ident, setId] = useState([])
+  const [timeOut, setTimeOut] = useState(false)
 
   const API_ENDPOINT = "http://localhost:5050/api/individuals/"
 
@@ -31,22 +32,26 @@ function Individuals2(props) {
 
 
       if (props.query != null) {
+
         queryStringTerm = props.query.split(',')
-      
+
         queryStringTerm.forEach((element, index) => {
-       
+
+          element = element.trim()
+
           if (element.includes('=')) {
+
             queryArray[index] = element.split('=')
-           
-            queryArray[2] = '='
+
+            queryArray[queryArray.length] = '='
 
           } else if (element.includes('>')) {
             queryArray[index] = element.split('>')
-            queryArray[2] = '>'
+            queryArray[queryArray.length] = '>'
 
           } else if (element.includes('<')) {
             queryArray[index] = element.split('<')
-            queryArray[2] = '<'
+            queryArray[queryArray.length] = '<'
           }
         })
 
@@ -90,10 +95,14 @@ function Individuals2(props) {
           })
 
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
-          const res = await axios.post(API_ENDPOINT + props.query + '/')
+
+          const res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${props.query}`)
+          console.log("loading")
+          setTimeOut(true)
+
 
           if (res.data.response.resultSets[0].results[0] === undefined) {
-            setError("Individual not found")
+            setError("No results. Please check the query and retry")
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
 
@@ -105,9 +114,13 @@ function Individuals2(props) {
 
 
             })
+            console.log(res.data.responseSummary.numTotalResults)
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
           }
+
+
+
 
         } else {
 
@@ -135,6 +148,8 @@ function Individuals2(props) {
 
           }
 
+
+
           let arrayFilter = []
           label.forEach((element, index) => {
             arrayFilter.push({ "id": ident[index] })
@@ -143,20 +158,26 @@ function Individuals2(props) {
           console.log(arrayFilter)
 
           if (arrayFilter.length > 1) {
-           
+
+
             let stringIds = ident.join()
+            console.log(stringIds)
+
 
             try {
-           
-              res = await axios.get(`https://localhost:5050/api/individuals/${stringIds}`)
-              console.log(res)
+
+              res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${stringIds}`)
+
+              setTimeOut(true)
             } catch (error) {
-              setError(error)
+              setError("No results. Please check the query and retry")
             }
 
           }
 
           else {
+
+
             var jsonData = {
 
               "meta": {
@@ -177,8 +198,8 @@ function Individuals2(props) {
             jsonData = JSON.stringify(jsonData)
             console.log(jsonData)
 
-            res = await axios.post("http://localhost:5050/api/individuals/", jsonData)
-
+            res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData)
+            setTimeOut(true)
           }
 
 
@@ -226,12 +247,12 @@ function Individuals2(props) {
   }
 
   return (
-    <div>
+    <div> {timeOut &&
       <div className='selectGranularity'>
         <button className='typeResults' onClick={handleTypeResults1}> Boolean</button>
         <button className='typeResults' onClick={handleTypeResults2}>Count</button>
         <button className='typeResults' onClick={handleTypeResults3}>Full</button>
-      </div>
+      </div>}
 
       <div className='resultsContainer'>
         {show1 && boolean && <p className='p1'>YES</p>}
@@ -252,8 +273,17 @@ function Individuals2(props) {
                 {result.id && <h2>ID</h2>}
                 {result.id && <h3>{result.id}</h3>}
                 {result.diseases && <h2>Disease</h2>}
-                {result.diseases && <h3>{result.diseases[0].diseaseCode.id}</h3>}
-                {result.diseases && <h3>{result.diseases[0].diseaseCode.label}</h3>}
+
+                {result.diseases && result.diseases.map((value) => {
+                  return (
+                    <div>
+                      <h3>{value.diseaseCode.id}</h3>
+                      <h3>{value.diseaseCode.label}</h3>
+                    </div>)
+                })}
+
+
+
 
                 {result.ethnicity && <h2>Ethnicity</h2>}
                 {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
@@ -275,7 +305,7 @@ function Individuals2(props) {
         </div>
         }
       </div>
-    </div>
+    </div >
 
   )
 }
