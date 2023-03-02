@@ -4,7 +4,7 @@ import './ResultsDatasets.css'
 function ResultsDatasets() {
 
     return (
-        <div>
+        <div className='resultsRecord'>
             <h3>CINECA SYNTHETIC COHORT DATASETS</h3>
 
             <div className="datasetsContainer">

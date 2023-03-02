@@ -20,8 +20,8 @@ h2{
 
 
 h3{
-    color: rgb(156, 29, 29);
-    margin: 15px;
+    color: #c11524;
+    text-transform: uppercase;
 }
 
 .p1{
@@ -29,7 +29,6 @@ h3{
     text-transform: uppercase;
     color: #c11524;
     line-height: 23px;
-    margin-left: 78px;
     font-size: 18px;
     font-weight: bold;
 
@@ -47,4 +46,15 @@ h3{
     font-size: 16px;
     text-decoration: underline;
     background: white;
+    cursor: pointer;
+}
+
+.resultsContainer{
+    display: flex;
+    justify-content: center;
+}
+
+.selectedGranularity{
+display: flex;
+justify-content: center;
 }

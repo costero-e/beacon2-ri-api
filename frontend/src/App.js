@@ -3,6 +3,7 @@ import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
 import Individuals from './components/Individuals';
+import Individuals2 from './components/Individual2';
 import GenomicVariations from './components/GenomicVariations';
 import Biosamples from './components/Biosamples';
 import Runs from './components/Runs';
@@ -27,6 +28,7 @@ function Layout() {
   const [results, setResults] = useState(null)
   const [query, setQuery] = useState(null)
   const [exampleQ, setExampleQ] = useState([])
+  const [showAdvSearch, setAdvSearch] = useState(false)
 
 
   const Add = collectionType.map(Add => Add)
@@ -36,6 +38,14 @@ function Layout() {
     setCollection(collectionType[e.target.value])
     setExampleQ([])
 
+  }
+
+  const handleAdvancedSearch = (e) => {
+    setAdvSearch(true)
+  }
+
+  const handleBasicSearch = (e) => {
+    setAdvSearch(false)
   }
 
   const handleExQueries = () => {
@@ -109,9 +119,19 @@ function Layout() {
           </select>
           <form className="d-flex" onSubmit={onSubmit}>
             <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
-            <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>
+           {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
           </form>
         </div>
+        { !showAdvSearch && <button className="advSearch" onClick={handleAdvancedSearch}>
+          Advanced search
+        </button> }
+        {showAdvSearch && <form className='advSearchForm'>
+          <label>SKIP</label>
+          <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => search(e)} aria-label="Search" />
+          <label>LIMIT</label>
+          <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => search(e)} aria-label="Search" />
+          <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>
+          </form>}
       </nav>
       <div className="example">
         <button className="exampleQueries" onClick={handleExQueries}>Query Examples</button>
@@ -125,10 +145,12 @@ function Layout() {
         })}
 
       </div>
+      {showAdvSearch && <button className='returnBasic' onClick={handleBasicSearch}>RETURN TO BASIC SEARCH</button>}
+    
       <hr></hr>
       <div className="results">
         {results === null && <ResultsDatasets />}
-        {results === 'Individuals' && <Individuals query={query} />}
+        {results === 'Individuals' && <Individuals2 query={query} />}
       </div>
     </div>
 
