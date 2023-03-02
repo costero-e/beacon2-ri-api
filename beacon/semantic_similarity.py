@@ -1,4 +1,4 @@
-from sentence_transformers import SentenceTransformer
+#from sentence_transformers import SentenceTransformer
 from scipy.spatial import distance
 import networkx as nx
 import json
