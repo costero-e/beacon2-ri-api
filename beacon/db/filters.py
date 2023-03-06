@@ -10,6 +10,8 @@ from beacon.db.utils import get_documents
 from beacon.db import client
 #from beacon.semantic_similarity import semantic_similarity
 
+#holaaaa
+
 import logging
 
 LOG = logging.getLogger(__name__)
