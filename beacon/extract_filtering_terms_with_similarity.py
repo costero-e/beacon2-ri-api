@@ -16,13 +16,16 @@ from bson.json_util import dumps
 import json
 import networkx
 import os
+import scipy
+import numpy as np
+from sentence_transformers import models, SentenceTransformer
 
 
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
-    #"mongodb://127.0.0.1:27017/"
-    "mongodb://root:example@mongo:27017/beacon?authSource=admin"
+    "mongodb://127.0.0.1:27017/"
+    #"mongodb://root:example@mongo:27017/beacon?authSource=admin"
 
 )
 
@@ -40,6 +43,51 @@ class MyProgressBar:
             self.pbar.update(downloaded)
         else:
             self.pbar.finish()
+
+
+def semantic_similarity(descendants:list, query: str):
+
+    list_dict = []
+
+    queries = []
+
+    ontology = query.split(':')
+    ontology_id = ontology[0]
+    path = "ontologies/" + ontology_id + ".obo"
+    graph = obonet.read_obo(path)
+    id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
+    queries.append(id_to_name[query])
+
+    corpus = []
+    for descendant in descendants:
+        dict={}
+        label = id_to_name[descendant]
+        dict['label'] = label
+        dict['id'] = descendant
+        list_dict.append(dict)
+        corpus.append(label)
+        
+    model = SentenceTransformer('distiluse-base-multilingual-cased') 
+
+    corpus_embeddings = model.encode(corpus)
+
+    query_embeddings = model.encode(queries)
+
+    closest_n = 10
+
+    for query, query_embedding in zip(queries, query_embeddings):
+        distances = scipy.spatial.distance.cdist([query_embedding], corpus_embeddings, "cosine")[0]
+
+        results = zip(range(len(distances)), distances)
+        results = sorted(results, key=lambda x: x[1])
+
+        for idx, distance in results[0:closest_n]:
+            for elem in list_dict:
+                if corpus[idx] in elem['label']:
+                    elem['distance'] = (1-distance)
+
+    return list_dict
+
 
 def insert_all_ontology_terms_used():
     collections = client.beacon.list_collection_names()
@@ -105,9 +153,7 @@ def get_ontology_term_count(collection_name: str, term: str) -> int:
     return client.beacon\
         .get_collection(collection_name)\
         .count_documents(query)
-
 '''
-
 def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
     query = {
         '$text': {
@@ -156,7 +202,6 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                                                 break
 
         #print(field)
-
     return field'''
 
 def get_descendants(ontology_id:str, ontology_term:str):
@@ -179,7 +224,6 @@ def get_descendants(ontology_id:str, ontology_term:str):
             pass
     ontology = ontology_id + ':' + ontology_term
     
-
     try:
         descendants = networkx.ancestors(graph, ontology)
     except Exception:
@@ -188,7 +232,6 @@ def get_descendants(ontology_id:str, ontology_term:str):
         descendants = {ontology}
     descendants = list(descendants)
     dict = {}
-
     try:
         dict['label']=label
     except Exception:
@@ -201,8 +244,6 @@ def get_descendants(ontology_id:str, ontology_term:str):
         list_onto=[]
         list_onto.append(ontology)
         dict['list']=list_onto
-
-
     dict['ontology']='{}'.format(ontology_id)
     #print(descendants)
     return dict
@@ -273,11 +314,9 @@ def get_filtering_object(terms_ids: list, collection_name: str):
                         # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
                         'count': get_ontology_term_count(collection_name, onto),
                         'collection': collection_name,
-
                         #'field': get_ontology_field_name(ontology_id, term_id, collection_name),
-
                         'descendants': dict_descendants['descendants'],
-                        #'similarity':
+                        'similarity': semantic_similarity(dict_descendants['descendants'], onto)
                     })
         print(terms)
     return terms
