@@ -17,6 +17,7 @@ function Individuals2(props) {
   const [show3, setShow3] = useState(false)
   const [label, setLabel] = useState([])
   const [ident, setId] = useState([])
+  const [operator, setOperator] = useState([])
   const [timeOut, setTimeOut] = useState(false)
 
   const API_ENDPOINT = "http://localhost:5050/api/individuals/"
@@ -26,15 +27,18 @@ function Individuals2(props) {
   let keyTerm = []
   let resultsAux = []
   let obj = {}
+  let res = ""
 
   useEffect(() => {
     const apiCall = async () => {
-
+      console.log(props.query)
+      console.log(props.resultSets)
+      console.log(props.limit)
 
       if (props.query != null) {
 
         queryStringTerm = props.query.split(',')
-
+        console.log(queryStringTerm)
         queryStringTerm.forEach((element, index) => {
 
           element = element.trim()
@@ -43,19 +47,23 @@ function Individuals2(props) {
 
             queryArray[index] = element.split('=')
 
-            queryArray[queryArray.length] = '='
+            queryArray[index].push('=')
 
           } else if (element.includes('>')) {
             queryArray[index] = element.split('>')
-            queryArray[queryArray.length] = '>'
+            queryArray[index].push('>')
 
           } else if (element.includes('<')) {
             queryArray[index] = element.split('<')
-            queryArray[queryArray.length] = '<'
+            queryArray[index].push('<')
+          } else {
+            queryArray[index] = element
           }
         })
 
         console.log(queryArray)
+
+
 
       }
 
@@ -69,24 +77,29 @@ function Individuals2(props) {
             },
             "query": {
               "filters": [],
-              "includeResultsetResponses": "HIT",
+              "includeResultsetResponses": `${props.resultSets}`,
               "pagination": {
-                "skip": 0,
-                "limit": 100
+                "skip": `${props.skip}`,
+                "limit": `${props.limit}`
               },
               "testMode": false,
               "requestedGranularity": "record",
             }
           }
 
-          jsonData1 = JSON.stringify(jsonData1)
 
-          const res = await axios.post("http://localhost:5050/api/individuals/", jsonData1)
+
+
+
+          jsonData1 = JSON.stringify(jsonData1)
+          console.log(jsonData1)
+
+          const res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData1)
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
           setBoolean(res.data.responseSummary.exists)
-
+          setTimeOut(true)
           res.data.response.resultSets[0].results.forEach((element, index) => {
 
             results.push(res.data.response.resultSets[0].results[index])
@@ -96,15 +109,44 @@ function Individuals2(props) {
 
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
 
-          const res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${props.query}`)
-          console.log("loading")
+          if (props.resultSets === "HIT" && props.limit === 10) {
+
+            res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${props.query}`)
+
+          } else {
+            var jsonData2 = {
+
+              "meta": {
+                "apiVersion": "2.0"
+              },
+              "query": {
+                "filters": [],
+                "includeResultsetResponses": `${props.resultSets}`,
+                "pagination": {
+                  "skip": `${props.skip}`,
+                  "limit": `${props.limit}`
+                },
+                "testMode": false,
+                "requestedGranularity": "record",
+              }
+            }
+  
+            
+            jsonData2 = JSON.stringify(jsonData2)
+            console.log(jsonData2)
+
+            res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData2)
+
+          }
+
+
           setTimeOut(true)
 
 
           if (res.data.response.resultSets[0].results[0] === undefined) {
             setError("No results. Please check the query and retry")
-            setNumberResults(res.data.responseSummary.numTotalResults)
-            setBoolean(res.data.responseSummary.exists)
+            setNumberResults(0)
+            setBoolean(false)
 
           }
           else {
@@ -114,7 +156,7 @@ function Individuals2(props) {
 
 
             })
-            console.log(res.data.responseSummary.numTotalResults)
+
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
           }
@@ -124,35 +166,65 @@ function Individuals2(props) {
 
         } else {
 
-          keyTerm[2] = queryArray[2]
+
           let res = null
 
-          for (let i = 0; i < queryArray.length - 1; i++) {
+          for (let i = 0; i < queryArray.length; i++) {
 
             keyTerm = queryArray[i]
+            console.log(keyTerm)
+            console.log(typeof keyTerm)
 
-            label.push(keyTerm[0])
+            if (typeof keyTerm === "object") {
 
-            ident.push(keyTerm[1])
+              label.push(keyTerm[0].trim())
+              ident.push(keyTerm[1].trim())
+              operator.push(keyTerm[2].trim())
 
-            console.log(label)
-            console.log(ident)
-
-
-            if (keyTerm[2] === '<') {
-              setError('Operator < does not match the term. Use = instead.')
             }
-            if (keyTerm[2] === '>') {
-              setError('Operator > does not match the term. Use = instead.')
+
+            if (typeof keyTerm === "string") {
+              ident.push(keyTerm.trim())
             }
+
 
           }
 
 
+          console.log(label)
+          console.log(ident)
+          console.log(operator)
+
 
           let arrayFilter = []
-          label.forEach((element, index) => {
-            arrayFilter.push({ "id": ident[index] })
+
+          operator.forEach((element, index) => {
+
+            if (element === '>') {
+
+              const filter = {
+                "id": label[index],
+                "operator": ">",
+                "value": ident[index]
+              }
+
+              arrayFilter.push(filter)
+
+
+            } else if (element === '<') {
+              const filter = {
+                "id": label[index],
+                "operator": "<",
+                "value": ident[index]
+              }
+
+              arrayFilter.push(filter)
+            } else {
+              ident.forEach((element, index) => {
+                arrayFilter.push({ "id": ident[index] })
+              })
+
+            }
           })
 
           console.log(arrayFilter)
@@ -166,7 +238,10 @@ function Individuals2(props) {
 
             try {
 
-              res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${stringIds}`)
+              if (props.resultSets === 'HIT') {
+                res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${stringIds}`)
+              }
+
 
               setTimeOut(true)
             } catch (error) {
@@ -188,7 +263,7 @@ function Individuals2(props) {
                 "includeResultsetResponses": "HIT",
                 "pagination": {
                   "skip": 5,
-                  "limit": 100
+                  "limit": `${props.limit}`
                 },
                 "testMode": false,
                 "requestedGranularity": "record",
@@ -215,12 +290,12 @@ function Individuals2(props) {
 
           let entries = Object.entries(results[0])
           console.log(entries)
-
         }
 
+
       } catch (error) {
-        console.log(error)
-        setError(error.message)
+
+        setError("No results found. Please check the query and retry")
       }
     };
     apiCall();
@@ -269,32 +344,58 @@ function Individuals2(props) {
             return (
               <div className="resultsIndividuals">
 
+                <div>
+                  {result.id && <h2>ID</h2>}
+                  {result.id && <h3>{result.id}</h3>}
+                  {result.diseases && <h2>Disease</h2>}
 
-                {result.id && <h2>ID</h2>}
-                {result.id && <h3>{result.id}</h3>}
-                {result.diseases && <h2>Disease</h2>}
+                  {result.diseases && result.diseases.map((value) => {
+                    return (
+                      <div className='diseasesContainer'>
+                        <h3>{value.diseaseCode.id}</h3>
+                        <h3>{value.diseaseCode.label}</h3>
+                      </div>)
+                  })}
 
-                {result.diseases && result.diseases.map((value) => {
-                  return (
-                    <div>
-                      <h3>{value.diseaseCode.id}</h3>
-                      <h3>{value.diseaseCode.label}</h3>
-                    </div>)
-                })}
+                </div>
 
-
-
-
-                {result.ethnicity && <h2>Ethnicity</h2>}
-                {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
-                {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
-                {result.geographicOrigin && <h2>Geographic Origin</h2>}
-                {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
-                {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
-                {result.sex && <h2>Sex</h2>}
-                {result.sex.id && <h3>{result.sex.id}</h3>}
-                {result.sex.label && <h3>{result.sex.label}</h3>}
-
+                <div>
+                  {result.ethnicity && <h2>Ethnicity</h2>}
+                  {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
+                  {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
+                  {result.geographicOrigin && <h2>Geographic Origin</h2>}
+                  {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
+                  {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
+                  {result.sex && <h2>Sex</h2>}
+                  {result.sex.id && <h3>{result.sex.id}</h3>}
+                  {result.sex.label && <h3>{result.sex.label}</h3>}
+                </div>
+                <div className='measuresContainer'>
+                  {result.measures && <h2>Measures</h2>}
+                  {result.measures.map((value) => {
+                    return (
+                      <div className='measures'>
+                        <div>
+                          <h4>assayCode ID:</h4>
+                          <h3>{value.assayCode.id}</h3>
+                        </div>
+                        <div>
+                          <h4>assayCode label:</h4>
+                          <h3>{value.assayCode.label}</h3>
+                        </div>
+                        
+                        <div>
+                          <h4>Measurament value quantity ID and label:</h4>
+                          <h3>{value.measurementValue.quantity.unit.id}</h3>
+                          <h3>{value.measurementValue.quantity.unit.label}</h3>
+                        </div>
+                        <div>
+                          <h4>Measurament value quantity value:</h4>
+                          <h3>{value.measurementValue.quantity.value}</h3>
+                        </div>
+                      </div>)
+                  })}
+                </div>
 
               </div>
             )

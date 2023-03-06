@@ -29,15 +29,37 @@ function Layout() {
   const [query, setQuery] = useState(null)
   const [exampleQ, setExampleQ] = useState([])
   const [showAdvSearch, setAdvSearch] = useState(false)
-
+  const [resultSetType, setResultsetType] = useState(["Select", "HIT", "MISS", "NONE", "ALL"])
+  const [resultSet, setResultset] = useState("HIT")
+  const [limit, setLimit] = useState(10)
+  const [skip, setSkip] = useState (0)
 
   const Add = collectionType.map(Add => Add)
 
-  const handleAddrTypeChange = (e) => {
+  const Add2 = resultSetType.map(Add2 => Add2)
 
+  const handleAddrTypeChange = (e) => {
+   
     setCollection(collectionType[e.target.value])
     setExampleQ([])
 
+  }
+
+  const handleClick = (e) =>{
+    setCollectionType(["Select", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
+    setCollection(collectionType[e.target.value])
+  }
+
+  const handleResultsetChanges = (e) => {
+    setResultset(resultSetType[e.target.value])
+  }
+
+  const handleSkipChanges = (e) => {
+    setSkip(e.target.value)
+  }
+
+  const handleLimitChanges = (e) => {
+    setLimit(e.target.value)
   }
 
   const handleAdvancedSearch = (e) => {
@@ -80,7 +102,18 @@ function Layout() {
 
 
   const onSubmit = async (event) => {
+   
     event.preventDefault()
+
+    setCollectionType(["Select"])
+   
+    
+    setExampleQ([])
+    
+    
+   
+    setAdvSearch(false)
+    
 
     try {
       if (query === '1' || query === '') {
@@ -102,6 +135,7 @@ function Layout() {
   function search(e) {
     setQuery(e.target.value)
     setResults(null)
+  
   }
 
   return (
@@ -111,7 +145,7 @@ function Layout() {
       </a>
       <nav className="navbar">
         <div className="container-fluid">
-          <select className="form-select" aria-label="Default select example" onChange={e => { handleAddrTypeChange(e) }}>
+          <select className="form-select" aria-label="Default select example" onClick = {handleClick} onChange={e => { handleAddrTypeChange(e) }}>
             {
               Add.map((collection, key) => <option key={key} value={key}>{collection}
               </option>)
@@ -125,17 +159,24 @@ function Layout() {
         {!showAdvSearch && <button className="advSearch" onClick={handleAdvancedSearch}>
           Advanced search
         </button>}
-        {showAdvSearch && <form className='advSearchForm'>
+        {showAdvSearch && <form className='advSearchForm' onSubmit={onSubmit}>
           <div className='advSearchModule'>
             <label>SKIP</label>
-            <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => search(e)} aria-label="Search" />
+            <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
             <label>LIMIT</label>
-            <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => search(e)} aria-label="Search" />
+            <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
           </div>
 
           <div className='advSearchModule'>
             <label>Include Resultset Responses</label>
-            <input className="limitForm" type="text" autoComplete='on' placeholder={""} onChange={(e) => search(e)} aria-label="Search" />
+            <select className="form-select2" aria-label="" onChange={e => { handleResultsetChanges(e) }}>
+              {
+                Add2.map((resultSet, key) => <option key={key} value={key}>{resultSet}
+                </option>)
+              }
+            </select>
+          </div>
+          <div className='advSearchModule'>
             <label>Similarity</label>
             <input className="limitForm" type="text" autoComplete='on' placeholder={""} onChange={(e) => search(e)} aria-label="Search" />
             <label>Include Descendant Terms</label>
@@ -162,7 +203,7 @@ function Layout() {
       <hr></hr>
       <div className="results">
         {results === null && <ResultsDatasets />}
-        {results === 'Individuals' && <Individuals2 query={query} />}
+        {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip}/>}
       </div>
     </div>
 
