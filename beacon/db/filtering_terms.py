@@ -4,6 +4,7 @@ from beacon.db.filters import apply_filters
 from beacon.db.utils import query_id, get_documents, get_count
 from beacon.request.model import RequestParams
 
+#provaaaaaaa
 
 def get_filtering_terms(entry_id: Optional[str], qparams: RequestParams):
     query = apply_filters({}, qparams.query.filters)
