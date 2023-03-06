@@ -17,23 +17,53 @@ html {
 
 .searchButton {
   height: 40px;
-  background-color: white;
-  border: 2px solid #c11524;
-  border-radius: 2px;
+  background: white;
+  border: 2px solid ;
   box-shadow: 6px 5px 5px #a3a0a0;
+  cursor: pointer;
 }
 
+.searchButton:hover {
+  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+}
+
+.searchButton2 {
+  margin-left: 93%;
+  height: 40px;
+  border-radius: 2px;
+  background: white;
+  border: 2px solid ;
+  box-shadow: 6px 5px 5px #a3a0a0;
+  cursor: pointer;
+  margin-top: 30px;
+}
+
+.searchButton2:hover{
+  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+}
 
 .container-fluid {
   display: flex;
+  width: 100%;
   margin-right: 10px;
   margin-left: 10px;
+  justify-content: center;
 }
+
 
 .form-select {
   height: 40px;
-  width: 80%;
+  width: 25%;
   margin-right: 3px;
+  cursor: pointer;
+}
+
+.form-select2 {
+  height: 40px;
+  margin-right: 3px;
+  cursor: pointer;
+  margin: 10px;
+  margin-right: 30px;
 }
 
 .d-flex {
@@ -57,7 +87,8 @@ html {
 
 .navbar {
   display: flex;
-  justify-content: center
+  flex-direction: column;
+  align-content: center;
 }
 
 .container1 {
@@ -77,7 +108,6 @@ html {
 select {
   background: white;
   border: 2px solid #c11524;
-  width: 300px;
   font-size: large;
   border-radius: 2px;
   box-shadow: 6px 5px 5px #a3a0a0;
@@ -98,11 +128,20 @@ hr {
   background-color: #ffffff;
   color: #4d4b4b;
   font-size: 14px;
+  cursor: pointer;
 }
+
+.exampleQueries:hover {
+  color: #4fb5f0;
+}
+
+
 
 .bulbLogo {
   height: 18px;
 }
+
+
 
 .example {
   display: flex;
@@ -121,13 +160,77 @@ hr {
   border: none;
   /* border-color: #5454bc; */
   padding: 5px;
+  cursor: pointer;
 }
 
 #exampleQueries {
   border: none;
   width: fit-content;
   margin: 5px;
+  cursor: pointer;
 }
+
+.advSearch {
+  width: fit-content;
+  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+  border: none;
+  margin-top: 83px;
+  padding: 12px;
+  box-shadow: 0px 2px 3px #a3a0a0;
+  border-radius: 3px;
+  font-variant: all-petite-caps;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.advSearch:hover {
+  background: #86d2ff;
+}
+
+.advSearchModule {
+  margin: 20px;
+}
+
+.skipForm {
+  background: white;
+  border: 2px solid #c11524;
+  margin: 20px;
+  padding: 10px;
+  box-shadow: 6px 5px 5px #a3a0a0;
+}
+
+.limitForm {
+  background: white;
+  border: 2px solid #c11524;
+  margin: 20px;
+  padding: 10px;
+  box-shadow: 6px 5px 5px #a3a0a0;
+}
+
+.advSearchForm {
+  display: flex;
+  margin-top: 45px;
+  align-items: center;
+  flex-direction: column;
+}
+
+.returnBasic {
+  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+  border: none;
+  margin-top: 83px;
+  padding: 12px;
+  box-shadow: 0px 2px 3px #a3a0a0;
+  border-radius: 3px;
+  font-variant: all-petite-caps;
+  font-size: 17px;
+  cursor: pointer;
+}
+
+.returnBasic:hover {
+  background: #86d2ff;
+}
+
+
 
 @media (max-width: 800px) {
 
@@ -148,6 +251,7 @@ hr {
 
   .searchButton {
     height: 35px;
+    cursor: pointer;
   }
 
 

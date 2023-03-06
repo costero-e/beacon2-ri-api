@@ -6,6 +6,8 @@ from copy import deepcopy
 
 from beacon.request import ontologies
 from beacon.request.model import AlphanumericFilter, CustomFilter, OntologyFilter, Operator, Similarity
+from beacon.db.utils import get_documents
+from beacon.db import client
 #from beacon.semantic_similarity import semantic_similarity
 
 import logging
@@ -68,7 +70,13 @@ def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
             list_of_filters.append(partial_query['$text']['$search'])
         string = ''
         for filt in list_of_filters:
-            string += f'"{filt}"' + ' '
+            length = len(list_of_filters)
+            LOG.debug(length)
+            print(length)
+            if length > 1:
+                string += f'{filt}'
+            else:
+                string += f'"{filt}"' + ' '
         dict_search={}
         dict_search['$search']=string
         dict_text={}
@@ -100,15 +108,24 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter) -> dict:
             query["$text"]["$search"] += f'{term_list[1]}'
 
     # Apply descendant terms
-    if filter.include_descendant_terms:
+    if filter.include_descendant_terms == True:
         is_filter_id_required = False
-        descendants = ontologies.get_descendants(filter.id)
+        desc_query={'id': filter.id}
+        descendants = get_documents(
+        client.beacon.filtering_terms,
+        desc_query,
+        skip=0,
+        limit=1,
+    )
+        descendants = descendants[0]
+        descendants = descendants['descendants']
         LOG.debug("Descendants: {}".format(descendants))
         for descendant in descendants:
-            if query["$text"]["$search"]:
-                query["$text"]["$search"] += " "
-            query["$text"]["$search"] += descendant
-    
+            list_descendant = descendant.split(':')
+            query['$text']['$search'] += f'{list_descendant[1]} '
+        list_filter_id = filter.id.split(':')
+        query['$text']['$search'] += f'{list_filter_id[1]}'
+
     if is_filter_id_required:
         if query["$text"]["$search"]:
             query["$text"]["$search"] += " "

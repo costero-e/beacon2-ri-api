@@ -21,7 +21,6 @@ client.beacon.datasets.create_index([("$**", "text")])
 client.beacon.genomicVariations.create_index([("$**", "text")])
 client.beacon.individuals.create_index([("$**", "text")])
 client.beacon.runs.create_index([("$**", "text")])
-
 #collection_name = client.beacon.analyses
 #print(collection_name.index_information())
 

@@ -51,7 +51,7 @@ h1{
 }
 
 
-h3{
+.resultsRecord h3{
     color: #c11524;
     text-transform: uppercase;
     margin-left: 50px;
