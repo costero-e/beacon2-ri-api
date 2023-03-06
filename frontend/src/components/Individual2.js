@@ -17,6 +17,10 @@ function Individuals2(props) {
   const [show3, setShow3] = useState(false)
   const [label, setLabel] = useState([])
   const [ident, setId] = useState([])
+<<<<<<< HEAD
+=======
+  const [operator, setOperator] = useState([])
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
   const [timeOut, setTimeOut] = useState(false)
 
   const API_ENDPOINT = "http://localhost:5050/api/individuals/"
@@ -26,15 +30,29 @@ function Individuals2(props) {
   let keyTerm = []
   let resultsAux = []
   let obj = {}
+<<<<<<< HEAD
 
   useEffect(() => {
     const apiCall = async () => {
 
+=======
+  let res = ""
+
+  useEffect(() => {
+    const apiCall = async () => {
+      console.log(props.query)
+      console.log(props.resultSets)
+      console.log(props.limit)
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
 
       if (props.query != null) {
 
         queryStringTerm = props.query.split(',')
+<<<<<<< HEAD
 
+=======
+        console.log(queryStringTerm)
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
         queryStringTerm.forEach((element, index) => {
 
           element = element.trim()
@@ -43,6 +61,7 @@ function Individuals2(props) {
 
             queryArray[index] = element.split('=')
 
+<<<<<<< HEAD
             queryArray[queryArray.length] = '='
 
           } else if (element.includes('>')) {
@@ -52,11 +71,29 @@ function Individuals2(props) {
           } else if (element.includes('<')) {
             queryArray[index] = element.split('<')
             queryArray[queryArray.length] = '<'
+=======
+            queryArray[index].push('=')
+
+          } else if (element.includes('>')) {
+            queryArray[index] = element.split('>')
+            queryArray[index].push('>')
+
+          } else if (element.includes('<')) {
+            queryArray[index] = element.split('<')
+            queryArray[index].push('<')
+          } else {
+            queryArray[index] = element
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
           }
         })
 
         console.log(queryArray)
 
+<<<<<<< HEAD
+=======
+
+
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
       }
 
       try {
@@ -69,24 +106,46 @@ function Individuals2(props) {
             },
             "query": {
               "filters": [],
+<<<<<<< HEAD
               "includeResultsetResponses": "HIT",
               "pagination": {
                 "skip": 0,
                 "limit": 100
+=======
+              "includeResultsetResponses": `${props.resultSets}`,
+              "pagination": {
+                "skip": `${props.skip}`,
+                "limit": `${props.limit}`
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
               },
               "testMode": false,
               "requestedGranularity": "record",
             }
           }
 
+<<<<<<< HEAD
           jsonData1 = JSON.stringify(jsonData1)
 
           const res = await axios.post("http://localhost:5050/api/individuals/", jsonData1)
+=======
+
+
+
+
+          jsonData1 = JSON.stringify(jsonData1)
+          console.log(jsonData1)
+
+          const res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData1)
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
           setBoolean(res.data.responseSummary.exists)
+<<<<<<< HEAD
 
+=======
+          setTimeOut(true)
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
           res.data.response.resultSets[0].results.forEach((element, index) => {
 
             results.push(res.data.response.resultSets[0].results[index])
@@ -96,15 +155,54 @@ function Individuals2(props) {
 
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
 
+<<<<<<< HEAD
           const res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${props.query}`)
           console.log("loading")
+=======
+          if (props.resultSets === "HIT" && props.limit === 10) {
+
+            res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${props.query}`)
+
+          } else {
+            var jsonData2 = {
+
+              "meta": {
+                "apiVersion": "2.0"
+              },
+              "query": {
+                "filters": [],
+                "includeResultsetResponses": `${props.resultSets}`,
+                "pagination": {
+                  "skip": `${props.skip}`,
+                  "limit": `${props.limit}`
+                },
+                "testMode": false,
+                "requestedGranularity": "record",
+              }
+            }
+  
+            
+            jsonData2 = JSON.stringify(jsonData2)
+            console.log(jsonData2)
+
+            res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData2)
+
+          }
+
+
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
           setTimeOut(true)
 
 
           if (res.data.response.resultSets[0].results[0] === undefined) {
             setError("No results. Please check the query and retry")
+<<<<<<< HEAD
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
+=======
+            setNumberResults(0)
+            setBoolean(false)
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
 
           }
           else {
@@ -114,7 +212,11 @@ function Individuals2(props) {
 
 
             })
+<<<<<<< HEAD
             console.log(res.data.responseSummary.numTotalResults)
+=======
+
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
           }
@@ -124,6 +226,7 @@ function Individuals2(props) {
 
         } else {
 
+<<<<<<< HEAD
           keyTerm[2] = queryArray[2]
           let res = null
 
@@ -153,6 +256,67 @@ function Individuals2(props) {
           let arrayFilter = []
           label.forEach((element, index) => {
             arrayFilter.push({ "id": ident[index] })
+=======
+
+          let res = null
+
+          for (let i = 0; i < queryArray.length; i++) {
+
+            keyTerm = queryArray[i]
+            console.log(keyTerm)
+            console.log(typeof keyTerm)
+
+            if (typeof keyTerm === "object") {
+
+              label.push(keyTerm[0].trim())
+              ident.push(keyTerm[1].trim())
+              operator.push(keyTerm[2].trim())
+
+            }
+
+            if (typeof keyTerm === "string") {
+              ident.push(keyTerm.trim())
+            }
+
+
+          }
+
+
+          console.log(label)
+          console.log(ident)
+          console.log(operator)
+
+
+          let arrayFilter = []
+
+          operator.forEach((element, index) => {
+
+            if (element === '>') {
+
+              const filter = {
+                "id": label[index],
+                "operator": ">",
+                "value": ident[index]
+              }
+
+              arrayFilter.push(filter)
+
+
+            } else if (element === '<') {
+              const filter = {
+                "id": label[index],
+                "operator": "<",
+                "value": ident[index]
+              }
+
+              arrayFilter.push(filter)
+            } else {
+              ident.forEach((element, index) => {
+                arrayFilter.push({ "id": ident[index] })
+              })
+
+            }
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
           })
 
           console.log(arrayFilter)
@@ -166,7 +330,14 @@ function Individuals2(props) {
 
             try {
 
+<<<<<<< HEAD
               res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${stringIds}`)
+=======
+              if (props.resultSets === 'HIT') {
+                res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${stringIds}`)
+              }
+
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
 
               setTimeOut(true)
             } catch (error) {
@@ -188,7 +359,11 @@ function Individuals2(props) {
                 "includeResultsetResponses": "HIT",
                 "pagination": {
                   "skip": 5,
+<<<<<<< HEAD
                   "limit": 100
+=======
+                  "limit": `${props.limit}`
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
                 },
                 "testMode": false,
                 "requestedGranularity": "record",
@@ -215,12 +390,21 @@ function Individuals2(props) {
 
           let entries = Object.entries(results[0])
           console.log(entries)
+<<<<<<< HEAD
 
         }
 
       } catch (error) {
         console.log(error)
         setError(error.message)
+=======
+        }
+
+
+      } catch (error) {
+
+        setError("No results found. Please check the query and retry")
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
       }
     };
     apiCall();
@@ -269,6 +453,7 @@ function Individuals2(props) {
             return (
               <div className="resultsIndividuals">
 
+<<<<<<< HEAD
 
                 {result.id && <h2>ID</h2>}
                 {result.id && <h3>{result.id}</h3>}
@@ -295,6 +480,60 @@ function Individuals2(props) {
                 {result.sex.id && <h3>{result.sex.id}</h3>}
                 {result.sex.label && <h3>{result.sex.label}</h3>}
 
+=======
+                <div>
+                  {result.id && <h2>ID</h2>}
+                  {result.id && <h3>{result.id}</h3>}
+                  {result.diseases && <h2>Disease</h2>}
+
+                  {result.diseases && result.diseases.map((value) => {
+                    return (
+                      <div className='diseasesContainer'>
+                        <h3>{value.diseaseCode.id}</h3>
+                        <h3>{value.diseaseCode.label}</h3>
+                      </div>)
+                  })}
+
+                </div>
+
+                <div>
+                  {result.ethnicity && <h2>Ethnicity</h2>}
+                  {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
+                  {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
+                  {result.geographicOrigin && <h2>Geographic Origin</h2>}
+                  {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
+                  {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
+                  {result.sex && <h2>Sex</h2>}
+                  {result.sex.id && <h3>{result.sex.id}</h3>}
+                  {result.sex.label && <h3>{result.sex.label}</h3>}
+                </div>
+                <div className='measuresContainer'>
+                  {result.measures && <h2>Measures</h2>}
+                  {result.measures.map((value) => {
+                    return (
+                      <div className='measures'>
+                        <div>
+                          <h4>assayCode ID:</h4>
+                          <h3>{value.assayCode.id}</h3>
+                        </div>
+                        <div>
+                          <h4>assayCode label:</h4>
+                          <h3>{value.assayCode.label}</h3>
+                        </div>
+                        
+                        <div>
+                          <h4>Measurament value quantity ID and label:</h4>
+                          <h3>{value.measurementValue.quantity.unit.id}</h3>
+                          <h3>{value.measurementValue.quantity.unit.label}</h3>
+                        </div>
+                        <div>
+                          <h4>Measurament value quantity value:</h4>
+                          <h3>{value.measurementValue.quantity.value}</h3>
+                        </div>
+                      </div>)
+                  })}
+                </div>
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
 
               </div>
             )

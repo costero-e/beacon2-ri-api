@@ -1,31 +1,62 @@
-.resultsIndividuals{
+.resultsIndividuals {
     display: flex;
     margin: 40px;
-    border: 3px ridge rgb(60, 145, 214);
     padding: 10px;
-    width: 30vw;
+    /* width: 30vw; */
     justify-content: center;
-    box-shadow: rgba(0, 0, 0, 0.15) 0px 5px 15px 0px;
-    flex-direction: column;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 12px;
+    flex-direction: row;
+
 }
 
-h1{
+.resultsIndividuals div {
+    margin: 20px;
+}
+
+.diseasesContainer{
+    margin: 0px !important;
+}
+
+.measuresContainer {
+    display: flex;
+}
+
+.measures {
+    margin: 20px;
+}
+
+h1 {
     font-size: 12px;
 }
 
-h2{
+h2 {
     font-size: 14px;
-    color: rgba(55, 51, 51, 0.606);
+    color: #0f6fb8;
 }
 
 
-h3{
+h3 {
     color: #c11524;
     text-transform: uppercase;
 }
 
-.p1{
-   
+h4 {
+    font-size: 12px;
+    color: rgba(12, 16, 64, 0.606);
+}
+
+<<<<<<< HEAD
+h3{
+    color: #c11524;
+    text-transform: uppercase;
+=======
+.selectGranularity button:hover {
+    color: #0f6fb8;
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+}
+
+.p1 {
+
     text-transform: uppercase;
     color: #c11524;
     line-height: 23px;
@@ -34,14 +65,14 @@ h3{
 
 }
 
-.results{
+.results {
     flex-wrap: wrap;
     justify-content: center;
 }
 
-.typeResults{
+.typeResults {
     width: fit-content;
-    margin:10px;
+    margin: 10px;
     border: none;
     font-size: 16px;
     text-decoration: underline;
@@ -49,12 +80,23 @@ h3{
     cursor: pointer;
 }
 
+<<<<<<< HEAD
 .resultsContainer{
+=======
+.resultsContainer {
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
     display: flex;
     justify-content: center;
 }
 
+<<<<<<< HEAD
 .selectGranularity{
 display: flex;
 justify-content: center;
 }
+=======
+.selectGranularity {
+    display: flex;
+    justify-content: center;
+}
+>>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0

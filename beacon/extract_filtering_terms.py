@@ -17,6 +17,7 @@ import json
 import networkx
 import os
 
+
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
@@ -104,7 +105,7 @@ def get_ontology_term_count(collection_name: str, term: str) -> int:
     return client.beacon\
         .get_collection(collection_name)\
         .count_documents(query)
-
+'''
 def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
     query = {
         '$text': {
@@ -153,23 +154,28 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                                                 break
 
         #print(field)
-    return field
+    return field'''
 
-def get_descendants(ontology_id:str, ontology_term:str):        
-    url = 'ontologies/{}.obo'.format(ontology_id.upper())
-    url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
-    label=''
-    try:
-        graph = obonet.read_obo(url)
-    except Exception:
-        graph = obonet.read_obo(url_alt)
-    try:
-        id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
-        label = id_to_name['{}:{}'.format(ontology_id,ontology_term)]
-    except Exception:
-        pass
+def get_descendants(ontology_id:str, ontology_term:str):
+    if ontology_id == 'GAZ':
+        descendants = ''
+    else:        
+        url = 'ontologies/{}.obo'.format(ontology_id.upper())
+        url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
+        label=''
+        try:
+            graph = obonet.read_obo(url)
+            networkx.is_directed_acyclic_graph(graph)
+        except Exception:
+            graph = obonet.read_obo(url_alt)
+            networkx.is_directed_acyclic_graph(graph)
+        try:
+            id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
+            label = id_to_name['{}:{}'.format(ontology_id,ontology_term)]
+        except Exception:
+            pass
     ontology = ontology_id + ':' + ontology_term
-    networkx.is_directed_acyclic_graph(graph)
+    
     try:
         descendants = networkx.ancestors(graph, ontology)
     except Exception:
@@ -178,9 +184,18 @@ def get_descendants(ontology_id:str, ontology_term:str):
         descendants = {ontology}
     descendants = list(descendants)
     dict = {}
-    dict['label']=label
+    try:
+        dict['label']=label
+    except Exception:
+        dict['label']=''
+    
     dict['descendants']=descendants
-    dict['list']=id_to_name
+    try:
+        dict['list']=id_to_name
+    except Exception:
+        list_onto=[]
+        list_onto.append(ontology)
+        dict['list']=list_onto
     dict['ontology']='{}'.format(ontology_id)
     #print(descendants)
     return dict
@@ -251,7 +266,7 @@ def get_filtering_object(terms_ids: list, collection_name: str):
                         # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
                         'count': get_ontology_term_count(collection_name, onto),
                         'collection': collection_name,
-                        'field': get_ontology_field_name(ontology_id, term_id, collection_name),
+                        #'field': get_ontology_field_name(ontology_id, term_id, collection_name),
                         'descendants': dict_descendants['descendants'],
                         #'similarity':
                     })
