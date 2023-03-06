@@ -46,6 +46,7 @@ h4 {
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 h3{
     color: #c11524;
     text-transform: uppercase;
@@ -53,6 +54,10 @@ h3{
 .selectGranularity button:hover {
     color: #0f6fb8;
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+.selectGranularity button:hover {
+    color: #0f6fb8;
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 }
 
 .p1 {
@@ -81,14 +86,19 @@ h3{
 }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 .resultsContainer{
 =======
 .resultsContainer {
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+.resultsContainer {
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
     display: flex;
     justify-content: center;
 }
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 .selectGranularity{
 display: flex;
@@ -100,3 +110,9 @@ justify-content: center;
     justify-content: center;
 }
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+.selectGranularity {
+    display: flex;
+    justify-content: center;
+}
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900

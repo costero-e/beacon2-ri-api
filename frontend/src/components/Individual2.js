@@ -18,9 +18,13 @@ function Individuals2(props) {
   const [label, setLabel] = useState([])
   const [ident, setId] = useState([])
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
   const [operator, setOperator] = useState([])
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+  const [operator, setOperator] = useState([])
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
   const [timeOut, setTimeOut] = useState(false)
 
   const API_ENDPOINT = "http://localhost:5050/api/individuals/"
@@ -31,11 +35,14 @@ function Individuals2(props) {
   let resultsAux = []
   let obj = {}
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   useEffect(() => {
     const apiCall = async () => {
 
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
   let res = ""
 
   useEffect(() => {
@@ -43,16 +50,23 @@ function Individuals2(props) {
       console.log(props.query)
       console.log(props.resultSets)
       console.log(props.limit)
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 
       if (props.query != null) {
 
         queryStringTerm = props.query.split(',')
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
         console.log(queryStringTerm)
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+        console.log(queryStringTerm)
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
         queryStringTerm.forEach((element, index) => {
 
           element = element.trim()
@@ -61,6 +75,7 @@ function Individuals2(props) {
 
             queryArray[index] = element.split('=')
 
+<<<<<<< HEAD
 <<<<<<< HEAD
             queryArray[queryArray.length] = '='
 
@@ -72,6 +87,8 @@ function Individuals2(props) {
             queryArray[index] = element.split('<')
             queryArray[queryArray.length] = '<'
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
             queryArray[index].push('=')
 
           } else if (element.includes('>')) {
@@ -83,17 +100,25 @@ function Individuals2(props) {
             queryArray[index].push('<')
           } else {
             queryArray[index] = element
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
           }
         })
 
         console.log(queryArray)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+
+
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
       }
 
       try {
@@ -107,16 +132,22 @@ function Individuals2(props) {
             "query": {
               "filters": [],
 <<<<<<< HEAD
+<<<<<<< HEAD
               "includeResultsetResponses": "HIT",
               "pagination": {
                 "skip": 0,
                 "limit": 100
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
               "includeResultsetResponses": `${props.resultSets}`,
               "pagination": {
                 "skip": `${props.skip}`,
                 "limit": `${props.limit}`
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
               },
               "testMode": false,
               "requestedGranularity": "record",
@@ -124,10 +155,13 @@ function Individuals2(props) {
           }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
           jsonData1 = JSON.stringify(jsonData1)
 
           const res = await axios.post("http://localhost:5050/api/individuals/", jsonData1)
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 
 
 
@@ -136,16 +170,23 @@ function Individuals2(props) {
           console.log(jsonData1)
 
           const res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData1)
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
           setBoolean(res.data.responseSummary.exists)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 =======
           setTimeOut(true)
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+          setTimeOut(true)
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
           res.data.response.resultSets[0].results.forEach((element, index) => {
 
             results.push(res.data.response.resultSets[0].results[index])
@@ -156,9 +197,12 @@ function Individuals2(props) {
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
           const res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${props.query}`)
           console.log("loading")
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
           if (props.resultSets === "HIT" && props.limit === 10) {
 
             res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${props.query}`)
@@ -190,12 +234,16 @@ function Individuals2(props) {
           }
 
 
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
           setTimeOut(true)
 
 
           if (res.data.response.resultSets[0].results[0] === undefined) {
             setError("No results. Please check the query and retry")
+<<<<<<< HEAD
 <<<<<<< HEAD
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
@@ -203,6 +251,10 @@ function Individuals2(props) {
             setNumberResults(0)
             setBoolean(false)
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+            setNumberResults(0)
+            setBoolean(false)
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 
           }
           else {
@@ -213,10 +265,14 @@ function Individuals2(props) {
 
             })
 <<<<<<< HEAD
+<<<<<<< HEAD
             console.log(res.data.responseSummary.numTotalResults)
 =======
 
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
           }
@@ -226,6 +282,7 @@ function Individuals2(props) {
 
         } else {
 
+<<<<<<< HEAD
 <<<<<<< HEAD
           keyTerm[2] = queryArray[2]
           let res = null
@@ -257,6 +314,8 @@ function Individuals2(props) {
           label.forEach((element, index) => {
             arrayFilter.push({ "id": ident[index] })
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 
           let res = null
 
@@ -316,7 +375,10 @@ function Individuals2(props) {
               })
 
             }
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
           })
 
           console.log(arrayFilter)
@@ -331,13 +393,19 @@ function Individuals2(props) {
             try {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
               res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${stringIds}`)
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
               if (props.resultSets === 'HIT') {
                 res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${stringIds}`)
               }
 
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 
               setTimeOut(true)
             } catch (error) {
@@ -360,10 +428,14 @@ function Individuals2(props) {
                 "pagination": {
                   "skip": 5,
 <<<<<<< HEAD
+<<<<<<< HEAD
                   "limit": 100
 =======
                   "limit": `${props.limit}`
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+                  "limit": `${props.limit}`
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
                 },
                 "testMode": false,
                 "requestedGranularity": "record",
@@ -391,6 +463,7 @@ function Individuals2(props) {
           let entries = Object.entries(results[0])
           console.log(entries)
 <<<<<<< HEAD
+<<<<<<< HEAD
 
         }
 
@@ -398,13 +471,18 @@ function Individuals2(props) {
         console.log(error)
         setError(error.message)
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
         }
 
 
       } catch (error) {
 
         setError("No results found. Please check the query and retry")
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
       }
     };
     apiCall();
@@ -454,6 +532,7 @@ function Individuals2(props) {
               <div className="resultsIndividuals">
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
                 {result.id && <h2>ID</h2>}
                 {result.id && <h3>{result.id}</h3>}
@@ -481,6 +560,8 @@ function Individuals2(props) {
                 {result.sex.label && <h3>{result.sex.label}</h3>}
 
 =======
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
                 <div>
                   {result.id && <h2>ID</h2>}
                   {result.id && <h3>{result.id}</h3>}
@@ -533,7 +614,10 @@ function Individuals2(props) {
                       </div>)
                   })}
                 </div>
+<<<<<<< HEAD
 >>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
+=======
+>>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 
               </div>
             )
