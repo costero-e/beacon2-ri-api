@@ -29,20 +29,10 @@ function Layout() {
   const [query, setQuery] = useState(null)
   const [exampleQ, setExampleQ] = useState([])
   const [showAdvSearch, setAdvSearch] = useState(false)
-<<<<<<< HEAD
-<<<<<<< HEAD
-
-=======
-=======
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
   const [resultSetType, setResultsetType] = useState(["Select", "HIT", "MISS", "NONE", "ALL"])
   const [resultSet, setResultset] = useState("HIT")
   const [limit, setLimit] = useState(10)
   const [skip, setSkip] = useState (0)
-<<<<<<< HEAD
->>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
-=======
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
 
   const Add = collectionType.map(Add => Add)
 
@@ -55,11 +45,6 @@ function Layout() {
 
   }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-=======
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
   const handleClick = (e) =>{
     setCollectionType(["Select", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
     setCollection(collectionType[e.target.value])
@@ -77,10 +62,6 @@ function Layout() {
     setLimit(e.target.value)
   }
 
-<<<<<<< HEAD
->>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
-=======
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
   const handleAdvancedSearch = (e) => {
     setAdvSearch(true)
   }
@@ -178,37 +159,16 @@ function Layout() {
         {!showAdvSearch && <button className="advSearch" onClick={handleAdvancedSearch}>
           Advanced search
         </button>}
-<<<<<<< HEAD
-<<<<<<< HEAD
-        {showAdvSearch && <form className='advSearchForm'>
-          <div className='advSearchModule'>
-            <label>SKIP</label>
-            <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => search(e)} aria-label="Search" />
-            <label>LIMIT</label>
-            <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => search(e)} aria-label="Search" />
-=======
-=======
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
         {showAdvSearch && <form className='advSearchForm' onSubmit={onSubmit}>
           <div className='advSearchModule'>
             <label>SKIP</label>
             <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
             <label>LIMIT</label>
             <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
-<<<<<<< HEAD
->>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
-=======
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
           </div>
 
           <div className='advSearchModule'>
             <label>Include Resultset Responses</label>
-<<<<<<< HEAD
-<<<<<<< HEAD
-            <input className="limitForm" type="text" autoComplete='on' placeholder={""} onChange={(e) => search(e)} aria-label="Search" />
-=======
-=======
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
             <select className="form-select2" aria-label="" onChange={e => { handleResultsetChanges(e) }}>
               {
                 Add2.map((resultSet, key) => <option key={key} value={key}>{resultSet}
@@ -217,10 +177,6 @@ function Layout() {
             </select>
           </div>
           <div className='advSearchModule'>
-<<<<<<< HEAD
->>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
-=======
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
             <label>Similarity</label>
             <input className="limitForm" type="text" autoComplete='on' placeholder={""} onChange={(e) => search(e)} aria-label="Search" />
             <label>Include Descendant Terms</label>
@@ -247,15 +203,7 @@ function Layout() {
       <hr></hr>
       <div className="results">
         {results === null && <ResultsDatasets />}
-<<<<<<< HEAD
-<<<<<<< HEAD
-        {results === 'Individuals' && <Individuals2 query={query} />}
-=======
         {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip}/>}
->>>>>>> fd17b7ffa5f8b77461f9a808437dcc13a5a978b0
-=======
-        {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip}/>}
->>>>>>> c0195f3f78eaf95362a89d2fbb04113a4d83d900
       </div>
     </div>
 
@@ -288,5 +236,4 @@ function App() {
 
 
 export default App;
-
 
