@@ -105,7 +105,9 @@ def get_ontology_term_count(collection_name: str, term: str) -> int:
     return client.beacon\
         .get_collection(collection_name)\
         .count_documents(query)
+
 '''
+
 def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
     query = {
         '$text': {
@@ -154,6 +156,7 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                                                 break
 
         #print(field)
+
     return field'''
 
 def get_descendants(ontology_id:str, ontology_term:str):
@@ -176,6 +179,7 @@ def get_descendants(ontology_id:str, ontology_term:str):
             pass
     ontology = ontology_id + ':' + ontology_term
     
+
     try:
         descendants = networkx.ancestors(graph, ontology)
     except Exception:
@@ -184,6 +188,7 @@ def get_descendants(ontology_id:str, ontology_term:str):
         descendants = {ontology}
     descendants = list(descendants)
     dict = {}
+
     try:
         dict['label']=label
     except Exception:
@@ -196,6 +201,8 @@ def get_descendants(ontology_id:str, ontology_term:str):
         list_onto=[]
         list_onto.append(ontology)
         dict['list']=list_onto
+
+
     dict['ontology']='{}'.format(ontology_id)
     #print(descendants)
     return dict
@@ -266,7 +273,9 @@ def get_filtering_object(terms_ids: list, collection_name: str):
                         # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
                         'count': get_ontology_term_count(collection_name, onto),
                         'collection': collection_name,
+
                         #'field': get_ontology_field_name(ontology_id, term_id, collection_name),
+
                         'descendants': dict_descendants['descendants'],
                         #'similarity':
                     })
