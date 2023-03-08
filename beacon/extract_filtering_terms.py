@@ -21,8 +21,8 @@ import os
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
-    #"mongodb://127.0.0.1:27017/"
-    "mongodb://root:example@mongo:27017/beacon?authSource=admin"
+    "mongodb://127.0.0.1:27017/"
+    #"mongodb://root:example@mongo:27017/beacon?authSource=admin"
 
 )
 
@@ -181,7 +181,7 @@ def get_descendants(ontology_id:str, ontology_term:str):
     
 
     try:
-        descendants = networkx.ancestors(graph, ontology)
+        descendants = networkx.descendants(graph, ontology)
     except Exception:
         descendants = ''
     if not descendants:
@@ -217,7 +217,7 @@ def get_descendants_with_list(ontology_id:str, ontology_term:str):
     ontology = ontology_id + ':' + ontology_term
     networkx.is_directed_acyclic_graph(graph)
     try:
-        descendants = networkx.ancestors(graph, ontology)
+        descendants = networkx.descendants(graph, ontology)
     except Exception:
         descendants = ''
     if not descendants:
