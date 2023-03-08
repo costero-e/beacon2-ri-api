@@ -1,16 +1,18 @@
-'''
-#from sentence_transformers import SentenceTransformer
+
+from sentence_transformers import SentenceTransformer
 from scipy.spatial import distance
 import networkx as nx
 import json
-import numpy
+import scipy
+import numpy as np
+import obonet
 
 def semantic_similarity(descendants:list, query: str):
     list_dict = []
     queries = []
     ontology = query.split(':')
     ontology_id = ontology[0]
-    path = "ontologies/" + ontology_id + ".obo"
+    path = "beacon/ontologies/" + ontology_id + ".obo"
     graph = obonet.read_obo(path)
     id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
     queries.append(id_to_name[query])
@@ -22,7 +24,7 @@ def semantic_similarity(descendants:list, query: str):
         dict['id'] = descendant
         list_dict.append(dict)
         corpus.append(label)
-    model = SentenceTransformer('distiluse-base-multilingual-cased') 
+    model = SentenceTransformer('distiluse-base-multilingual-cased', device='cpu') 
     corpus_embeddings = model.encode(corpus)
     query_embeddings = model.encode(queries)
     closest_n = 10
