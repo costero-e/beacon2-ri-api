@@ -44,46 +44,8 @@ def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
             else:
                 filter = CustomFilter(**filter)
                 LOG.debug("Custom filter: %s", filter.id)
-                partial_query = apply_custom_filter(partial_query, filter)
+                partial_query = apply_custom_filter(partial_query, filter, collection)
             query["$and"].append(partial_query)
-    '''
-    if len(filters) > 1:
-        list_of_filters=[]
-        for filter in filters:
-            partial_query = {}
-            if "value" in filter:
-                LOG.debug(filter)
-                filter = AlphanumericFilter(**filter)
-                LOG.debug("Alphanumeric filter: %s %s %s", filter.id, filter.operator, filter.value)
-                partial_query = apply_alphanumeric_filter(partial_query, filter)
-            elif "similarity" in filter or "includeDescendantTerms" in filter or re.match(CURIE_REGEX, filter["id"]):
-                filter = OntologyFilter(**filter)
-                LOG.debug("Ontology filter: %s", filter.id)
-                #partial_query = {"$text": defaultdict(str) }
-                #partial_query =  { "$text": { "$search": "" } } 
-                LOG.debug(partial_query)
-                partial_query = apply_ontology_filter(partial_query, filter, collection)
-            else:
-                filter = CustomFilter(**filter)
-                LOG.debug("Custom filter: %s", filter.id)
-                partial_query = apply_custom_filter(partial_query, filter)
-            list_of_filters.append(partial_query['$text']['$search'])
-        string = ''
-        for filt in list_of_filters:
-            length = len(list_of_filters)
-            LOG.debug(length)
-            print(length)
-            if length > 1:
-                string += f'{filt}'
-            else:
-                string += f'"{filt}"' + ' '
-        dict_search={}
-        dict_search['$search']=string
-        dict_text={}
-        dict_text['$text']=dict_search
-        '''
-        #query["$and"].append(dict_text)
-
     return query
 
 
