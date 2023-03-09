@@ -8,7 +8,6 @@ from beacon.request import ontologies
 from beacon.request.model import AlphanumericFilter, CustomFilter, OntologyFilter, Operator, Similarity
 from beacon.db.utils import get_documents
 from beacon.db import client
-#from beacon.semantic_similarity import semantic_similarity
 
 import logging
 
@@ -27,7 +26,7 @@ def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
     LOG.debug("Filters len = {}".format(len(filters)))
     if len(filters) > 0:
         query["$and"] = []
-    if len(filters) == 1:
+    if len(filters) >= 1:
         for filter in filters:
             partial_query = {}
             if "value" in filter:
@@ -38,15 +37,16 @@ def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
             elif "similarity" in filter or "includeDescendantTerms" in filter or re.match(CURIE_REGEX, filter["id"]):
                 filter = OntologyFilter(**filter)
                 LOG.debug("Ontology filter: %s", filter.id)
-                partial_query = {"$text": defaultdict(str) }
+                #partial_query = {"$text": defaultdict(str) }
                 #partial_query =  { "$text": { "$search": "" } } 
                 LOG.debug(partial_query)
-                partial_query = apply_ontology_filter(partial_query, filter)
+                partial_query = apply_ontology_filter(partial_query, filter, collection)
             else:
                 filter = CustomFilter(**filter)
                 LOG.debug("Custom filter: %s", filter.id)
                 partial_query = apply_custom_filter(partial_query, filter)
-        query["$and"].append(partial_query)
+            query["$and"].append(partial_query)
+    '''
     if len(filters) > 1:
         list_of_filters=[]
         for filter in filters:
@@ -59,10 +59,10 @@ def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
             elif "similarity" in filter or "includeDescendantTerms" in filter or re.match(CURIE_REGEX, filter["id"]):
                 filter = OntologyFilter(**filter)
                 LOG.debug("Ontology filter: %s", filter.id)
-                partial_query = {"$text": defaultdict(str) }
+                #partial_query = {"$text": defaultdict(str) }
                 #partial_query =  { "$text": { "$search": "" } } 
                 LOG.debug(partial_query)
-                partial_query = apply_ontology_filter(partial_query, filter)
+                partial_query = apply_ontology_filter(partial_query, filter, collection)
             else:
                 filter = CustomFilter(**filter)
                 LOG.debug("Custom filter: %s", filter.id)
@@ -81,17 +81,19 @@ def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
         dict_search['$search']=string
         dict_text={}
         dict_text['$text']=dict_search
-        query["$and"].append(dict_text)
+        '''
+        #query["$and"].append(dict_text)
 
     return query
 
 
-def apply_ontology_filter(query: dict, filter: OntologyFilter) -> dict:
+def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) -> dict:
     
     is_filter_id_required = True
 
     # Search similar
     if filter.similarity != Similarity.EXACT:
+        cutoff = 1
         is_filter_id_required = False
         if filter.similarity == Similarity.HIGH:
             cutoff = 0.9
@@ -99,13 +101,72 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter) -> dict:
             cutoff = 0.7
         elif filter.similarity == Similarity.LOW:
             cutoff = 0.5
-        similar_terms = 'semantic_similarity(filter.id, cutoff)'
-        LOG.debug("Similar: {}".format(similar_terms))
-        for term in similar_terms:
-            if query["$text"]["$search"]:
-                query["$text"]["$search"] += " "
-            term_list = term.split(':')
-            query["$text"]["$search"] += f'{term_list[1]}'
+        similar_query = {'collection': collection}
+        docs = get_documents(
+        client.beacon.filtering_terms,
+        similar_query,
+        skip=0,
+        limit=1000
+    )
+        similar_terms_list=[]
+        for doc in docs:
+            if doc['id'] == filter.id:
+                similar_terms_list.append(doc['descendants'])
+                LOG.debug(similar_terms_list)
+        final_term_list = []
+        for term in similar_terms_list[0]:
+            if term['distance'] >= cutoff:
+                similar_term = term['id']
+                final_term_list.append(similar_term)
+                ###########################
+        final_term_list.append(filter.id)
+        query['$or']=[]
+        for onto_query in final_term_list:
+            if collection == 'individuals':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in INDIVIDUALS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{onto_query}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'analyses':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in ANALYSES_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{onto_query}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'biosamples':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in BIOSAMPLES_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{onto_query}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'g_variants':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in G_VARIANTS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{onto_query}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'runs':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in RUNS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{onto_query}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
 
     # Apply descendant terms
     if filter.include_descendant_terms == True:
@@ -119,17 +180,106 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter) -> dict:
     )
         descendants = descendants[0]
         descendants = descendants['descendants']
-        LOG.debug("Descendants: {}".format(descendants))
+        list_descendant = []
         for descendant in descendants:
-            list_descendant = descendant.split(':')
-            query['$text']['$search'] += f'{list_descendant[1]} '
-        list_filter_id = filter.id.split(':')
-        query['$text']['$search'] += f'{list_filter_id[1]}'
-
+            list_descendant.append(descendant['id'])
+        query['$or']=[]
+        list_descendant.append(filter.id)
+        for desc in list_descendant:  
+            if collection == 'individuals':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in INDIVIDUALS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{desc}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'analyses':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in ANALYSES_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{desc}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'biosamples':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in BIOSAMPLES_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{desc}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'g_variants':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in G_VARIANTS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{desc}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'runs':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in RUNS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{desc}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+    
     if is_filter_id_required:
-        if query["$text"]["$search"]:
-            query["$text"]["$search"] += " "
-        query["$text"]["$search"] += '\"' + filter.id + '\"'
+            query['$or']=[]
+            if collection == 'individuals':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in INDIVIDUALS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{filter.id}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'analyses':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in ANALYSES_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{filter.id}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'biosamples':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in BIOSAMPLES_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{filter.id}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'g_variants':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in G_VARIANTS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{filter.id}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+            elif collection == 'runs':
+                dict_text_2={}
+                dict_text_2['$or']=[]
+                for item in RUNS_MAP:
+                    dict_filter_2={}
+                    dict_filter_2[item]=''
+                    dict_filter_2[item]+=f'{filter.id}'
+                    dict_text_2['$or'].append(dict_filter_2)
+                query['$or'].append(dict_text_2)
+    
 
     LOG.debug("QUERY: %s", query)
     return query
@@ -445,12 +595,54 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
 
 
 
-def apply_custom_filter(query: dict, filter: CustomFilter) -> dict:
+def apply_custom_filter(query: dict, filter: CustomFilter, collection:str) -> dict:
     LOG.debug(query)
-    search_dict={}
-    if "$text" in query:
-        query["$text"]["$search"] += " "
-    search_dict["$search"] = filter.id
-    query["$text"] = search_dict
+    query['$or']=[]
+    if collection == 'individuals':
+        dict_text_2={}
+        dict_text_2['$or']=[]
+        for item in INDIVIDUALS_MAP:
+            dict_filter_2={}
+            dict_filter_2[item]=''
+            dict_filter_2[item]+=f'{filter.id}'
+            dict_text_2['$or'].append(dict_filter_2)
+        query['$or'].append(dict_text_2)
+    elif collection == 'analyses':
+        dict_text_2={}
+        dict_text_2['$or']=[]
+        for item in ANALYSES_MAP:
+            dict_filter_2={}
+            dict_filter_2[item]=''
+            dict_filter_2[item]+=f'{filter.id}'
+            dict_text_2['$or'].append(dict_filter_2)
+        query['$or'].append(dict_text_2)
+    elif collection == 'biosamples':
+        dict_text_2={}
+        dict_text_2['$or']=[]
+        for item in BIOSAMPLES_MAP:
+            dict_filter_2={}
+            dict_filter_2[item]=''
+            dict_filter_2[item]+=f'{filter.id}'
+            dict_text_2['$or'].append(dict_filter_2)
+        query['$or'].append(dict_text_2)
+    elif collection == 'g_variants':
+        dict_text_2={}
+        dict_text_2['$or']=[]
+        for item in G_VARIANTS_MAP:
+            dict_filter_2={}
+            dict_filter_2[item]=''
+            dict_filter_2[item]+=f'{filter.id}'
+            dict_text_2['$or'].append(dict_filter_2)
+        query['$or'].append(dict_text_2)
+    elif collection == 'runs':
+        dict_text_2={}
+        dict_text_2['$or']=[]
+        for item in RUNS_MAP:
+            dict_filter_2={}
+            dict_filter_2[item]=''
+            dict_filter_2[item]+=f'{filter.id}'
+            dict_text_2['$or'].append(dict_filter_2)
+        query['$or'].append(dict_text_2)
+
     LOG.debug("QUERY: %s", query)
     return query
