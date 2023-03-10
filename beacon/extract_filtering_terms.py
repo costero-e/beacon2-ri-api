@@ -19,14 +19,13 @@ import os
 import scipy
 import numpy as np
 from sentence_transformers import models, SentenceTransformer
-import model
 
 
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
-    #"mongodb://127.0.0.1:27017/"
-    "mongodb://root:example@mongo:27017/beacon?authSource=admin"
+    "mongodb://127.0.0.1:27017/"
+    #"mongodb://root:example@mongo:27017/beacon?authSource=admin"
 
 )
 
@@ -194,23 +193,39 @@ def get_descendants(ontology_id:str, ontology_term:str):
     if not descendants:
         descendants = {ontology}
     descendants = list(descendants)
-    dict = {}
     try:
-        corpus_embeddings = model.encode(corpus)
+        queries.append(id_to_name[ontology])
+    except Exception:
+        queries.append('')
+    messages = []
+    try:
+        for descendant in descendants:
+            dict_d={}
+            label_d = id_to_name[descendant]
+            dict_d['label'] = label_d
+            dict_d['id'] = descendant
+            list_dict.append(dict_d)
+            messages.append(label_d)
+    except Exception:
+        messages.append('')
+        
+    model = SentenceTransformer("distiluse-base-multilingual-cased", device="cpu")
+    try:
+        messages_embeddings = model.encode(messages)
 
         query_embeddings = model.encode(queries)
 
-        closest_n = 10
+        limiting = 10
 
         for query, query_embedding in zip(queries, query_embeddings):
-            distances = scipy.spatial.distance.cdist([query_embedding], corpus_embeddings, "cosine")[0]
+            distances = scipy.spatial.distance.cdist([query_embedding], messages_embeddings, "cosine")[0]
 
             results = zip(range(len(distances)), distances)
             results = sorted(results, key=lambda x: x[1])
 
-            for idx, distance in results[0:closest_n]:
+            for ontoid, distance in results[0:limiting]:
                 for elem in list_dict:
-                    if corpus[idx] in elem['label']:
+                    if messages[ontoid] in elem['label']:
                         elem['distance'] = (1-distance)
     except Exception:
         list_dict = []
