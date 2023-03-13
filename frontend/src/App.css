@@ -18,7 +18,7 @@ html {
 .searchButton {
   height: 40px;
   background: white;
-  border: 2px solid ;
+  border: 2px solid;
   box-shadow: 6px 5px 5px #a3a0a0;
   cursor: pointer;
 }
@@ -27,20 +27,7 @@ html {
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
 }
 
-.searchButton2 {
-  margin-left: 93%;
-  height: 40px;
-  border-radius: 2px;
-  background: white;
-  border: 2px solid ;
-  box-shadow: 6px 5px 5px #a3a0a0;
-  cursor: pointer;
-  margin-top: 30px;
-}
 
-.searchButton2:hover{
-  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
-}
 
 .container-fluid {
   display: flex;
@@ -98,6 +85,19 @@ html {
   flex-wrap: wrap
 }
 
+.alphanumContainer {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+}
+
+.alphanumContainer2 {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
 .cinecaLogo {
   padding-top: 40px;
   padding-bottom: 40px;
@@ -129,6 +129,11 @@ hr {
   color: #4d4b4b;
   font-size: 14px;
   cursor: pointer;
+  margin-left: 10px;
+}
+
+.exampleQuery:hover {
+  color: #4fb5f0;
 }
 
 .exampleQueries:hover {
@@ -136,16 +141,20 @@ hr {
 }
 
 
-
 .bulbLogo {
   height: 18px;
+  margin-right: 10px;
 }
 
-
+.additionalOptions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 70px;
+  align-items: center;
+}
 
 .example {
   display: flex;
-  margin-top: 18px;
   align-items: center;
 }
 
@@ -174,13 +183,13 @@ hr {
   width: fit-content;
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
   border: none;
-  margin-top: 83px;
   padding: 12px;
   box-shadow: 0px 2px 3px #a3a0a0;
   border-radius: 3px;
   font-variant: all-petite-caps;
   font-size: 17px;
   cursor: pointer;
+  height: 50%;
 }
 
 .advSearch:hover {
@@ -188,7 +197,26 @@ hr {
 }
 
 .advSearchModule {
+
   margin: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.advSearchModule2 {
+  margin: 20px;
+  display: flex;
+  justify-content: center;
+}
+
+
+.advSearchModule div {
+  display: flex;
+  align-items: center;
+}
+
+.resultset {
+  width: 360px;
 }
 
 .skipForm {
@@ -197,6 +225,7 @@ hr {
   margin: 20px;
   padding: 10px;
   box-shadow: 6px 5px 5px #a3a0a0;
+  width: 20%;
 }
 
 .limitForm {
@@ -205,13 +234,43 @@ hr {
   margin: 20px;
   padding: 10px;
   box-shadow: 6px 5px 5px #a3a0a0;
+  width: 20%;
+}
+
+.IdForm {
+  background: white;
+  border: 2px solid #c11524;
+  margin: 20px;
+  padding: 10px;
+  box-shadow: 6px 5px 5px #a3a0a0;
+  width: 20%;
+}
+
+.OperatorForm {
+  background: white;
+  border: 2px solid #c11524;
+  margin: 20px;
+  padding: 10px;
+  box-shadow: 6px 5px 5px #a3a0a0;
+  width: 20%;
+}
+
+.ValueForm {
+  background: white;
+  border: 2px solid #c11524;
+  margin: 20px;
+  padding: 10px;
+  box-shadow: 6px 5px 5px #a3a0a0;
+  width: 20%;
+
 }
 
 .advSearchForm {
   display: flex;
   margin-top: 45px;
-  align-items: center;
+  align-items: flex-end;
   flex-direction: column;
+  justify-content: center;
 }
 
 .returnBasic {
