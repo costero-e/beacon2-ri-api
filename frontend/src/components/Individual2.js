@@ -34,6 +34,8 @@ function Individuals2(props) {
       console.log(props.query)
       console.log(props.resultSets)
       console.log(props.limit)
+      console.log(props.similarity)
+      console.log(props.descendantTerm)
 
       if (props.query != null) {
 
@@ -63,12 +65,13 @@ function Individuals2(props) {
 
         console.log(queryArray)
 
-
-
       }
 
       try {
-        if (props.query === null) {
+
+        if (props.value != '' && props.operator  != '' && props.ID  != '') {
+
+          //alphanumerical query
 
           var jsonData1 = {
 
@@ -76,7 +79,48 @@ function Individuals2(props) {
               "apiVersion": "2.0"
             },
             "query": {
-              "filters": [],
+              "filters": [
+
+                {
+                  "id": `${props.ID}`,
+                  "operator": `${props.operator}`,
+                  "value": `${props.value}`,
+                  "includeDescendantTerms": `${props.descendantTerm}`
+                }
+              ],
+              "includeResultsetResponses": `${props.resultSets}`,
+              "pagination": {
+                "skip": `${props.skip}`,
+                "limit": `${props.limit}`
+              },
+              "testMode": false,
+              "requestedGranularity": "record",
+            }
+          }
+
+          jsonData1 = JSON.stringify(jsonData1)
+
+          let res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData1)
+
+        }
+
+
+        if (props.query === null) {
+
+          // show all individuals
+
+          var jsonData2 = {
+
+            "meta": {
+              "apiVersion": "2.0"
+            },
+            "query": {
+              "filters": [
+                {
+                  "includeDescendantTerms": `${props.descendantTerm}`
+                }
+              
+              ],
               "includeResultsetResponses": `${props.resultSets}`,
               "pagination": {
                 "skip": `${props.skip}`,
@@ -88,13 +132,10 @@ function Individuals2(props) {
           }
 
 
+          jsonData2 = JSON.stringify(jsonData2)
+          console.log(jsonData2)
 
-
-
-          jsonData1 = JSON.stringify(jsonData1)
-          console.log(jsonData1)
-
-          const res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData1)
+          res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData2)
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
@@ -109,18 +150,20 @@ function Individuals2(props) {
 
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
 
-          if (props.resultSets === "HIT" && props.limit === 10) {
-
-            res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${props.query}`)
-
-          } else {
-            var jsonData2 = {
+          //no operator
+          
+            var jsonData3 = {
 
               "meta": {
                 "apiVersion": "2.0"
               },
               "query": {
-                "filters": [],
+                "filters": [
+                  {
+                    "id": props.query,
+                    "includeDescendantTerms": `${props.descendantTerm}`
+                  }
+                ],
                 "includeResultsetResponses": `${props.resultSets}`,
                 "pagination": {
                   "skip": `${props.skip}`,
@@ -130,14 +173,12 @@ function Individuals2(props) {
                 "requestedGranularity": "record",
               }
             }
-  
-            
-            jsonData2 = JSON.stringify(jsonData2)
-            console.log(jsonData2)
 
-            res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData2)
 
-          }
+            jsonData3 = JSON.stringify(jsonData3)
+            console.log(jsonData3)
+
+            res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData3)
 
 
           setTimeOut(true)
@@ -162,10 +203,7 @@ function Individuals2(props) {
           }
 
 
-
-
         } else {
-
 
           let res = null
 
@@ -187,9 +225,7 @@ function Individuals2(props) {
               ident.push(keyTerm.trim())
             }
 
-
           }
-
 
           console.log(label)
           console.log(ident)
@@ -229,30 +265,6 @@ function Individuals2(props) {
 
           console.log(arrayFilter)
 
-          if (arrayFilter.length > 1) {
-
-
-            let stringIds = ident.join()
-            console.log(stringIds)
-
-
-            try {
-
-              if (props.resultSets === 'HIT') {
-                res = await axios.get(`https://ega-archive.org/beacon-apis/cineca/individuals/?filters=${stringIds}`)
-              }
-
-
-              setTimeOut(true)
-            } catch (error) {
-              setError("No results. Please check the query and retry")
-            }
-
-          }
-
-          else {
-
-
             var jsonData = {
 
               "meta": {
@@ -260,9 +272,9 @@ function Individuals2(props) {
               },
               "query": {
                 "filters": arrayFilter,
-                "includeResultsetResponses": "HIT",
+                "includeResultsetResponses": `${props.resultSets}`,
                 "pagination": {
-                  "skip": 5,
+                  "skip": `${props.skip}`,
                   "limit": `${props.limit}`
                 },
                 "testMode": false,
@@ -290,7 +302,7 @@ function Individuals2(props) {
 
           let entries = Object.entries(results[0])
           console.log(entries)
-        }
+        
 
 
       } catch (error) {
@@ -383,7 +395,7 @@ function Individuals2(props) {
                           <h4>assayCode label:</h4>
                           <h3>{value.assayCode.label}</h3>
                         </div>
-                        
+
                         <div>
                           <h4>Measurament value quantity ID and label:</h4>
                           <h3>{value.measurementValue.quantity.unit.id}</h3>
