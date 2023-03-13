@@ -16,13 +16,16 @@ from bson.json_util import dumps
 import json
 import networkx
 import os
+import scipy
+import numpy as np
+from sentence_transformers import models, SentenceTransformer
 
 
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
-    #"mongodb://127.0.0.1:27017/"
-    "mongodb://root:example@mongo:27017/beacon?authSource=admin"
+    "mongodb://127.0.0.1:27017/"
+    #"mongodb://root:example@mongo:27017/beacon?authSource=admin"
 
 )
 
@@ -105,9 +108,7 @@ def get_ontology_term_count(collection_name: str, term: str) -> int:
     return client.beacon\
         .get_collection(collection_name)\
         .count_documents(query)
-
 '''
-
 def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
     query = {
         '$text': {
@@ -156,11 +157,14 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                                                 break
 
         #print(field)
-
     return field'''
 
 def get_descendants(ontology_id:str, ontology_term:str):
+    list_dict = []
+    queries = []
     if ontology_id == 'GAZ':
+        descendants = ''
+    elif ontology_id == 'DUO':
         descendants = ''
     else:        
         url = 'ontologies/{}.obo'.format(ontology_id.upper())
@@ -178,56 +182,71 @@ def get_descendants(ontology_id:str, ontology_term:str):
         except Exception:
             pass
     ontology = ontology_id + ':' + ontology_term
-    
-
+    dict = {}
     try:
-        descendants = networkx.ancestors(graph, ontology)
+        dict['label']=label
+    except Exception:
+        dict['label']=''
+    try:
+        descendants = networkx.descendants(graph, ontology)
     except Exception:
         descendants = ''
     if not descendants:
         descendants = {ontology}
     descendants = list(descendants)
-    dict = {}
-
     try:
-        dict['label']=label
+        queries.append(id_to_name[ontology])
     except Exception:
-        dict['label']=''
+        queries.append('')
+    messages = []
+    try:
+        for descendant in descendants:
+            dict_d={}
+            label_d = id_to_name[descendant]
+            dict_d['label'] = label_d
+            dict_d['id'] = descendant
+            list_dict.append(dict_d)
+            messages.append(label_d)
+    except Exception:
+        messages.append('')
+        
+    model = SentenceTransformer("distiluse-base-multilingual-cased", device="cpu")
+    try:
+        messages_embeddings = model.encode(messages)
+
+        query_embeddings = model.encode(queries)
+
+        limiting = 10
+
+        for query, query_embedding in zip(queries, query_embeddings):
+            distances = scipy.spatial.distance.cdist([query_embedding], messages_embeddings, "cosine")[0]
+
+            results = zip(range(len(distances)), distances)
+            results = sorted(results, key=lambda x: x[1])
+
+            for ontoid, distance in results[0:limiting]:
+                for elem in list_dict:
+                    if messages[ontoid] in elem['label']:
+                        elem['distance'] = (1-distance)
+    except Exception:
+        list_dict = []
+
+
+
+
     
-    dict['descendants']=descendants
+    dict['descendants']=list_dict
     try:
         dict['list']=id_to_name
     except Exception:
         list_onto=[]
         list_onto.append(ontology)
         dict['list']=list_onto
-
-
     dict['ontology']='{}'.format(ontology_id)
     #print(descendants)
     return dict
 
-def get_descendants_with_list(ontology_id:str, ontology_term:str):        
-    url = 'ontologies/{}.obo'.format(ontology_id.upper())
-    url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
-    try:
-        graph = obonet.read_obo(url)
-    except Exception:
-        graph = obonet.read_obo(url_alt)
-    ontology = ontology_id + ':' + ontology_term
-    networkx.is_directed_acyclic_graph(graph)
-    try:
-        descendants = networkx.ancestors(graph, ontology)
-    except Exception:
-        descendants = ''
-    if not descendants:
-        descendants = {ontology}
-    descendants = list(descendants)
-    dict = {}
-    dict['descendants']=descendants
-    dict['ontology']='{}'.format(ontology_id)
-    #print(descendants)
-    return dict
+
 
 def find_ontology_terms_used(collection_name: str) -> List[Dict]:
     terms_ids = []
@@ -246,25 +265,14 @@ def find_ontology_terms_used(collection_name: str) -> List[Dict]:
 def get_filtering_object(terms_ids: list, collection_name: str):
     terms = []
     ontologies = dict()
-    array = []
     for onto in terms_ids:
         ontology = onto.split(':')
         ontology_id = ontology[0]
         term_id = ontology[1]
         if ontology_id not in ontologies:
             ontologies[ontology_id] = load_ontology(ontology_id)
-        if ontology_id not in array:
-            if ontologies[ontology_id] is not None:
-                dict_descendants = get_descendants(ontology_id, term_id)
-                array = dict_descendants['ontology']
-                ontologies['list'] = dict_descendants['list']
-        if ontology_id in array:
-            dict_descendants = get_descendants_with_list(ontology_id, term_id)
-            id_to_name = ontologies['list']
-            try:
-                dict_descendants['label']= id_to_name['{}:{}'.format(ontology_id,term_id)]
-            except Exception:
-                dict_descendants['label']=''
+        if ontologies[ontology_id] is not None:
+            dict_descendants = get_descendants(ontology_id, term_id)
         if dict_descendants['label'] != '':
                 terms.append({
                         'type': get_ontology_name(ontologies[ontology_id]),
@@ -273,11 +281,9 @@ def get_filtering_object(terms_ids: list, collection_name: str):
                         # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
                         'count': get_ontology_term_count(collection_name, onto),
                         'collection': collection_name,
-
                         #'field': get_ontology_field_name(ontology_id, term_id, collection_name),
-
                         'descendants': dict_descendants['descendants'],
-                        #'similarity':
+                        #'similarity': semantic_similarity(dict_descendants['descendants'], onto)
                     })
         print(terms)
     return terms

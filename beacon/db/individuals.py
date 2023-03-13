@@ -1,6 +1,6 @@
 import logging
 from typing import Dict, List, Optional
-from beacon.db.filters import apply_alphanumeric_filter, apply_filters
+from beacon.db.filters import apply_alphanumeric_filter, apply_filters, INDIVIDUALS_MAP
 from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query
 from beacon.db import client
 from beacon.request.model import AlphanumericFilter, Operator, RequestParams
@@ -28,22 +28,26 @@ def include_resultset_responses(query: Dict[str, List[dict]], qparams: RequestPa
 
 def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParams):
     LOG.debug("Request parameters len = {}".format(len(qparams.query.request_parameters)))
+    v_list=[]
     for k, v in qparams.query.request_parameters.items():
-        query["$text"] = {}
-        if ',' in v:
-            v_list = v.split(',')
-            v_string=''
-            for val in v_list:
-                v_string += f'"{val}"'
-            query["$text"]["$search"]=v_string
-        else:
-            query["$text"]["$search"]=f'"{v}"'
+        if k == 'filters':
+            if ',' in v:
+                v_list =v.split(',')
+                LOG.debug(v_list)
+            else:
+                v_list.append(v)
+            LOG.debug(v_list)
+            for id in v_list:
+                v_dict={}
+                v_dict['id']=id
+                qparams.query.filters.append(v_dict)
     return query
 
 
 def get_individuals(entry_id: Optional[str], qparams: RequestParams):
     collection = 'individuals'
     query = apply_request_parameters({}, qparams)
+    LOG.debug(qparams.query.filters)
     query = apply_filters(query, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.INDIVIDUALS
