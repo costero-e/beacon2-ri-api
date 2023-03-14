@@ -81,7 +81,6 @@ services:
     networks:
       - beacon-priv
       - pub
-      - idp-priv
     working_dir: '/beacon'
     entrypoint: ['python','-m','beacon']
     # entrypoint: ['/bin/sleep','100000000']
@@ -133,7 +132,8 @@ services:
     volumes:
       - ./beacon-realm.json:/tmp/beacon-realm.json
     ports:
-      - "8082:8082"
+      - "9990:8080"
+      - "9991:8443"
     networks:
       - pub
       - idp-priv 
@@ -148,7 +148,5 @@ services:
       - POSTGRES_DB=keycloak
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=secret
-    ports:
-      - "5432:5432"
     networks:
       - idp-priv 
