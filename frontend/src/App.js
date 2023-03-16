@@ -30,7 +30,7 @@ function Layout() {
   const [exampleQ, setExampleQ] = useState([])
   const [showAdvSearch, setAdvSearch] = useState(false)
   const [showAlphanumValue, setAlphanumValue] = useState(false)
-  const [resultSetType, setResultsetType] = useState(["Select", "HIT", "MISS", "NONE", "ALL"])
+  const [resultSetType, setResultsetType] = useState(["HIT", "MISS", "NONE", "ALL"])
   const [resultSet, setResultset] = useState("HIT")
 
   const [limit, setLimit] = useState(10)
@@ -305,6 +305,7 @@ function Layout() {
         {results === null && <ResultsDatasets />}
         {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity}/>}
       </div>
+    
     </div>
 
   );
