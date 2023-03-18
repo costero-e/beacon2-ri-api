@@ -18,14 +18,13 @@ import networkx
 import os
 import scipy
 import numpy as np
-from sentence_transformers import models, SentenceTransformer
 
 
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
-    "mongodb://127.0.0.1:27017/"
-    #"mongodb://root:example@mongo:27017/beacon?authSource=admin"
+    #"mongodb://127.0.0.1:27017/"
+    "mongodb://root:example@mongo:27017/beacon?authSource=admin"
 
 )
 
@@ -54,19 +53,6 @@ def insert_all_ontology_terms_used():
         terms = get_filtering_object(terms_ids, c_name)
         if len(terms) > 0:
             client.beacon.filtering_terms.insert_many(terms)
-
-
-def get_ontology_name(ontology: owlready2.Ontology) -> str:
-    path = "ontologies/{}.obo".format(ontology)
-    try:
-        graph = obonet.read_obo(path)
-        name = graph.graph['remark']
-        if '.' in name[0]:
-            list_name = name[0].split('.')
-            name = list_name[0]
-        return name
-    except:
-        pass
 
 def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
     if ontology_id.isalpha():
@@ -108,143 +94,35 @@ def get_ontology_term_count(collection_name: str, term: str) -> int:
     return client.beacon\
         .get_collection(collection_name)\
         .count_documents(query)
-'''
-def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
-    query = {
-        '$text': {
-            '$search': '\"' + ontology_id + ":" + term_id + '\"'
-        }
+
+def get_label_and_ontology(ontology_id:str, ontology_term:str):     
+    url = 'ontologies/{}.obo'.format(ontology_id.upper())
+    url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
+    label=''
+    try:
+        graph = obonet.read_obo(url)
+    except Exception:
+        graph = obonet.read_obo(url_alt)
+    try:
+        id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
+        label = id_to_name['{}:{}'.format(ontology_id,ontology_term)]
+    except Exception:
+        pass
+    if not label:
+        label = ''
+    try:
+        name = graph.graph['remark']
+        if '.' in name[0]:
+            list_name = name[0].split('.')
+            name = list_name[0]
+    except Exception:
+        name = ''
+    dict={
     }
-    results = client.beacon.get_collection(collection).find(query)
-    results = list(results)
-    results = dumps(results)
-    results = json.loads(results)
-    field = ''
-    for result in results:
-        for k, v in result.items():
-            if isinstance(v, str): 
-                if v == ontology_id + ':' + term_id:
-                    field = k
-                    break
-            elif isinstance(v, dict):
-                for k2, v2 in v.items():
-                    if v2 == ontology_id + ':' + term_id:
-                        field = k + '.' + k2
-                        break 
-            elif isinstance(v, list):
-                for item in v:
-                    #print(item)
-                    if isinstance(item, str): 
-                        if item == ontology_id + ':' + term_id:
-                            field = item
-                            break
-                    elif isinstance(item, dict):
-                        for k2, v2 in item.items():
-                            if isinstance(v2, str):
-                                if v2 == ontology_id + ':' + term_id:
-                                    field = k2
-                                    break 
-                            elif isinstance(v2, dict):
-                                for k3, v3 in v2.items():
-                                    if isinstance(v3, str):
-                                        if v3 == ontology_id + ':' + term_id:
-                                            field = k2 + '.' + k3
-                                            break 
-                                    elif isinstance(v3, dict):
-                                        for k4, v4 in v3.items():
-                                            if v4 == ontology_id + ':' + term_id:
-                                                field = k2 + '.' + k3 + '.' + k4
-                                                break
-
-        #print(field)
-    return field'''
-
-def get_descendants(ontology_id:str, ontology_term:str):
-    list_dict = []
-    queries = []
-    if ontology_id == 'GAZ':
-        descendants = ''
-    elif ontology_id == 'DUO':
-        descendants = ''
-    else:        
-        url = 'ontologies/{}.obo'.format(ontology_id.upper())
-        url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
-        label=''
-        try:
-            graph = obonet.read_obo(url)
-            networkx.is_directed_acyclic_graph(graph)
-        except Exception:
-            graph = obonet.read_obo(url_alt)
-            networkx.is_directed_acyclic_graph(graph)
-        try:
-            id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
-            label = id_to_name['{}:{}'.format(ontology_id,ontology_term)]
-        except Exception:
-            pass
-    ontology = ontology_id + ':' + ontology_term
-    dict = {}
-    try:
-        dict['label']=label
-    except Exception:
-        dict['label']=''
-    try:
-        descendants = networkx.descendants(graph, ontology)
-    except Exception:
-        descendants = ''
-    if not descendants:
-        descendants = {ontology}
-    descendants = list(descendants)
-    try:
-        queries.append(id_to_name[ontology])
-    except Exception:
-        queries.append('')
-    messages = []
-    try:
-        for descendant in descendants:
-            dict_d={}
-            label_d = id_to_name[descendant]
-            dict_d['label'] = label_d
-            dict_d['id'] = descendant
-            list_dict.append(dict_d)
-            messages.append(label_d)
-    except Exception:
-        messages.append('')
-        
-    model = SentenceTransformer("distiluse-base-multilingual-cased", device="cpu")
-    try:
-        messages_embeddings = model.encode(messages)
-
-        query_embeddings = model.encode(queries)
-
-        limiting = 10
-
-        for query, query_embedding in zip(queries, query_embeddings):
-            distances = scipy.spatial.distance.cdist([query_embedding], messages_embeddings, "cosine")[0]
-
-            results = zip(range(len(distances)), distances)
-            results = sorted(results, key=lambda x: x[1])
-
-            for ontoid, distance in results[0:limiting]:
-                for elem in list_dict:
-                    if messages[ontoid] in elem['label']:
-                        elem['distance'] = (1-distance)
-    except Exception:
-        list_dict = []
-
-
-
-
-    
-    dict['descendants']=list_dict
-    try:
-        dict['list']=id_to_name
-    except Exception:
-        list_onto=[]
-        list_onto.append(ontology)
-        dict['list']=list_onto
-    dict['ontology']='{}'.format(ontology_id)
-    #print(descendants)
+    dict['label']=label
+    dict['name']=name
     return dict
+
 
 
 
@@ -264,28 +142,36 @@ def find_ontology_terms_used(collection_name: str) -> List[Dict]:
 
 def get_filtering_object(terms_ids: list, collection_name: str):
     terms = []
+    list_of_ontologies=[]
     ontologies = dict()
     for onto in terms_ids:
+        dictiolabel={}
         ontology = onto.split(':')
         ontology_id = ontology[0]
         term_id = ontology[1]
+        complete_onto = ontology[0] + ':' + ontology[1]
         if ontology_id not in ontologies:
             ontologies[ontology_id] = load_ontology(ontology_id)
-        if ontologies[ontology_id] is not None:
-            dict_descendants = get_descendants(ontology_id, term_id)
-        if dict_descendants['label'] != '':
-                terms.append({
-                        'type': get_ontology_name(ontologies[ontology_id]),
+        #if ontologies[ontology_id] is not None:
+            #if onto not in list_of_ontologies:
+                #get_descendants_and_similarities(complete_onto)
+        dictiolabel=get_label_and_ontology(ontology_id, term_id)
+        terms.append({
+                        'type': dictiolabel['name'],
                         'id': onto,
-                        'label': dict_descendants['label'],
+                        'label': dictiolabel['label'],
                         # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
                         'count': get_ontology_term_count(collection_name, onto),
                         'collection': collection_name,
-                        #'field': get_ontology_field_name(ontology_id, term_id, collection_name),
-                        'descendants': dict_descendants['descendants'],
-                        #'similarity': semantic_similarity(dict_descendants['descendants'], onto)
                     })
         print(terms)
+        if onto not in list_of_ontologies:
+            list_of_ontologies.append(onto)
+    path = "filtering_terms.txt"
+    with open(path, 'w') as f:
+        for item in list_of_ontologies:
+            f.write(item+"\n")
+    f.close()
     return terms
 
 

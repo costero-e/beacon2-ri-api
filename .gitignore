@@ -128,5 +128,6 @@ typings/
 deploy/ontologies/*.obo
 deploy/ontologies/*.owl*
 .antlr/
-beacon/sentence_embeddings/*.txt
-beacon/extract_filtering_terms_oriol.py
+beacon/descendants
+beacon/similarities
+beacon/ontologies

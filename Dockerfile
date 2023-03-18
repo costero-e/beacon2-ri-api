@@ -14,7 +14,6 @@ RUN apt-get install -y --no-install-recommends \
 
 # python packages
 RUN pip install --upgrade pip
-RUN pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
@@ -63,6 +62,3 @@ RUN groupadd beacon                              && \
 WORKDIR /beacon
 USER beacon
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-WORKDIR /home/beacon
-RUN chmod -R 700 ./
