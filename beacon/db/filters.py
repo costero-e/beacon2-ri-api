@@ -9,6 +9,8 @@ from beacon.request.model import AlphanumericFilter, CustomFilter, OntologyFilte
 from beacon.db.utils import get_documents
 from beacon.db import client
 
+import obonet
+
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -56,30 +58,32 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) 
     if filter.similarity != Similarity.EXACT:
         cutoff = 1
         is_filter_id_required = False
+        ontology_list=filter.id.split(':')
         if filter.similarity == Similarity.HIGH:
-            cutoff = 0.9
+            similarity_high=[]
+            path = "./beacon/similarities/{}{}{}.txt".format(ontology_list[0],ontology_list[1],'high')
+            with open(path, 'r') as f:
+                for line in f:
+                    line = line.replace("\n","")
+                    similarity_high.append(line)
+            final_term_list = similarity_high
         elif filter.similarity == Similarity.MEDIUM:
-            cutoff = 0.7
+            similarity_medium=[]
+            path = "./beacon/similarities/{}{}{}.txt".format(ontology_list[0],ontology_list[1],'medium')
+            with open(path, 'r') as f:
+                for line in f:
+                    line = line.replace("\n","")
+                    similarity_medium.append(line)
+            final_term_list = similarity_medium
         elif filter.similarity == Similarity.LOW:
-            cutoff = 0.5
-        similar_query = {'collection': collection}
-        docs = get_documents(
-        client.beacon.filtering_terms,
-        similar_query,
-        skip=0,
-        limit=1000
-    )
-        similar_terms_list=[]
-        for doc in docs:
-            if doc['id'] == filter.id:
-                similar_terms_list.append(doc['descendants'])
-                LOG.debug(similar_terms_list)
-        final_term_list = []
-        for term in similar_terms_list[0]:
-            if term['distance'] >= cutoff:
-                similar_term = term['id']
-                final_term_list.append(similar_term)
-                ###########################
+            similarity_low=[]
+            path = "./beacon/similarities/{}{}{}.txt".format(ontology_list[0],ontology_list[1],'low')
+            with open(path, 'r') as f:
+                for line in f:
+                    line = line.replace("\n","")
+                    similarity_low.append(line)
+            final_term_list = similarity_low
+        
         final_term_list.append(filter.id)
         query['$or']=[]
         for onto_query in final_term_list:
@@ -132,67 +136,67 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) 
     # Apply descendant terms
     if filter.include_descendant_terms == True:
         is_filter_id_required = False
-        desc_query={'id': filter.id}
-        descendants = get_documents(
-        client.beacon.filtering_terms,
-        desc_query,
-        skip=0,
-        limit=1,
-    )
-        descendants = descendants[0]
-        descendants = descendants['descendants']
-        list_descendant = []
-        for descendant in descendants:
-            list_descendant.append(descendant['id'])
-        query['$or']=[]
-        list_descendant.append(filter.id)
-        for desc in list_descendant:  
-            if collection == 'individuals':
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                for item in INDIVIDUALS_MAP:
-                    dict_filter_2={}
-                    dict_filter_2[item]=''
-                    dict_filter_2[item]+=f'{desc}'
-                    dict_text_2['$or'].append(dict_filter_2)
-                query['$or'].append(dict_text_2)
-            elif collection == 'analyses':
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                for item in ANALYSES_MAP:
-                    dict_filter_2={}
-                    dict_filter_2[item]=''
-                    dict_filter_2[item]+=f'{desc}'
-                    dict_text_2['$or'].append(dict_filter_2)
-                query['$or'].append(dict_text_2)
-            elif collection == 'biosamples':
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                for item in BIOSAMPLES_MAP:
-                    dict_filter_2={}
-                    dict_filter_2[item]=''
-                    dict_filter_2[item]+=f'{desc}'
-                    dict_text_2['$or'].append(dict_filter_2)
-                query['$or'].append(dict_text_2)
-            elif collection == 'g_variants':
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                for item in G_VARIANTS_MAP:
-                    dict_filter_2={}
-                    dict_filter_2[item]=''
-                    dict_filter_2[item]+=f'{desc}'
-                    dict_text_2['$or'].append(dict_filter_2)
-                query['$or'].append(dict_text_2)
-            elif collection == 'runs':
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                for item in RUNS_MAP:
-                    dict_filter_2={}
-                    dict_filter_2[item]=''
-                    dict_filter_2[item]+=f'{desc}'
-                    dict_text_2['$or'].append(dict_filter_2)
-                query['$or'].append(dict_text_2)
-    
+        try:
+            ontology=filter.id.replace("\n","")
+            LOG.debug(ontology)
+            ontology_list=ontology.split(':')
+            list_descendant = []
+            path = "./beacon/descendants/{}{}.txt".format(ontology_list[0],ontology_list[1])
+            LOG.debug(path)
+            with open(path, 'r') as f:
+                for line in f:
+                    line=line.replace("\n","")
+                    list_descendant.append(line)
+            query['$or']=[]
+            list_descendant.append(filter.id)
+            for desc in list_descendant:  
+                if collection == 'individuals':
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    for item in INDIVIDUALS_MAP:
+                        dict_filter_2={}
+                        dict_filter_2[item]=''
+                        dict_filter_2[item]+=f'{desc}'
+                        dict_text_2['$or'].append(dict_filter_2)
+                    query['$or'].append(dict_text_2)
+                elif collection == 'analyses':
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    for item in ANALYSES_MAP:
+                        dict_filter_2={}
+                        dict_filter_2[item]=''
+                        dict_filter_2[item]+=f'{desc}'
+                        dict_text_2['$or'].append(dict_filter_2)
+                    query['$or'].append(dict_text_2)
+                elif collection == 'biosamples':
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    for item in BIOSAMPLES_MAP:
+                        dict_filter_2={}
+                        dict_filter_2[item]=''
+                        dict_filter_2[item]+=f'{desc}'
+                        dict_text_2['$or'].append(dict_filter_2)
+                    query['$or'].append(dict_text_2)
+                elif collection == 'g_variants':
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    for item in G_VARIANTS_MAP:
+                        dict_filter_2={}
+                        dict_filter_2[item]=''
+                        dict_filter_2[item]+=f'{desc}'
+                        dict_text_2['$or'].append(dict_filter_2)
+                    query['$or'].append(dict_text_2)
+                elif collection == 'runs':
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    for item in RUNS_MAP:
+                        dict_filter_2={}
+                        dict_filter_2[item]=''
+                        dict_filter_2[item]+=f'{desc}'
+                        dict_text_2['$or'].append(dict_filter_2)
+                    query['$or'].append(dict_text_2)
+        except Exception:
+            query = query
     if is_filter_id_required:
             query['$or']=[]
             if collection == 'individuals':
@@ -450,96 +454,193 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                     query['$and'].append(dict_text_2)
                     
         elif formatted_operator == "$ne":
-            if collection == 'individuals':
-                query['$and']=[]
-                dict_text={}
-                dict_text['$or']=[]
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                regex_dict={}
-                regex_dict['$regex']=filter.value
-                not_dict={}
-                not_dict['$not']=regex_dict
-                for item in INDIVIDUALS_MAP:
-                    dict_filter={}
-                    dict_filter_2={}
-                    dict_filter_2[item]=filter.id
-                    dict_text_2['$or'].append(dict_filter_2)
-                    dict_filter[item]=not_dict
-                    query['$and'].append(dict_filter)
-                query['$and'].append(dict_text_2)
-            elif collection == 'analyses':
-                query['$and']=[]
-                dict_text={}
-                dict_text['$or']=[]
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                regex_dict={}
-                regex_dict['$regex']=filter.value
-                not_dict={}
-                not_dict['$not']=regex_dict
-                for item in ANALYSES_MAP:
-                    dict_filter={}
-                    dict_filter_2={}
-                    dict_filter_2[item]=filter.id
-                    dict_text_2['$or'].append(dict_filter_2)
-                    dict_filter[item]=not_dict
-                    query['$and'].append(dict_filter)
-                query['$and'].append(dict_text_2)
-            elif collection == 'biosamples':
-                query['$and']=[]
-                dict_text={}
-                dict_text['$or']=[]
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                regex_dict={}
-                regex_dict['$regex']=filter.value
-                not_dict={}
-                not_dict['$not']=regex_dict
-                for item in BIOSAMPLES_MAP:
-                    dict_filter={}
-                    dict_filter_2={}
-                    dict_filter_2[item]=filter.id
-                    dict_text_2['$or'].append(dict_filter_2)
-                    dict_filter[item]=not_dict
-                    query['$and'].append(dict_filter)
-                query['$and'].append(dict_text_2)
-            elif collection == 'g_variants':
-                query['$and']=[]
-                dict_text={}
-                dict_text['$or']=[]
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                regex_dict={}
-                regex_dict['$regex']=filter.value
-                not_dict={}
-                not_dict['$not']=regex_dict
-                for item in G_VARIANTS_MAP:
-                    dict_filter={}
-                    dict_filter_2={}
-                    dict_filter_2[item]=filter.id
-                    dict_text_2['$or'].append(dict_filter_2)
-                    dict_filter[item]=not_dict
-                    query['$and'].append(dict_filter)
-                query['$and'].append(dict_text_2)
-            elif collection == 'runs':
-                query['$and']=[]
-                dict_text={}
-                dict_text['$or']=[]
-                dict_text_2={}
-                dict_text_2['$or']=[]
-                regex_dict={}
-                regex_dict['$regex']=filter.value
-                not_dict={}
-                not_dict['$not']=regex_dict
-                for item in RUNS_MAP:
-                    dict_filter={}
-                    dict_filter_2={}
-                    dict_filter_2[item]=filter.id
-                    dict_text_2['$or'].append(dict_filter_2)
-                    dict_filter[item]=not_dict
-                    query['$and'].append(dict_filter)
-                query['$and'].append(dict_text_2)
+            if '%' in filter.value:
+                if collection == 'individuals':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    value_splitted=filter.value.split('%')
+                    regex_dict={}
+                    regex_dict['$regex']=value_splitted[1]
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in INDIVIDUALS_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+                elif collection == 'analyses':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    value_splitted=filter.value.split('%')
+                    regex_dict={}
+                    regex_dict['$regex']=value_splitted[1]
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in ANALYSES_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+                elif collection == 'biosamples':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    value_splitted=filter.value.split('%')
+                    regex_dict={}
+                    regex_dict['$regex']=value_splitted[1]
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in BIOSAMPLES_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+                elif collection == 'g_variants':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    value_splitted=filter.value.split('%')
+                    regex_dict={}
+                    regex_dict['$regex']=value_splitted[1]
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in G_VARIANTS_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+                elif collection == 'runs':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    value_splitted=filter.value.split('%')
+                    regex_dict={}
+                    regex_dict['$regex']=value_splitted[1]
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in RUNS_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+            else:
+                if collection == 'individuals':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    regex_dict={}
+                    regex_dict['$eq']=filter.value
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in INDIVIDUALS_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+                elif collection == 'analyses':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    regex_dict={}
+                    regex_dict['$eq']=filter.value
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in ANALYSES_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+                elif collection == 'biosamples':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    regex_dict={}
+                    regex_dict['$eq']=filter.value
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in BIOSAMPLES_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+                elif collection == 'g_variants':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    regex_dict={}
+                    regex_dict['$eq']=filter.value
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in G_VARIANTS_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
+                elif collection == 'runs':
+                    query['$and']=[]
+                    dict_text={}
+                    dict_text['$or']=[]
+                    dict_text_2={}
+                    dict_text_2['$or']=[]
+                    regex_dict={}
+                    regex_dict['$eq']=filter.value
+                    not_dict={}
+                    not_dict['$not']=regex_dict
+                    for item in RUNS_MAP:
+                        dict_filter={}
+                        dict_filter_2={}
+                        dict_filter_2[item]=filter.id
+                        dict_text_2['$or'].append(dict_filter_2)
+                        dict_filter[item]=not_dict
+                        query['$and'].append(dict_filter)
+                    query['$and'].append(dict_text_2)
     else:
         query['measurementValue.quantity.value'] = { formatted_operator: float(formatted_value) }
         query['assayCode.id']=filter.id
