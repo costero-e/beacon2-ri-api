@@ -20,6 +20,7 @@ function Individuals2(props) {
   const [operator, setOperator] = useState([])
   const [timeOut, setTimeOut] = useState(false)
 
+
   const API_ENDPOINT = "http://localhost:5050/api/individuals/"
 
   let queryStringTerm = ''
@@ -28,6 +29,7 @@ function Individuals2(props) {
   let resultsAux = []
   let obj = {}
   let res = ""
+
 
   useEffect(() => {
     const apiCall = async () => {
@@ -38,6 +40,9 @@ function Individuals2(props) {
       console.log(props.descendantTerm)
       console.log(props.similarity)
 
+    
+
+    
       if (props.query != null) {
 
         queryStringTerm = props.query.split(',')
@@ -93,7 +98,15 @@ function Individuals2(props) {
         if (props.query === null) {
 
           // show all individuals
+          let descendantTerm = 0
 
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
 
           var jsonData1 = {
 
@@ -130,37 +143,54 @@ function Individuals2(props) {
           })
 
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
+          let descendantTerm = 0
 
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
+    
+
+  
           //no operator
           const filter2 = {
             "id": props.query,
-            "includeDescendantTerms": `${props.descendantTerm}`
+            "includeDescendantTerms": descendantTerm
           }
 
+          console.log("hola")
           arrayFilter.push(filter2)
+          console.log(arrayFilter)
 
-          var jsonData2 = {
+         
 
-            "meta": {
-              "apiVersion": "2.0"
-            },
-            "query": {
-              "filters": arrayFilter,
-              "includeResultsetResponses": `${props.resultSets}`,
-              "pagination": {
-                "skip": `${props.skip}`,
-                "limit": `${props.limit}`
+            var jsonData2 = {
+
+              "meta": {
+                "apiVersion": "2.0"
               },
-              "testMode": false,
-              "requestedGranularity": "record",
+              "query": {
+                "filters": arrayFilter,
+                "includeResultsetResponses": `${props.resultSets}`,
+                "pagination": {
+                  "skip": `${props.skip}`,
+                  "limit": `${props.limit}`
+                },
+                "testMode": false,
+                "requestedGranularity": "record",
+              }
             }
-          }
 
+            jsonData2 = JSON.stringify(jsonData2)
+            console.log(jsonData2)
+  
+            res = await axios.post("http://localhost:5050/api/individuals/", jsonData2)
 
-          jsonData2 = JSON.stringify(jsonData2)
-          console.log(jsonData2)
-
-          res = await axios.post("http://localhost:5050/api/individuals/", jsonData2)
+          
+        
 
 
           setTimeOut(true)
@@ -186,6 +216,17 @@ function Individuals2(props) {
 
 
         } else {
+
+          let descendantTerm = 0
+
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
+    
 
           let res = null
 
@@ -224,7 +265,7 @@ function Individuals2(props) {
                 "id": label[index],
                 "operator": ">",
                 "value": ident[index],
-                "includeDescendantTerms": `${props.descendantTerm}`
+               // "includeDescendantTerms": descendantTerm
               }
 
               arrayFilter.push(filter)
@@ -235,13 +276,13 @@ function Individuals2(props) {
                 "id": label[index],
                 "operator": "<",
                 "value": ident[index],
-                "includeDescendantTerms": `${props.descendantTerm}`
+                //"includeDescendantTerms": descendantTerm
               }
 
               arrayFilter.push(filter)
             } else {
               ident.forEach((element, index) => {
-                arrayFilter.push({ "id": ident[index],  "includeDescendantTerms": `${props.descendantTerm}` })
+                arrayFilter.push({ "id": ident[index]})  //"includeDescendantTerms": descendantTerm})
               })
 
             }
@@ -271,7 +312,7 @@ function Individuals2(props) {
 
           res = await axios.post("http://localhost:5050/api/individuals/", jsonData)
           setTimeOut(true)
-        }
+        
 
 
         setNumberResults(res.data.responseSummary.numTotalResults)
@@ -287,7 +328,7 @@ function Individuals2(props) {
         let entries = Object.entries(results[0])
         console.log(entries)
 
-
+        }
 
       } catch (error) {
 
