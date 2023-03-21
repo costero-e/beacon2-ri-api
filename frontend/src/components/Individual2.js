@@ -20,6 +20,7 @@ function Individuals2(props) {
   const [operator, setOperator] = useState([])
   const [timeOut, setTimeOut] = useState(false)
 
+
   const API_ENDPOINT = "http://localhost:5050/api/individuals/"
 
   let queryStringTerm = ''
@@ -29,6 +30,7 @@ function Individuals2(props) {
   let obj = {}
   let res = ""
 
+
   useEffect(() => {
     const apiCall = async () => {
       console.log(props.query)
@@ -37,6 +39,9 @@ function Individuals2(props) {
       console.log(props.similarity)
       console.log(props.descendantTerm)
 
+    
+
+    
       if (props.query != null) {
 
         queryStringTerm = props.query.split(',')
@@ -108,8 +113,21 @@ function Individuals2(props) {
         if (props.query === null) {
 
           // show all individuals
+          let descendantTerm = 0
 
+<<<<<<< HEAD
           var jsonData2 = {
+=======
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
+
+          var jsonData1 = {
+>>>>>>> 309c222 (gemma)
 
             "meta": {
               "apiVersion": "2.0"
@@ -149,21 +167,52 @@ function Individuals2(props) {
           })
 
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
+          let descendantTerm = 0
 
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
+    
+
+  
           //no operator
+<<<<<<< HEAD
           
             var jsonData3 = {
 
+=======
+          const filter2 = {
+            "id": props.query,
+            "includeDescendantTerms": descendantTerm
+          }
+
+          console.log("hola")
+          arrayFilter.push(filter2)
+          console.log(arrayFilter)
+
+         
+
+            var jsonData2 = {
+
+>>>>>>> 309c222 (gemma)
               "meta": {
                 "apiVersion": "2.0"
               },
               "query": {
+<<<<<<< HEAD
                 "filters": [
                   {
                     "id": props.query,
                     "includeDescendantTerms": `${props.descendantTerm}`
                   }
                 ],
+=======
+                "filters": arrayFilter,
+>>>>>>> 309c222 (gemma)
                 "includeResultsetResponses": `${props.resultSets}`,
                 "pagination": {
                   "skip": `${props.skip}`,
@@ -174,11 +223,20 @@ function Individuals2(props) {
               }
             }
 
+            jsonData2 = JSON.stringify(jsonData2)
+            console.log(jsonData2)
+  
+            res = await axios.post("http://localhost:5050/api/individuals/", jsonData2)
 
+<<<<<<< HEAD
             jsonData3 = JSON.stringify(jsonData3)
             console.log(jsonData3)
 
             res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData3)
+=======
+          
+        
+>>>>>>> 309c222 (gemma)
 
 
           setTimeOut(true)
@@ -204,6 +262,17 @@ function Individuals2(props) {
 
 
         } else {
+
+          let descendantTerm = 0
+
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
+    
 
           let res = null
 
@@ -241,7 +310,12 @@ function Individuals2(props) {
               const filter = {
                 "id": label[index],
                 "operator": ">",
+<<<<<<< HEAD
                 "value": ident[index]
+=======
+                "value": ident[index],
+               // "includeDescendantTerms": descendantTerm
+>>>>>>> 309c222 (gemma)
               }
 
               arrayFilter.push(filter)
@@ -251,13 +325,22 @@ function Individuals2(props) {
               const filter = {
                 "id": label[index],
                 "operator": "<",
+<<<<<<< HEAD
                 "value": ident[index]
+=======
+                "value": ident[index],
+                //"includeDescendantTerms": descendantTerm
+>>>>>>> 309c222 (gemma)
               }
 
               arrayFilter.push(filter)
             } else {
               ident.forEach((element, index) => {
+<<<<<<< HEAD
                 arrayFilter.push({ "id": ident[index] })
+=======
+                arrayFilter.push({ "id": ident[index]})  //"includeDescendantTerms": descendantTerm})
+>>>>>>> 309c222 (gemma)
               })
 
             }
@@ -282,8 +365,14 @@ function Individuals2(props) {
               }
             }
 
+<<<<<<< HEAD
             jsonData = JSON.stringify(jsonData)
             console.log(jsonData)
+=======
+          res = await axios.post("http://localhost:5050/api/individuals/", jsonData)
+          setTimeOut(true)
+        
+>>>>>>> 309c222 (gemma)
 
             res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData)
             setTimeOut(true)
@@ -300,10 +389,14 @@ function Individuals2(props) {
 
           })
 
+<<<<<<< HEAD
           let entries = Object.entries(results[0])
           console.log(entries)
         
 
+=======
+        }
+>>>>>>> 309c222 (gemma)
 
       } catch (error) {
 
