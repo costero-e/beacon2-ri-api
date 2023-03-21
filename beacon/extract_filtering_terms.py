@@ -23,8 +23,8 @@ import numpy as np
 ONTOLOGY_REGEX = re.compile(r"([_A-Za-z]+):([_A-Za-z0-9^\-]+)")
 
 client = MongoClient(
-    "mongodb://127.0.0.1:27017/"
-    #"mongodb://root:example@mongo:27017/beacon?authSource=admin"
+    #"mongodb://127.0.0.1:27017/"
+    "mongodb://root:example@mongo:27017/beacon?authSource=admin"
 
 )
 
