@@ -26,7 +26,7 @@ services:
     image: beacon2ri/training_ui:v0.1
     hostname: beacon_training_ui    
     ports:
-      - 8080:8080
+      - 9000:9000
     networks:
       - beacon-priv
 
@@ -102,6 +102,7 @@ services:
     networks:
       - beacon-priv
       - pub
+      - idp-priv
     #entrypoint: ['/bin/sleep','100000000']
     working_dir: '/beacon'
     entrypoint: ['python','-m', 'permissions']
@@ -129,11 +130,13 @@ services:
       - DB_PORT=5432
       - DB_DATABASE=keycloak
       #- DB_SCHEMA=public
-      - KEYCLOAK_IMPORT=/tmp/beacon-realm.json -Dkeycloak.profile.feature.upload_scripts=enabled
+      - KEYCLOAK_IMPORT=/tmp/beacon-realm.json -Dkeycloak.profile.feature.upload_scripts=enabled -Dkeycloak.profile.feature.token_exchange=enabled -Dkeycloak.profile.feature.admin_fine_grained_authz=enabled
+      - KEYCLOAK_HOSTNAME=localhost
     volumes:
       - ./beacon-realm.json:/tmp/beacon-realm.json
     ports:
-      - "8082:8082"
+      - "8080:8080"
+      - "9991:8443"
     networks:
       - pub
       - idp-priv 
