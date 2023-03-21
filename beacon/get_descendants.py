@@ -1,7 +1,11 @@
 import obonet
 import networkx
+import json
 
-def get_descendants_and_similarities(ontology:str): 
+def get_descendants_and_similarities(ontology:str):
+    fp = open('descendants.json')
+    dict = json.load(fp)
+
     ontology_list = ontology.split(':')    
     url = "ontologies/{}.obo".format(ontology_list[0])
     list_of_cousins = []
@@ -16,11 +20,13 @@ def get_descendants_and_similarities(ontology:str):
         descendants = networkx.ancestors(graph, ontology)
     except Exception:
         descendants = ''
+    '''
     path = "descendants/{}{}.txt".format(ontology_list[0],ontology_list[1])
     with open(path, 'w') as f:
         for item in descendants:
             f.write(item+"\n")
     f.close()
+    '''
     try:
         tree = [n for n in graph.successors(ontology)]
         for onto in tree:
@@ -57,6 +63,13 @@ def get_descendants_and_similarities(ontology:str):
         similarity_medium=[]
         similarity_low=[]
     
+    dict[ontology]={}
+    dict[ontology]['descendants']=descendants
+    dict[ontology]['similarity_high']=similarity_high
+    dict[ontology]['similarity_medium']=similarity_medium
+    dict[ontology]['similarity_low']=similarity_low
+    
+    '''
     path = "similarities/{}{}{}.txt".format(ontology_list[0],ontology_list[1],'high')
     with open(path, 'w') as f:
         for item in similarity_high:
@@ -72,9 +85,15 @@ def get_descendants_and_similarities(ontology:str):
         for item in similarity_low:
             f.write(item+"\n")
     f.close()
-
+    '''
+    
+    with open('descendants.json', 'w') as fp:
+        json.dump(dict, fp)
+i=0
 with open('filtering_terms.txt', 'r') as f:
     for line in f:
+        i +=1
         line = line.replace("\n","")
         get_descendants_and_similarities(line)
-        print('done')
+        print(i)
+    
