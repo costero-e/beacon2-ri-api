@@ -326,9 +326,13 @@ function Layout() {
         {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
       </div>
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 
 >>>>>>> 309c222 (gemma)
+=======
+
+>>>>>>> 79f1a098f4b2b26e948088691db8ca2f6b09a8e8
     </div>
 
   );
