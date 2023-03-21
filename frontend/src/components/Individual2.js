@@ -20,6 +20,7 @@ function Individuals2(props) {
   const [operator, setOperator] = useState([])
   const [timeOut, setTimeOut] = useState(false)
 
+
   const API_ENDPOINT = "http://localhost:5050/api/individuals/"
 
   let queryStringTerm = ''
@@ -29,6 +30,7 @@ function Individuals2(props) {
   let obj = {}
   let res = ""
 
+
   useEffect(() => {
     const apiCall = async () => {
       console.log(props.query)
@@ -36,7 +38,11 @@ function Individuals2(props) {
       console.log(props.limit)
       console.log(props.similarity)
       console.log(props.descendantTerm)
+      console.log(props.similarity)
 
+    
+
+    
       if (props.query != null) {
 
         queryStringTerm = props.query.split(',')
@@ -69,9 +75,38 @@ function Individuals2(props) {
 
       try {
 
-        if (props.value != '' && props.operator  != '' && props.ID  != '') {
+        let arrayFilter = []
+
+        if (props.value != '' && props.operator != '' && props.ID != '') {
 
           //alphanumerical query
+        
+          const alphaNumFilter = {
+            "id": `${props.ID}`,
+            "operator": `${props.operator}`,
+            "value": `${props.value}`,
+          }
+
+          arrayFilter.push(alphaNumFilter)
+
+
+        }
+
+        console.log(arrayFilter)
+
+
+        if (props.query === null) {
+
+          // show all individuals
+          let descendantTerm = 0
+
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
 
           var jsonData1 = {
 
@@ -79,15 +114,7 @@ function Individuals2(props) {
               "apiVersion": "2.0"
             },
             "query": {
-              "filters": [
-
-                {
-                  "id": `${props.ID}`,
-                  "operator": `${props.operator}`,
-                  "value": `${props.value}`,
-                  "includeDescendantTerms": `${props.descendantTerm}`
-                }
-              ],
+              "filters": arrayFilter,
               "includeResultsetResponses": `${props.resultSets}`,
               "pagination": {
                 "skip": `${props.skip}`,
@@ -97,45 +124,12 @@ function Individuals2(props) {
               "requestedGranularity": "record",
             }
           }
+
 
           jsonData1 = JSON.stringify(jsonData1)
+          console.log(jsonData1)
 
-          let res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData1)
-
-        }
-
-
-        if (props.query === null) {
-
-          // show all individuals
-
-          var jsonData2 = {
-
-            "meta": {
-              "apiVersion": "2.0"
-            },
-            "query": {
-              "filters": [
-                {
-                  "includeDescendantTerms": `${props.descendantTerm}`
-                }
-              
-              ],
-              "includeResultsetResponses": `${props.resultSets}`,
-              "pagination": {
-                "skip": `${props.skip}`,
-                "limit": `${props.limit}`
-              },
-              "testMode": false,
-              "requestedGranularity": "record",
-            }
-          }
-
-
-          jsonData2 = JSON.stringify(jsonData2)
-          console.log(jsonData2)
-
-          res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData2)
+          res = await axios.post("http://localhost:5050/api/individuals/", jsonData1)
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
@@ -149,21 +143,37 @@ function Individuals2(props) {
           })
 
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
+          let descendantTerm = 0
 
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
+    
+
+  
           //no operator
-          
-            var jsonData3 = {
+          const filter2 = {
+            "id": props.query,
+            "includeDescendantTerms": descendantTerm
+          }
+
+          console.log("hola")
+          arrayFilter.push(filter2)
+          console.log(arrayFilter)
+
+         
+
+            var jsonData2 = {
 
               "meta": {
                 "apiVersion": "2.0"
               },
               "query": {
-                "filters": [
-                  {
-                    "id": props.query,
-                    "includeDescendantTerms": `${props.descendantTerm}`
-                  }
-                ],
+                "filters": arrayFilter,
                 "includeResultsetResponses": `${props.resultSets}`,
                 "pagination": {
                   "skip": `${props.skip}`,
@@ -174,11 +184,13 @@ function Individuals2(props) {
               }
             }
 
+            jsonData2 = JSON.stringify(jsonData2)
+            console.log(jsonData2)
+  
+            res = await axios.post("http://localhost:5050/api/individuals/", jsonData2)
 
-            jsonData3 = JSON.stringify(jsonData3)
-            console.log(jsonData3)
-
-            res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData3)
+          
+        
 
 
           setTimeOut(true)
@@ -204,6 +216,17 @@ function Individuals2(props) {
 
 
         } else {
+
+          let descendantTerm = 0
+
+          if (props.descendantTerm == "true"){
+            descendantTerm = true
+          }
+        
+          if (props.descendantTerm == "false"){
+            descendantTerm = false
+          }
+    
 
           let res = null
 
@@ -241,7 +264,8 @@ function Individuals2(props) {
               const filter = {
                 "id": label[index],
                 "operator": ">",
-                "value": ident[index]
+                "value": ident[index],
+               // "includeDescendantTerms": descendantTerm
               }
 
               arrayFilter.push(filter)
@@ -251,13 +275,14 @@ function Individuals2(props) {
               const filter = {
                 "id": label[index],
                 "operator": "<",
-                "value": ident[index]
+                "value": ident[index],
+                //"includeDescendantTerms": descendantTerm
               }
 
               arrayFilter.push(filter)
             } else {
               ident.forEach((element, index) => {
-                arrayFilter.push({ "id": ident[index] })
+                arrayFilter.push({ "id": ident[index]})  //"includeDescendantTerms": descendantTerm})
               })
 
             }
@@ -265,45 +290,45 @@ function Individuals2(props) {
 
           console.log(arrayFilter)
 
-            var jsonData = {
+          var jsonData = {
 
-              "meta": {
-                "apiVersion": "2.0"
+            "meta": {
+              "apiVersion": "2.0"
+            },
+            "query": {
+              "filters": arrayFilter,
+              "includeResultsetResponses": `${props.resultSets}`,
+              "pagination": {
+                "skip": `${props.skip}`,
+                "limit": `${props.limit}`
               },
-              "query": {
-                "filters": arrayFilter,
-                "includeResultsetResponses": `${props.resultSets}`,
-                "pagination": {
-                  "skip": `${props.skip}`,
-                  "limit": `${props.limit}`
-                },
-                "testMode": false,
-                "requestedGranularity": "record",
-              }
+              "testMode": false,
+              "requestedGranularity": "record",
             }
-
-            jsonData = JSON.stringify(jsonData)
-            console.log(jsonData)
-
-            res = await axios.post("https://ega-archive.org/beacon-apis/cineca/individuals/", jsonData)
-            setTimeOut(true)
           }
 
+          jsonData = JSON.stringify(jsonData)
+          console.log(jsonData)
 
-          setNumberResults(res.data.responseSummary.numTotalResults)
-          setBoolean(res.data.responseSummary.exists)
-
-          res.data.response.resultSets[0].results.forEach((element, index) => {
-
-            results.push(res.data.response.resultSets[0].results[index])
-
-
-          })
-
-          let entries = Object.entries(results[0])
-          console.log(entries)
+          res = await axios.post("http://localhost:5050/api/individuals/", jsonData)
+          setTimeOut(true)
         
 
+
+        setNumberResults(res.data.responseSummary.numTotalResults)
+        setBoolean(res.data.responseSummary.exists)
+
+        res.data.response.resultSets[0].results.forEach((element, index) => {
+
+          results.push(res.data.response.resultSets[0].results[index])
+
+
+        })
+
+        let entries = Object.entries(results[0])
+        console.log(entries)
+
+        }
 
       } catch (error) {
 

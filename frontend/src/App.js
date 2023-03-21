@@ -18,6 +18,8 @@ import SignInForm from './components/SignInForm';
 import SignUpForm from './components/SignUpForm';
 import ResultsDatasets from './components/ResultsDatasets';
 
+import axios from "axios";
+
 
 function Layout() {
 
@@ -42,7 +44,7 @@ function Layout() {
   const [value, setValue] = useState("")
 
 
-  const [descendantTermType, setDescendantTermType ] = useState(["true", "false"])
+  const [descendantTermType, setDescendantTermType] = useState(["Select", "true", "false"])
   const [descendantTerm, setDescendantTerm] = useState("true")
 
   const [similarityType, setSimilarityType] = useState(["Select", "low", "medium", "high"])
@@ -114,9 +116,22 @@ function Layout() {
     setAlphanumValue(false)
   }
 
+  const handleFilteringTerms = (e) => {
+    if (collection === 'Individuals') {
+      const apiCall = async () => {
+        try {
+          let res = await axios.get("http://localhost:5050/api/filtering_terms/individuals/")
+
+        } catch (error) {
+          console.log(error)
+        }
+      }
+    }
+  }
+
   const handleExQueries = () => {
     if (collection === 'Individuals') {
-      setExampleQ(['sex= male, ethnicity=White and Black Caribbean', 'sex=female,cardiomyopathy', 'ethnicity=NCIT:C16352,weight>50'])
+      setExampleQ(['sex= male, ethnicity=White and Black Caribbean', 'sex=female,cardiomyopathy', 'ethnicity=NCIT:C16352,weight>50', 'NCIT:C42331'])
     }
   }
 
@@ -150,6 +165,7 @@ function Layout() {
     event.preventDefault()
 
     setCollectionType(["Select"])
+
 
 
     setExampleQ([])
@@ -220,6 +236,10 @@ function Layout() {
               })}
             </div>
 
+            <button className="exampleQuery" onClick={handleFilteringTerms}>
+              Filtering Terms
+            </button>
+
           </div>
           {!showAlphanumValue && <button className="advSearch" onClick={handleAlphanumSearch}>
             Alphanumerical Value Query
@@ -244,7 +264,7 @@ function Layout() {
               </div>
               <div className='resultset'>
                 <label>Include Resultset Responses</label>
-                <select className="form-select2" aria-label="" onChange={e => { handleResultsetChanges(e) }}>
+                <select className="form-select2" aria-label="" onChange={(e) => handleResultsetChanges(e)}>
                   {
                     Add2.map((resultSet, key) => <option key={key} value={key}>{resultSet}
                     </option>)
@@ -254,8 +274,8 @@ function Layout() {
 
             </div>
             <div className='advSearchModule2'>
-              <div> 
-              
+              <div>
+
                 <label>Similarity</label>
                 <select className="form-select2" aria-label="" onChange={e => { handleSimilarityChanges(e) }}>
                   {
@@ -272,7 +292,7 @@ function Layout() {
                     </option>)
                   }
                 </select>
-               
+
               </div>
 
             </div>
@@ -303,8 +323,9 @@ function Layout() {
       <hr></hr>
       <div className="results">
         {results === null && <ResultsDatasets />}
-        {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity}/>}
+        {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
       </div>
+
     </div>
 
   );
