@@ -3,9 +3,6 @@ import networkx
 import json
 
 def get_descendants_and_similarities(ontology:str):
-    fp = open('descendants.json')
-    dict = json.load(fp)
-
     ontology_list = ontology.split(':')    
     url = "ontologies/{}.obo".format(ontology_list[0])
     list_of_cousins = []
@@ -20,13 +17,13 @@ def get_descendants_and_similarities(ontology:str):
         descendants = networkx.ancestors(graph, ontology)
     except Exception:
         descendants = ''
-    '''
+    descendants=list(descendants)
+    print(descendants)
     path = "descendants/{}{}.txt".format(ontology_list[0],ontology_list[1])
     with open(path, 'w') as f:
         for item in descendants:
             f.write(item+"\n")
     f.close()
-    '''
     try:
         tree = [n for n in graph.successors(ontology)]
         for onto in tree:
@@ -37,20 +34,20 @@ def get_descendants_and_similarities(ontology:str):
         similarity_high=[]
         similarity_medium=[]
         similarity_low=[]
-        for list in list_of_grandpas:
-            for item in list:
+        for llista in list_of_grandpas:
+            for item in llista:
                 successors = [n for n in graph.predecessors(item)]
                 if ontology not in successors:
                     list_of_cousins.append(successors)
 
-        for list in list_of_brothers:
-            for item in list:
+        for llista in list_of_brothers:
+            for item in llista:
                 similarity_high.append(item)
                 similarity_medium.append(item)
                 similarity_low.append(item)
 
-        for list in list_of_cousins:
-            for item in list:
+        for llista in list_of_cousins:
+            for item in llista:
                 similarity_low.append(item)
 
         for item in similarity_medium:
@@ -62,14 +59,13 @@ def get_descendants_and_similarities(ontology:str):
         similarity_high=[]
         similarity_medium=[]
         similarity_low=[]
-    
+    dict={}
     dict[ontology]={}
     dict[ontology]['descendants']=descendants
     dict[ontology]['similarity_high']=similarity_high
     dict[ontology]['similarity_medium']=similarity_medium
     dict[ontology]['similarity_low']=similarity_low
     
-    '''
     path = "similarities/{}{}{}.txt".format(ontology_list[0],ontology_list[1],'high')
     with open(path, 'w') as f:
         for item in similarity_high:
@@ -85,10 +81,7 @@ def get_descendants_and_similarities(ontology:str):
         for item in similarity_low:
             f.write(item+"\n")
     f.close()
-    '''
     
-    with open('descendants.json', 'w') as fp:
-        json.dump(dict, fp)
 i=0
 with open('filtering_terms.txt', 'r') as f:
     for line in f:
