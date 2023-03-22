@@ -184,6 +184,7 @@ def get_biosamples_of_individual(entry_id: Optional[str], qparams: RequestParams
     query = apply_filters(query, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.BIOSAMPLES
+    count = get_count(client.beacon.biosamples, query)
     include = qparams.query.include_resultset_responses
     if include == 'MISS':
         pre_docs = get_documents(

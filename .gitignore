@@ -128,6 +128,6 @@ typings/
 deploy/ontologies/*.obo
 deploy/ontologies/*.owl*
 .antlr/
-beacon/descendants
-beacon/similarities
-beacon/ontologies
+beacon/descendants/*
+beacon/similarities/*
+beacon/ontologies/*

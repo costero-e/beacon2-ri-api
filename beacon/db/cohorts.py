@@ -46,7 +46,7 @@ def get_individuals_of_cohort(entry_id: Optional[str], qparams: RequestParams):
     cohort_ids = client.beacon.cohorts \
         .find_one(query, {"ids.individualIds": 1, "_id": 0})
     cohort_ids=get_cross_query(cohort_ids['ids'],'individualIds','id')
-    query = apply_filters(cohort_ids, qparams.query.filters)
+    query = apply_filters(cohort_ids, qparams.query.filters, collection)
 
     schema = DefaultSchemas.INDIVIDUALS
     count = get_count(client.beacon.individuals, query)
