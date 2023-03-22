@@ -200,7 +200,7 @@ def get_biosamples_of_variant(entry_id: Optional[str], qparams: RequestParams):
     collection = 'g_variants'
     query = {"$and": [{"variantInternalId": entry_id}]}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filter, collection)
+    query = apply_filters(query, qparams.query.filters, collection)
     count = get_count(client.beacon.genomicVariations, query)
     biosample_ids = client.beacon.genomicVariations \
         .find_one(query, {"caseLevelData.biosampleId": 1, "_id": 0})
