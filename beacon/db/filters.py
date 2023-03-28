@@ -23,18 +23,28 @@ BIOSAMPLES_MAP = ['biosampleStatus.id', 'biosampleStatus.label', 'collectionDate
 G_VARIANTS_MAP = ['_info.vcf2bff.hostname', '_info.vcf2bff.filein', '_info.vcf2bff.user', '_info.vcf2bff.ncpuhost', '_info.vcf2bff.fileout', '_info.vcf2bff.cwd', '_info.vcf2bff.projectDir','_info.vcf2bff.version', '_info.datasetId', '_info.genome','caseLevelData.zygosity.label','caseLevelData.zygosity.id','caseLevelData.biosampleId','molecularAttributes.geneIds','molecularAttributes.annotationImpact','molecularAttributes.aminoacidChanges','molecularAttributes.molecularEffects.label','molecularAttributes.molecularEffects.id','variantQuality.FILTER','variantQuality.QUAL','_position.start','_position.end','_position.endInteger','_position.startInteger','_position.refseqId','_position.assemblyId','variation.variantType','variation.alternateBases','variation.referenceBases','variation.location.interval.start.value','variation.location.interval.start.type','variation.location.interval.end.value','variation.location.interval.end.type','variation.location.interval.type','variation.location.type','variation.location.sequence_id','variation.variantInternalId','variation.identifiers.genomicHGVSId']
 RUNS_MAP = ['biosampleId','id','individualId','libraryLayout','librarySelection','librarySource.id','librarySource.label','libraryStrategy','platform','platformModel.id','platformModel.label','runDate']
 
-def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
+def apply_filters(query: dict, filters: List[dict], collection: str, allowed_ids: list) -> dict:
     LOG.debug("Filters len = {}".format(len(filters)))
-    if len(filters) > 0:
-        query["$and"] = []
+    if len(filters) >= 0:
+        ids_array = []
+        for doc in allowed_ids:
+            elem_query={}
+            elem_query['id']=doc
+            ids_array.append(elem_query)
+        if ids_array:
+            query["$and"] = []
+            partial_query={}
+            partial_query['$nor']=ids_array
+            query["$and"].append(partial_query)
     if len(filters) >= 1:
+        query["$and"] = []
         for filter in filters:
             partial_query = {}
             if "value" in filter:
                 LOG.debug(filter)
                 filter = AlphanumericFilter(**filter)
                 LOG.debug("Alphanumeric filter: %s %s %s", filter.id, filter.operator, filter.value)
-                partial_query = apply_alphanumeric_filter(partial_query, filter, collection)
+                partial_query = apply_alphanumeric_filter(partial_query, filter, collection, allowed_ids)
             elif "includeDescendantTerms" not in filter:
                 filter=OntologyFilter(**filter)
                 filter.include_descendant_terms=True
@@ -42,23 +52,27 @@ def apply_filters(query: dict, filters: List[dict], collection: str) -> dict:
                 #partial_query = {"$text": defaultdict(str) }
                 #partial_query =  { "$text": { "$search": "" } } 
                 LOG.debug(partial_query)
-                partial_query = apply_ontology_filter(partial_query, filter, collection)
+                partial_query = apply_ontology_filter(partial_query, filter, collection, allowed_ids)
             elif "similarity" in filter or "includeDescendantTerms" in filter or re.match(CURIE_REGEX, filter["id"]):
                 filter = OntologyFilter(**filter)
                 LOG.debug("Ontology filter: %s", filter.id)
                 #partial_query = {"$text": defaultdict(str) }
                 #partial_query =  { "$text": { "$search": "" } } 
                 LOG.debug(partial_query)
-                partial_query = apply_ontology_filter(partial_query, filter, collection)
+                partial_query = apply_ontology_filter(partial_query, filter, collection, allowed_ids)
             else:
                 filter = CustomFilter(**filter)
                 LOG.debug("Custom filter: %s", filter.id)
-                partial_query = apply_custom_filter(partial_query, filter, collection)
+                partial_query = apply_custom_filter(partial_query, filter, collection, allowed_ids)
             query["$and"].append(partial_query)
+            if query["$and"] == [{'$or': []}]:
+                query = {}
+
+
     return query
 
 
-def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) -> dict:
+def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str, allowed_ids: list) -> dict:
     
     is_filter_id_required = True
 
@@ -139,6 +153,13 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) 
                     dict_filter_2[item]+=f'{onto_query}'
                     dict_text_2['$or'].append(dict_filter_2)
                 query['$or'].append(dict_text_2)
+        ids_array = []
+        for doc in allowed_ids:
+            elem_query={}
+            elem_query['id']=doc
+            ids_array.append(elem_query)
+        
+        query['$nor']=ids_array
 
     # Apply descendant terms
     if filter.include_descendant_terms == True:
@@ -202,6 +223,13 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) 
                         dict_filter_2[item]+=f'{desc}'
                         dict_text_2['$or'].append(dict_filter_2)
                     query['$or'].append(dict_text_2)
+            ids_array = []
+            for doc in allowed_ids:
+                elem_query={}
+                elem_query['id']=doc
+                ids_array.append(elem_query)
+            if ids_array:
+                query['$nor']=ids_array        
         except Exception:
             query['$or']=[]
             if collection == 'individuals':
@@ -249,7 +277,13 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) 
                     dict_filter_2[item]+=f'{filter.id}'
                     dict_text_2['$or'].append(dict_filter_2)
                 query['$or'].append(dict_text_2)
-
+            ids_array = []
+            for doc in allowed_ids:
+                elem_query={}
+                elem_query['id']=doc
+                ids_array.append(elem_query)
+            if ids_array:
+                query['$nor']=ids_array    
     if is_filter_id_required:
             query['$or']=[]
             if collection == 'individuals':
@@ -297,7 +331,13 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) 
                     dict_filter_2[item]+=f'{filter.id}'
                     dict_text_2['$or'].append(dict_filter_2)
                 query['$or'].append(dict_text_2)
-    
+            ids_array = []
+            for doc in allowed_ids:
+                elem_query={}
+                elem_query['id']=doc
+                ids_array.append(elem_query)
+            if ids_array:
+                query['$nor']=ids_array    
 
     LOG.debug("QUERY: %s", query)
     return query
@@ -305,11 +345,13 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str) 
 def format_value(value: Union[str, List[int]]) -> Union[List[int], str, int, float]:
     if isinstance(value, list):
         return value
+    
     elif value.isnumeric():
         if float(value).is_integer():
             return int(value)
         else:
             return float(value)
+    
     else:
         return value
 
@@ -328,12 +370,17 @@ def format_operator(operator: Operator) -> str:
         # operator == Operator.LESS_EQUAL
         return "$lte"
 
-def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collection: str) -> dict:
+def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collection: str, allowed_ids: list) -> dict:
     LOG.debug(filter.value)
     formatted_value = format_value(filter.value)
     formatted_operator = format_operator(filter.operator)
     if collection == 'g_variants':
-        formatted_value = format_value(filter.value)
+        if filter.id == "_position.refseqId":
+            filter.value = str(filter.value)
+            formatted_value = filter.value
+            LOG.debug(formatted_value)
+        else:
+            formatted_value = format_value(filter.value)
         formatted_operator = format_operator(filter.operator)
         query[filter.id] = { formatted_operator: formatted_value }
     elif isinstance(formatted_value,str):
@@ -429,6 +476,13 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                         dict_text['$or'].append(dict_filter)
                     query['$and'].append(dict_text)
                     query['$and'].append(dict_text_2)
+                ids_array = []
+                for doc in allowed_ids:
+                    elem_query={}
+                    elem_query['id']=doc
+                    ids_array.append(elem_query)
+                if ids_array:
+                    query['$nor']=ids_array   
             else:
                 if collection == 'individuals':
                     query['$and']=[]
@@ -505,6 +559,13 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                         dict_text['$or'].append(dict_filter)
                     query['$and'].append(dict_text)
                     query['$and'].append(dict_text_2)
+                ids_array = []
+                for doc in allowed_ids:
+                    elem_query={}
+                    elem_query['id']=doc
+                    ids_array.append(elem_query)
+                if ids_array:
+                    query['$nor']=ids_array   
                     
         elif formatted_operator == "$ne":
             if '%' in filter.value:
@@ -603,6 +664,13 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                         dict_filter[item]=not_dict
                         query['$and'].append(dict_filter)
                     query['$and'].append(dict_text_2)
+                ids_array = []
+                for doc in allowed_ids:
+                    elem_query={}
+                    elem_query['id']=doc
+                    ids_array.append(elem_query)
+                if ids_array:
+                    query['$nor']=ids_array   
             else:
                 if collection == 'individuals':
                     query['$and']=[]
@@ -694,6 +762,13 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                         dict_filter[item]=not_dict
                         query['$and'].append(dict_filter)
                     query['$and'].append(dict_text_2)
+                ids_array = []
+                for doc in allowed_ids:
+                    elem_query={}
+                    elem_query['id']=doc
+                    ids_array.append(elem_query)
+                if ids_array:
+                    query['$nor']=ids_array   
     else:
         query['measurementValue.quantity.value'] = { formatted_operator: float(formatted_value) }
         query['assayCode.id']=filter.id
@@ -710,7 +785,7 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
 
 
 
-def apply_custom_filter(query: dict, filter: CustomFilter, collection:str) -> dict:
+def apply_custom_filter(query: dict, filter: CustomFilter, collection:str, allowed_ids: list) -> dict:
     LOG.debug(query)
     query['$or']=[]
     if collection == 'individuals':
@@ -758,6 +833,13 @@ def apply_custom_filter(query: dict, filter: CustomFilter, collection:str) -> di
             dict_filter_2[item]+=f'{filter.id}'
             dict_text_2['$or'].append(dict_filter_2)
         query['$or'].append(dict_text_2)
+    ids_array = []
+    for doc in allowed_ids:
+        elem_query={}
+        elem_query['id']=doc
+        ids_array.append(elem_query)
+    if ids_array:
+        query['$nor']=ids_array  
 
     LOG.debug("QUERY: %s", query)
     return query

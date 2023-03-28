@@ -1,4 +1,5 @@
 from typing import Optional
+from typing import Dict, List, Optional
 from beacon.db.filters import apply_filters
 from beacon.db.schemas import DefaultSchemas
 from beacon.db.utils import query_id, get_count, get_documents, get_cross_query
@@ -9,10 +10,37 @@ import logging
 
 LOG = logging.getLogger(__name__)
 
+def include_resultset_responses(query: Dict[str, List[dict]], qparams: RequestParams):
+    LOG.debug("Include Resultset Responses = {}".format(qparams.query.include_resultset_responses))
+    include = qparams.query.include_resultset_responses
+    if include == 'HIT':
+        query = query
+    elif include == 'ALL':
+        query = {}
+    elif include == 'NONE':
+        query = {'$text': {'$search': '########'}}
+    else:
+        query = query
+    return query
+
+def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParams):
+    LOG.debug("Request parameters len = {}".format(len(qparams.query.request_parameters)))
+    for k, v in qparams.query.request_parameters.items():
+        query["$text"] = {}
+        if ',' in v:
+            v_list = v.split(',')
+            v_string=''
+            for val in v_list:
+                v_string += f'"{val}"'
+            query["$text"]["$search"]=v_string
+        else:
+            query["$text"]["$search"]=v
+    return query
 
 def get_datasets(entry_id: Optional[str], qparams: RequestParams):
     collection = 'datasets'
-    query = apply_filters({}, qparams.query.filters, collection)
+    query = apply_request_parameters({}, qparams)
+    #query = apply_filters({}, qparams.query.filters, collection)
     schema = DefaultSchemas.DATASETS
     count = get_count(client.beacon.datasets, query)
     docs = get_documents(
@@ -26,7 +54,8 @@ def get_datasets(entry_id: Optional[str], qparams: RequestParams):
 
 def get_dataset_with_id(entry_id: Optional[str], qparams: RequestParams):
     collection = 'datasets'
-    query = apply_filters({}, qparams.query.filters, collection)
+    query = apply_request_parameters({}, qparams)
+    #query = apply_filters({}, qparams.query.filters, collection)
     query = query_id(query, entry_id)
     schema = DefaultSchemas.DATASETS
     count = get_count(client.beacon.datasets, query)

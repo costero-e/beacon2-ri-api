@@ -77,7 +77,7 @@ routes = [
     ########################################
     # POST
     ########################################
-
+    web.post('/api', info.handler),
     web.post('/api/analyses', generic_handler(db_fn=analyses.get_analyses)),
     web.post('/api/analyses/filtering_terms', generic_handler(db_fn=analyses.get_filtering_terms_of_analyse)),
     web.post('/api/analyses/{id}', generic_handler(db_fn=analyses.get_analysis_with_id)),

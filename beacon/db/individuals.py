@@ -44,11 +44,11 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
     return query
 
 
-def get_individuals(entry_id: Optional[str], qparams: RequestParams):
+def get_individuals(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'individuals'
     query = apply_request_parameters({}, qparams)
     LOG.debug(qparams.query.filters)
-    query = apply_filters(query, qparams.query.filters, collection)
+    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.INDIVIDUALS
     count = get_count(client.beacon.individuals, query)
@@ -86,10 +86,10 @@ def get_individuals(entry_id: Optional[str], qparams: RequestParams):
     return schema, count, docs
 
 
-def get_individual_with_id(entry_id: Optional[str], qparams: RequestParams):
+def get_individual_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'individuals'
     query = apply_request_parameters({}, qparams)
-    query = apply_filters(query, qparams.query.filters, collection)
+    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
     query = query_id(query, entry_id)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.INDIVIDUALS
@@ -128,18 +128,18 @@ def get_individual_with_id(entry_id: Optional[str], qparams: RequestParams):
     return schema, count, docs
 
 
-def get_variants_of_individual(entry_id: Optional[str], qparams: RequestParams):
+def get_variants_of_individual(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'individuals'
     query = {"$and": [{"id": entry_id}]}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters, collection)
+    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
     count = get_count(client.beacon.individuals, query)
     individual_ids = client.beacon.individuals \
         .find_one(query, {"id": 1, "_id": 0})
     LOG.debug(individual_ids)
     individual_ids=get_cross_query(individual_ids,'id','caseLevelData.biosampleId')
     LOG.debug(individual_ids)
-    query = apply_filters(individual_ids, qparams.query.filters, collection)
+    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
@@ -177,11 +177,11 @@ def get_variants_of_individual(entry_id: Optional[str], qparams: RequestParams):
     return schema, count, docs
 
 
-def get_biosamples_of_individual(entry_id: Optional[str], qparams: RequestParams):
+def get_biosamples_of_individual(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'individuals'
     query = {"individualId": entry_id}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters, collection)
+    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.BIOSAMPLES
     count = get_count(client.beacon.biosamples, query)
@@ -232,11 +232,11 @@ def get_filtering_terms_of_individual(entry_id: Optional[str], qparams: RequestP
     return schema, count, docs
 
 
-def get_runs_of_individual(entry_id: Optional[str], qparams: RequestParams):
+def get_runs_of_individual(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'individuals'
     query = {"individualId": entry_id}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters, collection)
+    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.RUNS
     count = get_count(client.beacon.runs, query)
@@ -273,11 +273,11 @@ def get_runs_of_individual(entry_id: Optional[str], qparams: RequestParams):
         )
     return schema, count, docs
 
-def get_analyses_of_individual(entry_id: Optional[str], qparams: RequestParams):
+def get_analyses_of_individual(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'individuals'
     query = {"individualId": entry_id}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters, collection)
+    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.ANALYSES
     count = get_count(client.beacon.analyses, query)
