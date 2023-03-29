@@ -123,9 +123,6 @@ def get_label_and_ontology(ontology_id:str, ontology_term:str):
     dict['name']=name
     return dict
 
-
-
-
 def find_ontology_terms_used(collection_name: str) -> List[Dict]:
     terms_ids = []
     count = client.beacon.get_collection(collection_name).estimated_document_count()
