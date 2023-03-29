@@ -17,6 +17,7 @@ import History from './components/History';
 import SignInForm from './components/SignInForm';
 import SignUpForm from './components/SignUpForm';
 import ResultsDatasets from './components/ResultsDatasets';
+import FilteringTerms from './components/FilteringTerms';
 
 import axios from "axios";
 
@@ -50,6 +51,9 @@ function Layout() {
   const [similarityType, setSimilarityType] = useState(["Select", "low", "medium", "high"])
   const [similarity, setSimilarity] = useState("Select")
 
+  const [showFilteringTerms, setShowFilteringTerms] = useState(false)
+  const [filteringTerms, setFilteringTerms] = useState(false)
+
   const Add = collectionType.map(Add => Add)
 
   const Add2 = resultSetType.map(Add2 => Add2)
@@ -79,6 +83,7 @@ function Layout() {
   }
 
   const handleSimilarityChanges = (e) => {
+
     setSimilarity(similarityType[e.target.value])
   }
 
@@ -116,17 +121,26 @@ function Layout() {
     setAlphanumValue(false)
   }
 
-  const handleFilteringTerms = (e) => {
+  const handleFilteringTerms = async (e) => {
+  
+  
     if (collection === 'Individuals') {
-      const apiCall = async () => {
+      
         try {
+         
           let res = await axios.get("http://localhost:5050/api/filtering_terms/individuals/")
-
+          setFilteringTerms(res)
+         
+        
         } catch (error) {
           console.log(error)
         }
-      }
     }
+
+
+      setShowFilteringTerms(true)
+
+    
   }
 
   const handleExQueries = () => {
@@ -236,7 +250,7 @@ function Layout() {
               })}
             </div>
 
-            <button className="exampleQuery" onClick={handleFilteringTerms}>
+            <button className="filters" onClick={handleFilteringTerms}>
               Filtering Terms
             </button>
 
@@ -322,8 +336,9 @@ function Layout() {
 
       <hr></hr>
       <div className="results">
-        {results === null && <ResultsDatasets />}
+        {results === null && !showFilteringTerms && <ResultsDatasets />}
         {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
+        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms}/>}
       </div>
 
     </div>
