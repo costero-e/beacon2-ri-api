@@ -51,7 +51,6 @@ def generic_handler(db_fn, request=None):
 
         # Get response
 
-        
         _, _, datasets = get_datasets(None, qparams)
         beacon_datasets = [ r for r in datasets ]
 
@@ -69,8 +68,6 @@ def generic_handler(db_fn, request=None):
             LOG.info('resolved datasets:  %s', authorized_datasets)
             LOG.debug(authorized_datasets)
             
-            
-
             for element in specific_datasets:
                 if element not in authorized_datasets:
                     specific_datasets_unauthorized = [ r for r in beacon_datasets if r['id'] == element]
@@ -80,8 +77,6 @@ def generic_handler(db_fn, request=None):
                         for bio_id in biosample_id['biosampleIds']:
                             biosample_ids_disallowed.append(bio_id)
             LOG.debug(biosample_ids_disallowed)
-            
-
 
         entity_schema, count, records = db_fn(entry_id, qparams, biosample_ids_disallowed)
 
