@@ -9,9 +9,9 @@ from beacon.db import client
 LOG = logging.getLogger(__name__)
 
 
-def get_cohorts(entry_id: Optional[str], qparams: RequestParams):
+def get_cohorts(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'cohorts'
-    query = apply_filters({}, qparams.query.filters, collection)
+    query = apply_filters({}, qparams.query.filters, collection, allowed_ids)
     schema = DefaultSchemas.COHORTS
     count = get_count(client.beacon.cohorts, query)
     docs = get_documents(
@@ -23,9 +23,9 @@ def get_cohorts(entry_id: Optional[str], qparams: RequestParams):
     return schema, count, docs
 
 
-def get_cohort_with_id(entry_id: Optional[str], qparams: RequestParams):
+def get_cohort_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'cohorts'
-    query = apply_filters({}, qparams.query.filters, collection)
+    query = apply_filters({}, qparams.query.filters, collection, allowed_ids)
     query = query_id(query, entry_id)
     schema = DefaultSchemas.COHORTS
     count = get_count(client.beacon.cohorts, query)
@@ -38,9 +38,9 @@ def get_cohort_with_id(entry_id: Optional[str], qparams: RequestParams):
     return schema, count, docs
 
 
-def get_individuals_of_cohort(entry_id: Optional[str], qparams: RequestParams):
+def get_individuals_of_cohort(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'cohorts'
-    query = apply_filters({}, qparams.query.filters, collection)
+    query = apply_filters({}, qparams.query.filters, collection, allowed_ids)
     query = query_id(query, entry_id)
     count = get_count(client.beacon.cohorts, query)
     cohort_ids = client.beacon.cohorts \

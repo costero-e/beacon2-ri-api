@@ -37,7 +37,7 @@ class DummyPermissions(Permissions):
         # Dummy permission database
         self.db = {
             "john": ["GiaB", "dataset-registered", "dataset-controlled"],
-            "new_user": ["GiaB", "dataset-registered", "dataset-controlled"],
+            "new_user": ["GiaB", "CINECA_synthetic_cohort_EUROPE_UK1"],
             "jane": ["GiaB", "dataset-registered"],
         }
 
