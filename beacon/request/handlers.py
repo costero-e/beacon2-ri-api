@@ -53,6 +53,7 @@ def generic_handler(db_fn, request=None):
 
         _, _, datasets = get_datasets(None, qparams)
         beacon_datasets = [ r for r in datasets ]
+        LOG.debug(beacon_datasets)
 
         all_datasets = [ r['_id'] for r in beacon_datasets]
         specific_datasets = [ r['id'] for r in beacon_datasets]
@@ -60,9 +61,10 @@ def generic_handler(db_fn, request=None):
         access_token = request.headers.get('Authorization')
         authenticated=False
         LOG.debug(access_token)
+        LOG.debug(specific_datasets)
         if access_token is not None:
             access_token = access_token[7:]  # cut out 7 characters: len('Bearer ')
-            authorized_datasets, authenticated = await resolve_token(access_token, all_datasets)
+            authorized_datasets, authenticated = await resolve_token(access_token, specific_datasets)
             LOG.debug(authorized_datasets)
             LOG.debug('all datasets:  %s', all_datasets)
             LOG.info('resolved datasets:  %s', authorized_datasets)

@@ -35,6 +35,7 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
             query["$text"]["$search"]=v_string
         else:
             query["$text"]["$search"]=v
+    LOG.debug(query)
     return query
 
 def get_datasets(entry_id: Optional[str], qparams: RequestParams):
