@@ -33,8 +33,17 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
             for val in v_list:
                 v_string += f'"{val}"'
             query["$text"]["$search"]=v_string
+        elif k == 'datasets':
+            if isinstance(v, list):
+                string = ''
+                for word in v:
+                    string = word + ' '
+                query["$text"]["$search"]=string
+            elif v == '*******':
+                query = {}
         else:
             query["$text"]["$search"]=v
+    LOG.debug(query)
     return query
 
 def get_datasets(entry_id: Optional[str], qparams: RequestParams):
@@ -131,7 +140,7 @@ def filter_public_datasets(requested_datasets_ids):
         .find(query)
 
 
-def get_filtering_terms_of_dataset(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_terms_of_dataset(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     query = {'collection': 'datasets'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)

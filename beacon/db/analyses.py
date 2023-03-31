@@ -166,7 +166,7 @@ def get_variants_of_analysis(entry_id: Optional[str], qparams: RequestParams, al
         )
     return schema, count, docs
 
-def get_filtering_terms_of_analyse(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_terms_of_analyse(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     query = {'collection': 'analyses'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)

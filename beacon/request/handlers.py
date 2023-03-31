@@ -28,9 +28,9 @@ def collection_handler(db_fn, request=None):
         json_body = await request.json() if request.method == "POST" and request.has_body and request.can_read_body else {}
         qparams = RequestParams(**json_body).from_request(request)
         entry_id = request.match_info["id"] if "id" in request.match_info else None
-
+        biosample_ids_disallowed=[]
         # Get response
-        entity_schema, count, records = db_fn(entry_id, qparams)
+        entity_schema, count, records = db_fn(entry_id, qparams, biosample_ids_disallowed)
         response_converted = (
             [r for r in records] if records else []
         )
@@ -47,37 +47,62 @@ def generic_handler(db_fn, request=None):
         # Get params
         json_body = await request.json() if request.method == "POST" and request.has_body and request.can_read_body else {}
         qparams = RequestParams(**json_body).from_request(request)
-        entry_id = request.match_info.get('id', None)
-
-        # Get response
-
         _, _, datasets = get_datasets(None, qparams)
         beacon_datasets = [ r for r in datasets ]
-
+            
         all_datasets = [ r['_id'] for r in beacon_datasets]
         specific_datasets = [ r['id'] for r in beacon_datasets]
-        biosample_ids_disallowed = []
-        access_token = request.headers.get('Authorization')
+        LOG.debug(specific_datasets)
+
+        search_datasets = []
         authenticated=False
+        access_token = request.headers.get('Authorization')
         LOG.debug(access_token)
         if access_token is not None:
             access_token = access_token[7:]  # cut out 7 characters: len('Bearer ')
-            authorized_datasets, authenticated = await resolve_token(access_token, all_datasets)
+            
+            authorized_datasets, authenticated = await resolve_token(access_token, search_datasets)
             LOG.debug(authorized_datasets)
             LOG.debug('all datasets:  %s', all_datasets)
             LOG.info('resolved datasets:  %s', authorized_datasets)
-            LOG.debug(authorized_datasets)
-            
-            for element in specific_datasets:
-                if element not in authorized_datasets:
-                    specific_datasets_unauthorized = [ r for r in beacon_datasets if r['id'] == element]
-                    biosample_ids = [ r['ids'] for r in specific_datasets_unauthorized]
-                            
-                    for biosample_id in biosample_ids:
+            LOG.debug(authenticated)
+
+            specific_datasets_unauthorized = []
+            bio_list = []
+            biosample_ids_disallowed=[]
+            # Get response
+            if not specific_datasets:
+                qparams.query.request_parameters['datasets'] = ''
+                qparams = RequestParams(**json_body).from_request(request)
+                _, _, datasets = get_datasets(None, qparams)
+                beacon_datasets = [ r for r in datasets ]
+                specific_datasets = [ r['id'] for r in beacon_datasets]
+            else:
+                for element in specific_datasets:
+                    if element not in authorized_datasets:
+                        qparams.query.request_parameters['datasets'] = '*******'
+                        qparams = RequestParams(**json_body).from_request(request)
+                        _, _, datasets = get_datasets(None, qparams)
+                        beacon_datasets = [ r for r in datasets ]
+                        specific_datasets = [ r['id'] for r in beacon_datasets if r['id'] == element]
+                        specific_datasets_unauthorized.append(specific_datasets)
+                LOG.debug(specific_datasets_unauthorized)
+                
+                for unauth in specific_datasets_unauthorized:
+                    for unauth_spec in unauth:
+                        biosample_ids = [ r['ids'] for r in beacon_datasets if r['id'] == unauth_spec ]
+                        bio_list.append(biosample_ids)
+
+                for bio in bio_list:                
+                    for biosample_id in bio:
                         for bio_id in biosample_id['biosampleIds']:
                             biosample_ids_disallowed.append(bio_id)
-            LOG.debug(biosample_ids_disallowed)
+        else:
+            biosample_ids_disallowed=[]
+        LOG.debug(biosample_ids_disallowed)
+        
 
+        entry_id = request.match_info.get('id', None)
         entity_schema, count, records = db_fn(entry_id, qparams, biosample_ids_disallowed)
 
         response_converted = records
