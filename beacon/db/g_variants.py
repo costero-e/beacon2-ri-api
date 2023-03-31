@@ -388,7 +388,7 @@ def get_analyses_of_variant(entry_id: Optional[str], qparams: RequestParams, all
         )
     return schema, count, docs
 
-def get_filtering_terms_of_genomicvariation(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_terms_of_genomicvariation(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     query = {'collection': 'genomicVariations'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)

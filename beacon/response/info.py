@@ -31,31 +31,35 @@ async def handler(request: Request):
     qparams = RequestParams(**json_body).from_request(request)
     _, _, datasets = get_datasets(None, qparams)
     beacon_datasets = [ r for r in datasets ]
-    LOG.debug(beacon_datasets)
         
     all_datasets = [ r['_id'] for r in beacon_datasets]
     specific_datasets = [ r['id'] for r in beacon_datasets]
+    LOG.debug(specific_datasets)
+
+    search_datasets = []
     authenticated=False
     access_token = request.headers.get('Authorization')
     LOG.debug(access_token)
     if access_token is not None:
         access_token = access_token[7:]  # cut out 7 characters: len('Bearer ')
         
-        authorized_datasets, authenticated = await resolve_token(access_token, specific_datasets)
+        authorized_datasets, authenticated = await resolve_token(access_token, search_datasets)
         LOG.debug(authorized_datasets)
         LOG.debug('all datasets:  %s', all_datasets)
         LOG.info('resolved datasets:  %s', authorized_datasets)
         LOG.debug(authenticated)
-    specific_datasets_authorized = beacon_datasets
-    if not beacon_datasets:
-        qparams.query.request_parameters['datasets'] = authorized_datasets
-        _, _, datasets = get_datasets(None, qparams)
-        beacon_datasets = [ r for r in datasets ]
-        all_datasets = [ r['_id'] for r in beacon_datasets]
-        specific_datasets = [ r['id'] for r in beacon_datasets]
-        for element in specific_datasets:
+
+        specific_datasets_authorized = []
+
+        if not specific_datasets:
+            for auth_element in authorized_datasets:
+                specific_datasets_authorized = [ r for r in beacon_datasets if r['id'] == auth_element]
+        else:
+            for element in specific_datasets:
                 if element in authorized_datasets:
                     specific_datasets_authorized = [ r for r in beacon_datasets if r['id'] == element]
+    else:
+        specific_datasets_authorized = []
 
         
     response_converted = build_beacon_info_response(specific_datasets_authorized,

@@ -5,7 +5,7 @@ from beacon.db.utils import query_id, get_documents, get_count
 from beacon.request.model import RequestParams
 from beacon.db.schemas import DefaultSchemas
 
-def get_filtering_terms(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_terms(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     query = {}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
@@ -18,7 +18,7 @@ def get_filtering_terms(entry_id: Optional[str], qparams: RequestParams):
     return schema, count, docs
 
 
-def get_filtering_term_with_id(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_term_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'filtering_terms'
     query = apply_filters({}, qparams.query.filters, collection)
     query = query_id(query, entry_id)

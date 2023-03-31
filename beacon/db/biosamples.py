@@ -252,7 +252,7 @@ def get_runs_of_biosample(entry_id: Optional[str], qparams: RequestParams, allow
         )
     return schema, count, docs
 
-def get_filtering_terms_of_biosample(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_terms_of_biosample(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     query = {'collection': 'biosamples'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
