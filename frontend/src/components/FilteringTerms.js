@@ -2,22 +2,26 @@ import { useState, useEffect } from "react"
 
 function FilteringTerms(props) {
 
-    const [error, setError] = useState(false)
+    const [error, setError] = useState(0)
 
 
-    if (props.filteringTerms === false) {
-        setError("true")
-    }
+    useEffect(() => {
+        if (props.filteringTerms === false) {
+            setError(true)
+        } else {
+            setError(false)
+        }
+     
+     }, [error])
 
-
-    console.log(props.filteringTerms)
+  
 
 
     return (
         <div>
-            {error && <h1>No collection selected</h1>}
-            {error === false && props.filteringTerms.data.response.resultSets[0].results.map((term) => {
-                return (<>ç
+            {error && <h3>No filtering terms available. Please select a collection and retry</h3>}
+            {props.filteringTerms.data != undefined && props.filteringTerms.data.response.resultSets[0].results.map((term) => {
+                return (<>
 
                     {Object.keys(term).map((key) => {
                         return (

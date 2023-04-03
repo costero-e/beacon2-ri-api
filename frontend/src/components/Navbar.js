@@ -1,34 +1,42 @@
 import { NavLink } from 'react-router-dom';
-import './Navbar.css'
+import './Navbar.scss'
 import React, { useState } from 'react';
 
+
 function Navbar() {
-    const [isActive, setActive] = useState('');
-    const [activeHome, setActiveHome] = useState(true)
-    const [open, setOpen] = useState(false)
 
- 
+    const [selected, setIsSelected ] = useState('')
 
+
+
+     
     return (
-        <div className="navBar">
-            <NavLink onClick={() => { setActiveHome(false); setOpen(!open); setActive(true)}} className={isActive ? 'selectedLogin' : 'login'}>Login</NavLink>
-           
-            {open && <div className={`dropdown-menu ${open ? 'active2' : 'inactive'}`}>
-                <ul className="userMenu">
-                    <NavLink to="/sign-up" onClick={() => { setOpen(!open) }} className="positionLink" ><img className="userIcon" src="/add-user.png" alt="addUser" />Sign up</NavLink>
-                     <NavLink to="/sign-in" onClick={() => { setOpen(!open) }} className="positionLink"><img className="userIcon" src="/log-in.png" alt="login" />Sign In</NavLink>
-                </ul>
-            </div>}
 
-            <NavLink to="/" onClick={() => { setActiveHome(!activeHome); setActive(false) }} className={(element) => element.isActive ? 'selectedHome' : 'home'}>
+        
+    
+            <nav id="nav">
+                <div className="nav left">
+                   
+                    {!selected && 
+                        <span className="gradient skew"><h1 className="logo un-skew"><a href="/">
+                        < img src="./home2.png" className="homeIcon" alt="home" />
+                    </a></h1></span>}
 
-                {!activeHome ? < img src="./home2.png" className="homeIcon" alt="home" /> : <>
-                    <NavLink to="/history">Search History</NavLink>
-                </>}
+                    {selected && 
+                        <span className="gradient2 skew"><h1 className="logo un-skew"><a href="/">
+                        < img src="./home2.png" className="homeIcon" alt="home" />
+                    </a></h1></span>}
+                   
+                </div>
+                <div class="nav right">
+                    <NavLink to= "/sign-up" className= {selected ? 'nav-link': 'nav-link'} onClick={() => { setIsSelected(true)}}><span className="nav-link-span"><span className="u-nav">Sign Up</span></span> </NavLink>
+                    <NavLink to="/sign-in" className={selected ? 'nav-link': 'nav-link'} onClick={() => { setIsSelected(true)}}><span className="nav-link-span"><span className="u-nav">Sign In</span></span></NavLink>
+                    <NavLink to="/members" className={selected ? 'nav-link': 'nav-link'} onClick={() => { setIsSelected(true)}}><span className="nav-link-span"><span className="u-nav">Network members</span></span></NavLink>
+                </div>
+            </nav>
+        
 
-            </NavLink>
-            <NavLink to="/members" onClick={() => { setActiveHome(false) ; setActive(false)}} className={(element) => element.isActive ? 'selectedNetwork' : 'network'}>Network members</NavLink>
-        </div>
+
     )
 }
 
