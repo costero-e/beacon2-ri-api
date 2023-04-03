@@ -21,7 +21,14 @@ function Individuals2(props) {
   const [timeOut, setTimeOut] = useState(false)
 
 
-  const API_ENDPOINT = "http://localhost:5050/api/individuals/"
+  const [limit, setLimit] = useState(10)
+  const [skip, setSkip] = useState(0)
+
+  const [skipTrigger,setSkipTrigger ] = useState(0)
+  const [limitTrigger, setLimitTrigger] = useState(0)
+
+
+  const API_ENDPOINT = "http://localhost:5050/api/individuals"
 
   let queryStringTerm = ''
   let queryArray = []
@@ -39,10 +46,11 @@ function Individuals2(props) {
       console.log(props.similarity)
       console.log(props.descendantTerm)
       console.log(props.similarity)
+      console.log(props.value)
+      console.log(props.operator)
 
-    
 
-    
+
       if (props.query != null) {
 
         queryStringTerm = props.query.split(',')
@@ -80,7 +88,7 @@ function Individuals2(props) {
         if (props.value != '' && props.operator != '' && props.ID != '') {
 
           //alphanumerical query
-        
+
           const alphaNumFilter = {
             "id": `${props.ID}`,
             "operator": `${props.operator}`,
@@ -100,11 +108,11 @@ function Individuals2(props) {
           // show all individuals
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true"){
+          if (props.descendantTerm == "true") {
             descendantTerm = true
           }
-        
-          if (props.descendantTerm == "false"){
+
+          if (props.descendantTerm == "false") {
             descendantTerm = false
           }
 
@@ -117,8 +125,8 @@ function Individuals2(props) {
               "filters": arrayFilter,
               "includeResultsetResponses": `${props.resultSets}`,
               "pagination": {
-                "skip": `${props.skip}`,
-                "limit": `${props.limit}`
+                "skip": skip,
+                "limit": limit
               },
               "testMode": false,
               "requestedGranularity": "record",
@@ -129,7 +137,7 @@ function Individuals2(props) {
           jsonData1 = JSON.stringify(jsonData1)
           console.log(jsonData1)
 
-          res = await axios.post("http://localhost:5050/api/individuals/", jsonData1)
+          res = await axios.post("http://localhost:5050/api/individuals", jsonData1)
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
@@ -145,16 +153,16 @@ function Individuals2(props) {
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true"){
+          if (props.descendantTerm == "true") {
             descendantTerm = true
           }
-        
-          if (props.descendantTerm == "false"){
+
+          if (props.descendantTerm == "false") {
             descendantTerm = false
           }
-    
 
-  
+
+
           //no operator
           const filter2 = {
             "id": props.query,
@@ -165,32 +173,32 @@ function Individuals2(props) {
           arrayFilter.push(filter2)
           console.log(arrayFilter)
 
-         
 
-            var jsonData2 = {
 
-              "meta": {
-                "apiVersion": "2.0"
+          var jsonData2 = {
+
+            "meta": {
+              "apiVersion": "2.0"
+            },
+            "query": {
+              "filters": arrayFilter,
+              "includeResultsetResponses": `${props.resultSets}`,
+              "pagination": {
+                "skip": skip,
+                "limit": limit
               },
-              "query": {
-                "filters": arrayFilter,
-                "includeResultsetResponses": `${props.resultSets}`,
-                "pagination": {
-                  "skip": `${props.skip}`,
-                  "limit": `${props.limit}`
-                },
-                "testMode": false,
-                "requestedGranularity": "record",
-              }
+              "testMode": false,
+              "requestedGranularity": "record",
             }
+          }
 
-            jsonData2 = JSON.stringify(jsonData2)
-            console.log(jsonData2)
-  
-            res = await axios.post("http://localhost:5050/api/individuals/", jsonData2)
+          jsonData2 = JSON.stringify(jsonData2)
+          console.log(jsonData2)
 
-          
-        
+          res = await axios.post("http://localhost:5050/api/individuals", jsonData2)
+
+
+
 
 
           setTimeOut(true)
@@ -219,14 +227,14 @@ function Individuals2(props) {
 
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true"){
+          if (props.descendantTerm == "true") {
             descendantTerm = true
           }
-        
-          if (props.descendantTerm == "false"){
+
+          if (props.descendantTerm == "false") {
             descendantTerm = false
           }
-    
+
 
           let res = null
 
@@ -238,55 +246,49 @@ function Individuals2(props) {
 
             if (typeof keyTerm === "object") {
 
-              label.push(keyTerm[0].trim())
-              ident.push(keyTerm[1].trim())
-              operator.push(keyTerm[2].trim())
+              if (keyTerm[2] === '<') {
+
+                const filter = {
+                  "id": keyTerm[0],
+                  "operator": "<",
+                  "value": Math.floor(keyTerm[1]),
+                  // "includeDescendantTerms": descendantTerm
+                }
+
+                arrayFilter.push(filter)
+
+              } else if (keyTerm[2] === '>') {
+                const filter = {
+                  "id": keyTerm[0],
+                  "operator": ">",
+                  "value": Math.floor(keyTerm[1]),
+                  // "includeDescendantTerms": descendantTerm
+                }
+
+                arrayFilter.push(filter)
+
+              } else {
+                const filter = {
+                  "id": keyTerm[1]
+                }
+                arrayFilter.push(filter)
+
+              }
+
+
+            } else {
+
+              const filter = {
+                "id": keyTerm,
+              }
+              arrayFilter.push(filter)
 
             }
-
-            if (typeof keyTerm === "string") {
-              ident.push(keyTerm.trim())
-            }
-
           }
 
-          console.log(label)
-          console.log(ident)
-          console.log(operator)
 
 
-          let arrayFilter = []
 
-          operator.forEach((element, index) => {
-
-            if (element === '>') {
-
-              const filter = {
-                "id": label[index],
-                "operator": ">",
-                "value": ident[index],
-               // "includeDescendantTerms": descendantTerm
-              }
-
-              arrayFilter.push(filter)
-
-
-            } else if (element === '<') {
-              const filter = {
-                "id": label[index],
-                "operator": "<",
-                "value": ident[index],
-                //"includeDescendantTerms": descendantTerm
-              }
-
-              arrayFilter.push(filter)
-            } else {
-              ident.forEach((element, index) => {
-                arrayFilter.push({ "id": ident[index]})  //"includeDescendantTerms": descendantTerm})
-              })
-
-            }
-          })
 
           console.log(arrayFilter)
 
@@ -299,8 +301,8 @@ function Individuals2(props) {
               "filters": arrayFilter,
               "includeResultsetResponses": `${props.resultSets}`,
               "pagination": {
-                "skip": `${props.skip}`,
-                "limit": `${props.limit}`
+                "skip": skip,
+                "limit": limit
               },
               "testMode": false,
               "requestedGranularity": "record",
@@ -310,23 +312,23 @@ function Individuals2(props) {
           jsonData = JSON.stringify(jsonData)
           console.log(jsonData)
 
-          res = await axios.post("http://localhost:5050/api/individuals/", jsonData)
+          res = await axios.post("http://localhost:5050/api/individuals", jsonData)
           setTimeOut(true)
-        
 
 
-        setNumberResults(res.data.responseSummary.numTotalResults)
-        setBoolean(res.data.responseSummary.exists)
 
-        res.data.response.resultSets[0].results.forEach((element, index) => {
+          setNumberResults(res.data.responseSummary.numTotalResults)
+          setBoolean(res.data.responseSummary.exists)
 
-          results.push(res.data.response.resultSets[0].results[index])
+          res.data.response.resultSets[0].results.forEach((element, index) => {
+
+            results.push(res.data.response.resultSets[0].results[index])
 
 
-        })
+          })
 
-        let entries = Object.entries(results[0])
-        console.log(entries)
+          let entries = Object.entries(results[0])
+          console.log(entries)
 
         }
 
@@ -336,7 +338,7 @@ function Individuals2(props) {
       }
     };
     apiCall();
-  }, [])
+  }, [skipTrigger,limitTrigger])
 
 
   const handleTypeResults1 = () => {
@@ -358,93 +360,126 @@ function Individuals2(props) {
     setShow2(false)
   }
 
+  const handleSkipChanges = (e) => {
+    setSkip(Number(e.target.value))
+  }
+
+  const handleLimitChanges = (e) => {
+    setLimit(Number(e.target.value))
+
+  }
+
+  const onSubmit = () => {
+    setSkipTrigger(skip)
+    setLimitTrigger(limit)
+    setResults([])
+  }
+
   return (
-    <div> {timeOut &&
-      <div className='selectGranularity'>
-        <button className='typeResults' onClick={handleTypeResults1}> Boolean</button>
-        <button className='typeResults' onClick={handleTypeResults2}>Count</button>
-        <button className='typeResults' onClick={handleTypeResults3}>Full</button>
-      </div>}
 
-      <div className='resultsContainer'>
-        {show1 && boolean && <p className='p1'>YES</p>}
-        {show1 && !boolean && <p className='p1'>N0</p>}
-
-        {show2 && numberResults !== 1 && <p className='p1'>{numberResults} &nbsp; Results</p>}
-        {show2 && numberResults === 1 && <p className='p1'>{numberResults} &nbsp; Result</p>}
-
-        {show3 && <div className="results">
-
-          {!error && results[0] && results.map((result) => {
-
-
-            return (
-              <div className="resultsIndividuals">
-
-                <div>
-                  {result.id && <h2>ID</h2>}
-                  {result.id && <h3>{result.id}</h3>}
-                  {result.diseases && <h2>Disease</h2>}
-
-                  {result.diseases && result.diseases.map((value) => {
-                    return (
-                      <div className='diseasesContainer'>
-                        <h3>{value.diseaseCode.id}</h3>
-                        <h3>{value.diseaseCode.label}</h3>
-                      </div>)
-                  })}
-
-                </div>
-
-                <div>
-                  {result.ethnicity && <h2>Ethnicity</h2>}
-                  {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
-                  {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
-                  {result.geographicOrigin && <h2>Geographic Origin</h2>}
-                  {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
-                  {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
-                  {result.sex && <h2>Sex</h2>}
-                  {result.sex.id && <h3>{result.sex.id}</h3>}
-                  {result.sex.label && <h3>{result.sex.label}</h3>}
-                </div>
-                <div className='measuresContainer'>
-                  {result.measures && <h2>Measures</h2>}
-                  {result.measures.map((value) => {
-                    return (
-                      <div className='measures'>
-                        <div>
-                          <h4>assayCode ID:</h4>
-                          <h3>{value.assayCode.id}</h3>
-                        </div>
-                        <div>
-                          <h4>assayCode label:</h4>
-                          <h3>{value.assayCode.label}</h3>
-                        </div>
-
-                        <div>
-                          <h4>Measurament value quantity ID and label:</h4>
-                          <h3>{value.measurementValue.quantity.unit.id}</h3>
-                          <h3>{value.measurementValue.quantity.unit.label}</h3>
-                        </div>
-                        <div>
-                          <h4>Measurament value quantity value:</h4>
-                          <h3>{value.measurementValue.quantity.value}</h3>
-                        </div>
-                      </div>)
-                  })}
-                </div>
-
-              </div>
-            )
-
-          })}
-
-          {error && <h3>&nbsp; {error} </h3>}
+    <div>
+      <form className='skipLimit'>
+      <div className='skipAndLimit'>
+        <div>
+          <label>SKIP</label>
+          <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
         </div>
-        }
+        <div>
+          <label>LIMIT</label>
+          <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
+        </div>
+        <button type="button" onClick= {onSubmit} className="skipLimitButton">APPLY</button>
       </div>
-    </div >
+     
+     
+      </form>
 
+      <div> {timeOut &&
+        <div className='selectGranularity'>
+          <button className='typeResults' onClick={handleTypeResults1}> Boolean</button>
+          <button className='typeResults' onClick={handleTypeResults2}>Count</button>
+          <button className='typeResults' onClick={handleTypeResults3}>Full</button>
+        </div>}
+
+        <div className='resultsContainer'>
+          {show1 && boolean && <p className='p1'>YES</p>}
+          {show1 && !boolean && <p className='p1'>N0</p>}
+
+          {show2 && numberResults !== 1 && <p className='p1'>{numberResults} &nbsp; Results</p>}
+          {show2 && numberResults === 1 && <p className='p1'>{numberResults} &nbsp; Result</p>}
+
+          {show3 && <div className="results">
+
+            {!error && results[0] && results.map((result) => {
+
+
+              return (
+                <div className="resultsIndividuals">
+
+                  <div>
+                    {result.id && <h2>ID</h2>}
+                    {result.id && <h3>{result.id}</h3>}
+                    {result.diseases && <h2>Disease</h2>}
+
+                    {result.diseases && result.diseases.map((value) => {
+                      return (
+                        <div className='diseasesContainer'>
+                          <h3>{value.diseaseCode.id}</h3>
+                          <h3>{value.diseaseCode.label}</h3>
+                        </div>)
+                    })}
+
+                  </div>
+
+                  <div>
+                    {result.ethnicity && <h2>Ethnicity</h2>}
+                    {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
+                    {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
+                    {result.geographicOrigin && <h2>Geographic Origin</h2>}
+                    {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
+                    {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
+                    {result.sex && <h2>Sex</h2>}
+                    {result.sex.id && <h3>{result.sex.id}</h3>}
+                    {result.sex.label && <h3>{result.sex.label}</h3>}
+                  </div>
+                  <div className='measuresContainer'>
+                    {result.measures && <h2>Measures</h2>}
+                    {result.measures.map((value) => {
+                      return (
+                        <div className='measures'>
+                          <div>
+                            <h4>assayCode ID:</h4>
+                            <h3>{value.assayCode.id}</h3>
+                          </div>
+                          <div>
+                            <h4>assayCode label:</h4>
+                            <h3>{value.assayCode.label}</h3>
+                          </div>
+
+                          <div>
+                            <h4>Measurament value quantity ID and label:</h4>
+                            <h3>{value.measurementValue.quantity.unit.id}</h3>
+                            <h3>{value.measurementValue.quantity.unit.label}</h3>
+                          </div>
+                          <div>
+                            <h4>Measurament value quantity value:</h4>
+                            <h3>{value.measurementValue.quantity.value}</h3>
+                          </div>
+                        </div>)
+                    })}
+                  </div>
+
+                </div>
+              )
+
+            })}
+
+            {error && <h3>&nbsp; {error} </h3>}
+          </div>
+          }
+        </div>
+      </div >
+    </div>
   )
 }
 

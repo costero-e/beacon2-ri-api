@@ -19,6 +19,12 @@ import SignUpForm from './components/SignUpForm';
 import ResultsDatasets from './components/ResultsDatasets';
 import FilteringTerms from './components/FilteringTerms';
 
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import ListSubheader from '@mui/material/ListSubheader';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+
 import axios from "axios";
 
 
@@ -35,10 +41,6 @@ function Layout() {
   const [showAlphanumValue, setAlphanumValue] = useState(false)
   const [resultSetType, setResultsetType] = useState(["Select", "HIT", "MISS", "NONE", "ALL"])
   const [resultSet, setResultset] = useState("HIT")
-
-  const [limit, setLimit] = useState(10)
-  const [skip, setSkip] = useState(0)
-
 
   const [ID, setId] = useState("")
   const [operator, setOperator] = useState("")
@@ -87,13 +89,6 @@ function Layout() {
     setSimilarity(similarityType[e.target.value])
   }
 
-  const handleSkipChanges = (e) => {
-    setSkip(e.target.value)
-  }
-
-  const handleLimitChanges = (e) => {
-    setLimit(e.target.value)
-  }
 
   const handleAdvancedSearch = (e) => {
     setAdvSearch(true)
@@ -106,10 +101,11 @@ function Layout() {
 
   const handleOperatorChanges = (e) => {
     setOperator(e.target.value)
+    
   }
 
   const handleValueChanges = (e) => {
-    setValue(e.target.vlue)
+    setValue(e.target.value)
   }
 
   const handleAlphanumSearch = (e) => {
@@ -117,35 +113,43 @@ function Layout() {
   }
 
   const handleBasicSearch = (e) => {
+    setAlphanumValue(false)
+  }
+
+  const handleBasicSearch2 = (e) => {
+    setAdvSearch(false)
+  }
+
+  const handleBasicSearch3 = (e) => {
     setAdvSearch(false)
     setAlphanumValue(false)
   }
 
   const handleFilteringTerms = async (e) => {
-  
-  
+
+
     if (collection === 'Individuals') {
-      
-        try {
-         
-          let res = await axios.get("http://localhost:5050/api/filtering_terms/individuals/")
-          setFilteringTerms(res)
-         
-        
-        } catch (error) {
-          console.log(error)
-        }
+
+      try {
+
+        let res = await axios.get("http://localhost:5050/api/filtering_terms/individuals")
+        setFilteringTerms(res)
+
+
+      } catch (error) {
+        console.log(error)
+      }
     }
 
 
-      setShowFilteringTerms(true)
+    setShowFilteringTerms(true)
 
-    
+
   }
 
   const handleExQueries = () => {
     if (collection === 'Individuals') {
-      setExampleQ(['sex= male, ethnicity=White and Black Caribbean', 'sex=female,cardiomyopathy', 'ethnicity=NCIT:C16352,weight>50', 'NCIT:C42331'])
+      setExampleQ(['sex= male, ethnicity=White and Black Caribbean', 'sex=female,cardiomyopathy', 'ethnicity=NCIT:C16352,LOINC:3141-9>50', 'NCIT:C42331'])
     }
   }
 
@@ -227,7 +231,7 @@ function Layout() {
           </select>
           <form className="d-flex" onSubmit={onSubmit}>
             <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
-            {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+            {((!showAdvSearch) && (!showAlphanumValue)) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
           </form>
         </div>
 
@@ -256,7 +260,7 @@ function Layout() {
 
           </div>
           {!showAlphanumValue && <button className="advSearch" onClick={handleAlphanumSearch}>
-            Alphanumerical Value Query
+            Alphanumerical and Numerical queries
           </button>}
 
 
@@ -264,19 +268,10 @@ function Layout() {
 
         <form className='advSearchForm' onSubmit={onSubmit}>
 
-          {showAdvSearch && <div>
-
+          {showAdvSearch && <div className='advSearchModule' >
             <hr></hr>
-            <div className='advSearchModule'>
+            <div className='resultset'>
               <div>
-                <label>SKIP</label>
-                <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
-              </div>
-              <div>
-                <label>LIMIT</label>
-                <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
-              </div>
-              <div className='resultset'>
                 <label>Include Resultset Responses</label>
                 <select className="form-select2" aria-label="" onChange={(e) => handleResultsetChanges(e)}>
                   {
@@ -286,10 +281,7 @@ function Layout() {
                 </select>
               </div>
 
-            </div>
-            <div className='advSearchModule2'>
               <div>
-
                 <label>Similarity</label>
                 <select className="form-select2" aria-label="" onChange={e => { handleSimilarityChanges(e) }}>
                   {
@@ -306,11 +298,14 @@ function Layout() {
                     </option>)
                   }
                 </select>
-
               </div>
+              {(!showAlphanumValue && showAdvSearch) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
 
             </div>
+
           </div>}
+
+
 
 
           {showAlphanumValue && <div className='alphanumContainer'>
@@ -318,27 +313,51 @@ function Layout() {
             <div className='alphanumContainer2'>
               <label>ID</label>
               <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
-              <label>Operator</label>
-              <input className="OperatorForm" type="text" autoComplete='on' placeholder={"="} onChange={(e) => handleOperatorChanges(e)} aria-label="Operator" />
-              <label>Value</label>
+              
+              <div id="operator">
+                <FormControl sx={{ m: 1, minWidth: 120 }}>
+                  <InputLabel htmlFor="grouped-native-select">Operator</InputLabel>
+                  <Select native defaultValue="" id="grouped-native-select" label="Grouping" onChange={(e) => handleOperatorChanges(e)}>
+                    <option aria-label="None" value="" />
+                    <optgroup label="Numerical">
+                      <option value={'='}>=</option>
+                      <option value={'<'}> &lt; </option>
+                      <option value={'>'}> &gt; </option>
+                    </optgroup>
+                    <optgroup label="Alphanumerical">
+                      <option value={'='}>=</option>
+                      <option value={'!'}>!</option>
+                    </optgroup>
+                  </Select>
+                </FormControl>
+                
+              </div>
+            
+              <label id="value">Value</label>
               <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
+              {(showAlphanumValue || showAdvSearch) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
             </div>
 
           </div>}
-          {(showAlphanumValue || showAdvSearch) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+
+
+
+
         </form>
 
 
 
       </nav>
 
-      {(showAlphanumValue || showAdvSearch) && <button className='returnBasic' onClick={handleBasicSearch}>RETURN TO BASIC SEARCH</button>}
+      {(showAlphanumValue && !showAdvSearch) && <button className='returnBasic' onClick={handleBasicSearch}>HIDE</button>}
+      {(showAdvSearch && !showAlphanumValue) && <button className='returnBasic' onClick={handleBasicSearch2}>HIDE</button>}
+      {(showAlphanumValue && showAdvSearch) && <button className='returnBasic' onClick={handleBasicSearch3}>Return to basic search</button>}
 
       <hr></hr>
       <div className="results">
         {results === null && !showFilteringTerms && <ResultsDatasets />}
-        {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} limit={limit} skip={skip} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
-        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms}/>}
+        {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
+        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms} />}
       </div>
 
     </div>
@@ -359,7 +378,7 @@ function App() {
         <Route path='/analyses' element={<Analyses />} />
         <Route path='/cohorts' element={<Cohorts />} />
         <Route path='/datasets' element={<Datasets />} />
-        <Route path='members' element={<Members />} />
+        <Route path='/members' element={<ResultsDatasets />} />
         <Route path='/history' element={<History />} />
         <Route path='/sign-up' element={<SignUpForm />} />
         <Route path="/sign-in" element={<SignInForm />} />
