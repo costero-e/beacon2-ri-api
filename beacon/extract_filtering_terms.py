@@ -96,8 +96,15 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                                                         field = k2 + '.' + k3 + '.' + k4 + '.' + k5
                                                         break
 
-        #print(field)
-    return field
+        dict_field = {}
+        if '.' in field:
+            field_split = field.split('.')
+            dict_field['id'] = field_split[0]
+        else:
+            dict_field['id']=''
+        dict_field['field']=field
+
+    return dict_field
 
 def insert_all_ontology_terms_used():
     collections = client.beacon.list_collection_names()
@@ -141,6 +148,7 @@ def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
                 pass
     return '{}'.format(ontology_id)
 
+'''
 def get_ontology_term_count(collection_name: str, term: str) -> int:
     query = {
         '$text': {
@@ -150,22 +158,31 @@ def get_ontology_term_count(collection_name: str, term: str) -> int:
     return client.beacon\
         .get_collection(collection_name)\
         .count_documents(query)
+'''
 
-def get_label_and_ontology(ontology_id:str, ontology_term:str):     
-    url = 'ontologies/{}.obo'.format(ontology_id.upper())
-    url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
-    label=''
-    try:
-        graph = obonet.read_obo(url)
-    except Exception:
-        graph = obonet.read_obo(url_alt)
-    try:
-        id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
-        label = id_to_name['{}:{}'.format(ontology_id,ontology_term)]
-    except Exception:
-        pass
-    if not label:
-        label = ''
+def get_label_and_ontology(ontology_id:str, ontology_term:str):
+    if 'LOINC' in ontology_id:
+        if '3141-9' in ontology_term:
+            label = 'Weight'
+        elif '8308-9' in ontology_term:
+            label = "Height-standing"
+        elif '35925-4' in ontology_term:
+            label = "BMI"
+    else:   
+        url = 'ontologies/{}.obo'.format(ontology_id.upper())
+        url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
+        label=''
+        try:
+            graph = obonet.read_obo(url)
+        except Exception:
+            graph = obonet.read_obo(url_alt)
+        try:
+            id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
+            label = id_to_name['{}:{}'.format(ontology_id,ontology_term)]
+        except Exception:
+            pass
+        if not label:
+            label = ''
     return label
 
 def find_ontology_terms_used(collection_name: str) -> List[Dict]:
@@ -197,15 +214,63 @@ def get_filtering_object(terms_ids: list, collection_name: str):
         #if ontologies[ontology_id] is not None:
             #if onto not in list_of_ontologies:
                 #get_descendants_and_similarities(complete_onto)
-        terms.append({
-                        'type': 'Ontology filter',
-                        'id': onto,
-                        'label': get_label_and_ontology(ontology_id, term_id),
-                        # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
-                        'count': get_ontology_term_count(collection_name, onto),
-                        'collection': collection_name,
-                        'target_schema_term': get_ontology_field_name(ontology_id, term_id, collection_name)
-                    })
+        dict_field = get_ontology_field_name(ontology_id, term_id, collection_name)
+        field = dict_field['field']
+        id = dict_field['id']
+        label = get_label_and_ontology(ontology_id, term_id)
+        if label:
+            terms.append({
+                            'type': 'Ontology filter',
+                            'id': onto,
+                            'label': label,
+                            # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                            #'count': get_ontology_term_count(collection_name, onto),
+                            'scope': collection_name                    
+                        })
+            if id:
+                if id == 'assayCode':
+                    if onto == 'LOINC:8308-9':
+                        terms.append({
+                                        'type': 'Alphanumeric filter',
+                                        'id': 'Height-standing',
+                                        'label': 'Height in Centimeters',
+                                        # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                                        #'count': get_ontology_term_count(collection_name, onto),
+                                        'scope': collection_name
+                                    })
+                    elif onto == 'LOINC:35925-4':
+                        terms.append({
+                                        'type': 'Alphanumeric filter',
+                                        'id': 'BMI',
+                                        'label': 'BMI in Kilogram per Square Meter',
+                                        # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                                        #'count': get_ontology_term_count(collection_name, onto),
+                                        'scope': collection_name
+                                    })
+                    elif onto == 'LOINC:3141-9':
+                        terms.append({
+                                        'type': 'Alphanumeric filter',
+                                        'id': 'Weight',
+                                        'label': 'Weight in Kilograms',
+                                        # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                                        #'count': get_ontology_term_count(collection_name, onto),
+                                        'scope': collection_name
+                                    })
+                else:
+                    terms.append({
+                                    'type': 'Alphanumeric filter',
+                                    'id': id,
+                                    # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                                    #'count': get_ontology_term_count(collection_name, onto),
+                                    'scope': collection_name
+                                })
+            terms.append({
+                            'type': 'Custom filter',
+                            'id': '{}:{}'.format(field,label),
+                            # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                            #'count': get_ontology_term_count(collection_name, onto),
+                            'scope': collection_name                    
+                        })
         print(terms)
         if onto not in list_of_ontologies:
             list_of_ontologies.append(onto)
