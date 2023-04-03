@@ -85,7 +85,7 @@ def generate_position_filter_end(key: str, value: List[int]) -> List[Alphanumeri
     return filters
 
 
-def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParams):
+def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParams, allowed_ids: list):
     collection = 'g_variants'
     LOG.debug("Request parameters len = {}".format(len(qparams.query.request_parameters)))
     if len(qparams.query.request_parameters) > 0 and "$and" not in query:
@@ -96,26 +96,26 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
                 v = v.split(',')
             filters = generate_position_filter_start(k, v)
             for filter in filters:
-                query["$and"].append(apply_alphanumeric_filter({}, filter, collection))
+                query["$and"].append(apply_alphanumeric_filter({}, filter, collection, allowed_ids))
         elif k == "end":
             if isinstance(v, str):
                 v = v.split(',')
             filters = generate_position_filter_end(k, v)
             for filter in filters:
-                query["$and"].append(apply_alphanumeric_filter({}, filter, collection))
+                query["$and"].append(apply_alphanumeric_filter({}, filter, collection, allowed_ids))
         elif k == "variantMinLength" or k == "variantMaxLength" or k == "mateName":
             continue
         else:
             query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
                 id=VARIANTS_PROPERTY_MAP[k],
                 value=v
-            ), collection))
+            ), collection, allowed_ids))
     return query
 
 
 def get_variants(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     collection = 'g_variants'
-    query = apply_request_parameters({}, qparams)
+    query = apply_request_parameters({}, qparams, allowed_ids)
     query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.GENOMICVARIATIONS
@@ -388,7 +388,7 @@ def get_analyses_of_variant(entry_id: Optional[str], qparams: RequestParams, all
         )
     return schema, count, docs
 
-def get_filtering_terms_of_genomicvariation(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_terms_of_genomicvariation(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     query = {'collection': 'genomicVariations'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)

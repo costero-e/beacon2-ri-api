@@ -39,5 +39,12 @@ async def resolve_token(token, requested_datasets_ids):
                 raise web.HTTPUnauthorized(body=error)
             content = await resp.content.read()
             authorized_datasets = content.decode('utf-8')
-            LOG.debug(authorized_datasets)
-            return authorized_datasets, True
+            authorized_datasets_list = authorized_datasets.split('"')
+            auth_datasets = []
+            for auth_dataset in authorized_datasets_list:
+                if ',' not in auth_dataset:
+                    if '[' not in auth_dataset:
+                        if ']' not in auth_dataset:
+                            auth_datasets.append(auth_dataset)
+            LOG.debug(auth_datasets)
+            return auth_datasets, True

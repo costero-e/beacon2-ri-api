@@ -59,7 +59,7 @@ def get_individuals_of_cohort(entry_id: Optional[str], qparams: RequestParams, a
     return schema, count, docs
 
 
-def get_filtering_terms_of_cohort(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_terms_of_cohort(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     query = {'collection': 'cohorts'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)

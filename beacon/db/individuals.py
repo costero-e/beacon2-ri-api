@@ -219,7 +219,7 @@ def get_biosamples_of_individual(entry_id: Optional[str], qparams: RequestParams
     return schema, count, docs
 
 
-def get_filtering_terms_of_individual(entry_id: Optional[str], qparams: RequestParams):
+def get_filtering_terms_of_individual(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
     query = {'collection': 'individuals'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
