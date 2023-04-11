@@ -1,0 +1,76 @@
+.search-box {
+    margin: 10px;
+    width: 100%;
+}
+
+.search-tr{
+    display: flex;
+    width: 100%;
+}
+
+thead{
+    display: flex;
+    justify-content: flex-end;
+    border-bottom: solid 1px #e1e1e1;
+    
+}
+
+.table{
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
+.th1{
+    
+    text-align: center;
+    width: 186px;
+    margin: 10px;
+}
+
+.th2{
+  
+    text-align: center;
+    width: 186px;
+    margin: 10px;
+}
+
+.th3{
+  
+    text-align: center;
+    width: 186px;
+    margin: 10px;
+}
+
+.th4{
+    
+    text-align: center;
+    width: 186px;
+    margin: 10px;
+}
+
+.searchTermInput{
+    margin: 10px;
+    width: 224px;
+    height: 31px;
+}
+
+
+tr{
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.terms1{
+    background-color: #fffafa;
+}
+
+.checkbox{
+    margin-right: -25px;
+}
+
+.checkbox2{
+    border: none;
+}

@@ -68,6 +68,7 @@ function Layout() {
 
     setCollection(collectionType[e.target.value])
     setExampleQ([])
+    setFilteringTerms(false)
 
   }
 
@@ -132,7 +133,7 @@ function Layout() {
 
       try {
 
-        let res = await axios.get("http://localhost:5050/api/filtering_terms/individuals")
+        let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms")
         setFilteringTerms(res)
 
 
@@ -357,7 +358,7 @@ function Layout() {
       <div className="results">
         {results === null && !showFilteringTerms && <ResultsDatasets />}
         {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
-        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms} />}
+        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder}/>}
       </div>
 
     </div>
