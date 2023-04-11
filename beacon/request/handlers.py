@@ -47,7 +47,8 @@ def generic_handler(db_fn, request=None):
         # Get params
         json_body = await request.json() if request.method == "POST" and request.has_body and request.can_read_body else {}
         qparams = RequestParams(**json_body).from_request(request)
-        _, _, datasets = get_datasets(None, qparams)
+        biosample_ids_disallowed=[]
+        _, _, datasets = get_datasets(None, qparams, biosample_ids_disallowed)
         beacon_datasets = [ r for r in datasets ]
             
         all_datasets = [ r['_id'] for r in beacon_datasets]
@@ -69,12 +70,12 @@ def generic_handler(db_fn, request=None):
 
             specific_datasets_unauthorized = []
             bio_list = []
-            biosample_ids_disallowed=[]
+            
             # Get response
             if not specific_datasets:
                 qparams.query.request_parameters['datasets'] = ''
                 qparams = RequestParams(**json_body).from_request(request)
-                _, _, datasets = get_datasets(None, qparams)
+                _, _, datasets = get_datasets(None, qparams, biosample_ids_disallowed)
                 beacon_datasets = [ r for r in datasets ]
                 specific_datasets = [ r['id'] for r in beacon_datasets]
             else:
@@ -82,7 +83,7 @@ def generic_handler(db_fn, request=None):
                     if element not in authorized_datasets:
                         qparams.query.request_parameters['datasets'] = '*******'
                         qparams = RequestParams(**json_body).from_request(request)
-                        _, _, datasets = get_datasets(None, qparams)
+                        _, _, datasets = get_datasets(None, qparams, biosample_ids_disallowed)
                         beacon_datasets = [ r for r in datasets ]
                         specific_datasets = [ r['id'] for r in beacon_datasets if r['id'] == element]
                         specific_datasets_unauthorized.append(specific_datasets)
