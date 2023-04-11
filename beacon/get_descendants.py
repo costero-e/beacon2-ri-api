@@ -7,6 +7,7 @@ def get_descendants_and_similarities(ontology:str):
     url = "ontologies/{}.obo".format(ontology_list[0])
     list_of_cousins = []
     list_of_brothers = []
+    list_of_uncles = []
     list_of_grandpas = []
     url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
     try:
@@ -36,9 +37,12 @@ def get_descendants_and_similarities(ontology:str):
         similarity_low=[]
         for llista in list_of_grandpas:
             for item in llista:
-                successors = [n for n in graph.predecessors(item)]
-                if ontology not in successors:
-                    list_of_cousins.append(successors)
+                uncles = [n for n in graph.predecessors(item)]
+                list_of_uncles.append(uncles)
+                for uncle in uncles:
+                    cousins = [n for n in graph.predecessors(uncle)]
+                    if ontology not in cousins:
+                        list_of_cousins.append(cousins)
 
         for llista in list_of_brothers:
             for item in llista:
@@ -48,13 +52,13 @@ def get_descendants_and_similarities(ontology:str):
 
         for llista in list_of_cousins:
             for item in llista:
+                similarity_medium.append(item)
+                similarity_low.append(item)
+        
+        for llista in list_of_uncles:
+            for item in llista:
                 similarity_low.append(item)
 
-        for item in similarity_medium:
-            successors = [n for n in graph.predecessors(item)]
-            for successor in successors:
-                similarity_low.append(successor)
-                similarity_medium.append(successor)
     except Exception:
         similarity_high=[]
         similarity_medium=[]

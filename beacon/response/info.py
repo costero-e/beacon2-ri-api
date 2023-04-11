@@ -28,8 +28,9 @@ async def handler(request: Request):
 
     # Fetch datasets info
     json_body = await request.json() if request.method == "POST" and request.has_body and request.can_read_body else {}
+    disallowed_ids=[]
     qparams = RequestParams(**json_body).from_request(request)
-    _, _, datasets = get_datasets(None, qparams)
+    _, _, datasets = get_datasets(None, qparams, disallowed_ids)
     beacon_datasets = [ r for r in datasets ]
         
     all_datasets = [ r['_id'] for r in beacon_datasets]
