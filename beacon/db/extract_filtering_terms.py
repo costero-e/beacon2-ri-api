@@ -85,7 +85,6 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                         break 
             elif isinstance(v, list):
                 for item in v:
-                    #print(item)
                     if isinstance(item, str): 
                         if item == ontology_id + ':' + term_id:
                             field = k
@@ -139,39 +138,6 @@ def insert_all_ontology_terms_used():
         if len(terms) > 0:
             client.beacon.filtering_terms.insert_many(terms)
 
-'''
-def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
-    if ontology_id.isalpha():
-        url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
-        url = "http://purl.obolibrary.org/obo/{}.obo".format(ontology_id.lower())
-        path = "ontologies/{}.obo".format(ontology_id)
-        try:
-            if not os.path.exists(path):
-                urllib.request.urlretrieve(url, path, MyProgressBar())
-        except Exception:
-            pass
-        try:
-            print (os.stat(path).st_size)
-            if os.stat(path).st_size == 0:
-                try:
-                    urllib.request.urlretrieve(url_alt, path, MyProgressBar())
-                except Exception:
-                    pass
-        except Exception:
-                pass
-    return '{}'.format(ontology_id)
-
-def get_ontology_term_count(collection_name: str, term: str) -> int:
-    query = {
-        '$text': {
-            '$search': '\"' + term + '\"'
-        }
-    }
-    return client.beacon\
-        .get_collection(collection_name)\
-        .count_documents(query)
-'''
-
 def get_label_and_ontology(field: str, ontology:str, collection_name: str):
     query={}
     field_id = field + '.id'
@@ -220,9 +186,9 @@ def get_label_and_ontology(field: str, ontology:str, collection_name: str):
             0,
             1
         )
-    elif collection_name == 'g_variants':
+    elif collection_name == 'genomicVariations':
         docs = get_filtering_documents(
-            client.beacon.g_variants,
+            client.beacon.genomicVariations,
             query,
             remove_id,
             0,
@@ -277,6 +243,7 @@ def get_label_and_ontology(field: str, ontology:str, collection_name: str):
         pass
 
 def find_ontology_terms_used(collection_name: str) -> List[Dict]:
+    print(collection_name)
     terms_ids = []
     count = client.beacon.get_collection(collection_name).estimated_document_count()
     xs = client.beacon.get_collection(collection_name).find()
@@ -284,10 +251,8 @@ def find_ontology_terms_used(collection_name: str) -> List[Dict]:
         matches = ONTOLOGY_REGEX.findall(str(r))
         for ontology_id, term_id in matches:
             term = ':'.join([ontology_id, term_id])
-            print(term, ontology_id)
             if term not in terms_ids:
                 terms_ids.append(term)
-    print(terms_ids)
     return terms_ids
 
 def get_filtering_object(terms_ids: list, collection_name: str):
@@ -377,42 +342,5 @@ def get_properties_of_document(document, prefix="") -> List[str]:
     return properties
 
 
-def find_alphanumeric_terms_used(collection_name: str) -> List[Dict]:
-    terms = []
-    terms_ids = set()
-    count = client.beacon.get_collection(collection_name).estimated_document_count()
-    xs = client.beacon.get_collection(collection_name).find()
-    for r in tqdm(xs, total=count):
-        properties = get_properties_of_document(r)
-        for p in properties:
-            if p not in terms_ids:
-                terms_ids.add(p)
-                terms.append({
-                    'type': 'alphanumeric',
-                    'id': p,
-                    'count': get_alphanumeric_term_count(collection_name, p),
-                    'collection': collection_name,
-                })
-    return terms
-
-
-def insert_all_alphanumeric_terms_used():
-    collections = client.beacon.list_collection_names()
-    if 'filtering_terms' in collections:
-        collections.remove('filtering_terms')
-    print("Collections:", collections)
-    for c_name in collections:
-        terms = find_alphanumeric_terms_used(c_name)
-        #print(terms)
-        if len(terms) > 0:
-            client.beacon.filtering_terms.insert_many(terms)
-
 
 insert_all_ontology_terms_used()
-#insert_all_alphanumeric_terms_used()
-#terms=find_ontology_terms_used("individuals")
-#print(terms)
-#hola = get_ontology_term_label('NCIT','C173381')
-#print(hola)
-#hola = find_alphanumeric_terms_used('analyses')
-#print(hola)
