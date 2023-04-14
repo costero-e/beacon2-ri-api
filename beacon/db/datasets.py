@@ -26,23 +26,30 @@ def include_resultset_responses(query: Dict[str, List[dict]], qparams: RequestPa
 def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParams):
     LOG.debug("Request parameters len = {}".format(len(qparams.query.request_parameters)))
     for k, v in qparams.query.request_parameters.items():
-        query["$text"] = {}
         if ',' in v:
+            query["$text"] = {}
             v_list = v.split(',')
             v_string=''
             for val in v_list:
                 v_string += f'"{val}"'
             query["$text"]["$search"]=v_string
         elif k == 'datasets':
-            if isinstance(v, list):
+            if v == '*******':
+                query = {}
+            else:
+                query["$text"] = {}
                 string = ''
                 for word in v:
                     string = word + ' '
-                query["$text"]["$search"]=string
-            elif v == '*******':
-                query = {}
+                dict_search={}
+                dict_search['$search']=string
+                query["$text"]=dict_search
+                
         else:
-            query["$text"]["$search"]=v
+            query["$text"] = {}
+            dict_search={}
+            dict_search['$search']=v
+            query["$text"]=dict_search
     LOG.debug(query)
     return query
 

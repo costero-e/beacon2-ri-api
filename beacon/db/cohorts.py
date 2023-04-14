@@ -2,7 +2,7 @@ import logging
 from typing import Optional
 from beacon.db.filters import apply_filters
 from beacon.db.schemas import DefaultSchemas
-from beacon.db.utils import query_id, get_count, get_documents, get_cross_query
+from beacon.db.utils import query_id, get_count, get_documents, get_cross_query, get_filtering_documents
 from beacon.request.model import RequestParams
 from beacon.db import client
 
@@ -63,9 +63,11 @@ def get_filtering_terms_of_cohort(entry_id: Optional[str], qparams: RequestParam
     query = {'collection': 'cohorts'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
-    docs = get_documents(
+    remove_id={'_id':0}
+    docs = get_filtering_documents(
         client.beacon.filtering_terms,
         query,
+        remove_id,
         qparams.query.pagination.skip,
         qparams.query.pagination.limit
     )

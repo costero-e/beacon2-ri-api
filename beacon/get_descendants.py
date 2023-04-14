@@ -1,6 +1,7 @@
 import obonet
 import networkx
 import json
+import os
 
 def get_descendants_and_similarities(ontology:str):
     ontology_list = ontology.split(':')    
@@ -87,10 +88,12 @@ def get_descendants_and_similarities(ontology:str):
     f.close()
     
 i=0
-with open('filtering_terms.txt', 'r') as f:
-    for line in f:
-        i +=1
-        line = line.replace("\n","")
-        get_descendants_and_similarities(line)
-        print(i)
+for filename in os.listdir('filtering_terms'):
+    file = os.path.join('filtering_terms', filename)
+    with open(file, 'r') as f:
+        for line in f:
+            i +=1
+            line = line.replace("\n","")
+            get_descendants_and_similarities(line)
+            print(i)
     

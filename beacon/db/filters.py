@@ -29,13 +29,21 @@ def apply_filters(query: dict, filters: List[dict], collection: str, allowed_ids
         ids_array = []
         for doc in allowed_ids:
             elem_query={}
-            elem_query['id']=doc
+            if collection == 'g_variants':
+                elem_query['caseLevelData.biosampleId']=doc
+            else: 
+                elem_query['id']=doc
             ids_array.append(elem_query)
         if ids_array:
-            query["$and"] = []
-            partial_query={}
-            partial_query['$nor']=ids_array
-            query["$and"].append(partial_query)
+            try:
+                partial_query={}
+                partial_query['$nor']=ids_array
+                query["$and"].append(partial_query)
+            except Exception:
+                query["$and"] = []
+                partial_query={}
+                partial_query['$nor']=ids_array
+                query["$and"].append(partial_query)
     if len(filters) >= 1:
         query["$and"] = []
         for filter in filters:
@@ -45,7 +53,7 @@ def apply_filters(query: dict, filters: List[dict], collection: str, allowed_ids
                 filter = AlphanumericFilter(**filter)
                 LOG.debug("Alphanumeric filter: %s %s %s", filter.id, filter.operator, filter.value)
                 partial_query = apply_alphanumeric_filter(partial_query, filter, collection, allowed_ids)
-            elif "includeDescendantTerms" not in filter and '.' not in filter["id"]:
+            elif "includeDescendantTerms" not in filter and '.' not in filter["id"] and filter["id"].isupper():
                 filter=OntologyFilter(**filter)
                 filter.include_descendant_terms=True
                 LOG.debug("Ontology filter: %s", filter.id)
@@ -53,7 +61,7 @@ def apply_filters(query: dict, filters: List[dict], collection: str, allowed_ids
                 #partial_query =  { "$text": { "$search": "" } } 
                 LOG.debug(partial_query)
                 partial_query = apply_ontology_filter(partial_query, filter, collection, allowed_ids)
-            elif "similarity" in filter or "includeDescendantTerms" in filter or re.match(CURIE_REGEX, filter["id"]):
+            elif "similarity" in filter or "includeDescendantTerms" in filter or re.match(CURIE_REGEX, filter["id"]) and filter["id"].isupper():
                 filter = OntologyFilter(**filter)
                 LOG.debug("Ontology filter: %s", filter.id)
                 #partial_query = {"$text": defaultdict(str) }
@@ -127,7 +135,10 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str, 
         query_filtering['$and']=[]
         query_filtering['$and'].append(dict_scope)
         dict_regex={}
-        dict_regex['$regex']=label
+        try:
+            dict_regex['$regex']=label
+        except Exception:
+            dict_regex['$regex']=''
         dict_id={}
         dict_id['id']=dict_regex
         query_filtering['$and'].append(dict_id)
@@ -140,7 +151,7 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str, 
         for doc2 in docs_2:
             query_terms = doc2['id']
         query_terms = query_terms.split(':')
-        query_term = query_terms[0]
+        query_term = query_terms[0] + '.id'
         query_id={}
         query['$or']=[]
         for simil in final_term_list:
@@ -199,8 +210,10 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str, 
         query_filtering['$and']=[]
         query_filtering['$and'].append(dict_scope)
         dict_regex={}
-        dict_regex['$regex']=label
-        dict_id={}
+        try:
+            dict_regex['$regex']=label
+        except Exception:
+            dict_regex['$regex']=''
         dict_id['id']=dict_regex
         query_filtering['$and'].append(dict_id)
         docs_2 = get_documents(
@@ -212,7 +225,7 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str, 
         for doc2 in docs_2:
             query_terms = doc2['id']
         query_terms = query_terms.split(':')
-        query_term = query_terms[0]
+        query_term = query_terms[0] + '.id'
         query_id={}
         for desc in list_descendant:
             query_id={}
@@ -262,7 +275,7 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str, 
         for doc2 in docs_2:
             query_terms = doc2['id']
         query_terms = query_terms.split(':')
-        query_term = query_terms[0]
+        query_term = query_terms[0] + '.id'
         query[query_term]=filter.id
 
 
@@ -385,8 +398,8 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                     elem_query={}
                     elem_query['id']=doc
                     ids_array.append(elem_query)
-                if ids_array:
-                    query['$nor']=ids_array   
+                for id_array in ids_array:
+                    query['$nor'].append(id_array)   
             else:
                 try: 
                     if query['$nor']:
@@ -405,8 +418,8 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
                     elem_query={}
                     elem_query['id']=doc
                     ids_array.append(elem_query)
-                if ids_array:
-                    query['$nor']=ids_array   
+                for id_array in ids_array:
+                    query['$nor'].append(id_array)   
     else:
         query['measurementValue.quantity.value'] = { formatted_operator: float(formatted_value) }
         if "LOINC" in filter.id:
@@ -429,30 +442,9 @@ def apply_alphanumeric_filter(query: dict, filter: AlphanumericFilter, collectio
 def apply_custom_filter(query: dict, filter: CustomFilter, collection:str, allowed_ids: list) -> dict:
     LOG.debug(query)
 
-    query_filtering={}
-    query_filtering['$and']=[]
-    dict_scope={}
-    dict_scope['scope']=collection
-    query_filtering['$and'].append(dict_scope)
     value_splitted = filter.id.split(':')
-    dict_id={}
-    dict_id['label']=value_splitted[1]
-    query_filtering['$and'].append(dict_id)
-    dict_type={}
-    dict_type['type']='Ontology filter'
-    query_filtering['$and'].append(dict_type)
-    docs = get_documents(
-        client.beacon.filtering_terms,
-        query_filtering,
-        0,
-        1
-    )
-    LOG.debug(docs)
-    for doc_term in docs:
-        LOG.debug(doc_term)
-        id = doc_term['id']
-    query_term = value_splitted[0]
-    query[query_term]=id
+    query_term = value_splitted[0] + '.label'
+    query[query_term]=value_splitted[1]
 
     ids_array = []
     for doc in allowed_ids:
