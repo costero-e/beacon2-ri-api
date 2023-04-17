@@ -1,10 +1,63 @@
+import owlready2
 import obonet
 import networkx
 import json
 import os
+from typing import List, Dict, Optional
+import urllib.request
+from urllib.error import HTTPError
+import progressbar
+
+class MyProgressBar:
+    def __init__(self):
+        self.pbar = None
+
+    def __call__(self, block_num: int, block_size: int, total_size: int):
+        if not self.pbar:
+            self.pbar = progressbar.ProgressBar(maxval=total_size)
+            self.pbar.start()
+
+        downloaded = block_num * block_size
+        if downloaded < total_size:
+            self.pbar.update(downloaded)
+        else:
+            self.pbar.finish()
+
+def load_ontology(ontology_id: str) -> Optional[owlready2.Ontology]:
+    if ontology_id.isalpha():
+        url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
+        url = "http://purl.obolibrary.org/obo/{}.obo".format(ontology_id.lower())
+        path = "ontologies/{}.obo".format(ontology_id)
+        try:
+            if not os.path.exists(path):
+                urllib.request.urlretrieve(url, path, MyProgressBar())
+        except HTTPError:
+            # TODO: Handle error
+            print("ERROR", HTTPError)
+            pass
+        except ValueError:
+            print("ERROR", ValueError)
+            pass
+        try:
+            print (os.stat(path).st_size)
+            if os.stat(path).st_size == 0:
+                try:
+                    urllib.request.urlretrieve(url_alt, path, MyProgressBar())
+                except HTTPError:
+                    # TODO: Handle error
+                    print("ERROR", HTTPError)
+                    pass
+                except ValueError:
+                    print("ERROR", ValueError)
+                    pass
+        except Exception:
+                pass
+    return '{}'.format(ontology_id)
+
 
 def get_descendants_and_similarities(ontology:str):
-    ontology_list = ontology.split(':')    
+    ontology_list = ontology.split(':')
+    load_ontology(ontology_list[0])    
     url = "ontologies/{}.obo".format(ontology_list[0])
     list_of_cousins = []
     list_of_brothers = []
