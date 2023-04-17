@@ -2,8 +2,7 @@ from typing import Dict, Optional
 
 from pymongo.cursor import Cursor
 from pymongo.collection import Collection
-from beacon.db import client
-from beacon.request.model import RequestParams
+
 import logging
 
 LOG = logging.getLogger(__name__)
@@ -37,6 +36,10 @@ def get_count(collection: Collection, query: dict) -> int:
 def get_documents(collection: Collection, query: dict, skip: int, limit: int) -> Cursor:
     LOG.debug("FINAL QUERY: {}".format(query))
     return collection.find(query).skip(skip).limit(limit).max_time_ms(10 * 1000)
+
+def get_filtering_documents(collection: Collection, query: dict, remove_id: dict,skip: int, limit: int) -> Cursor:
+    LOG.debug("FINAL QUERY: {}".format(query))
+    return collection.find(query,remove_id).skip(skip).limit(limit).max_time_ms(10 * 1000)
 
 def get_cross_query(ids: dict, cross_type: str, collection_id: str):
     id_list=[]

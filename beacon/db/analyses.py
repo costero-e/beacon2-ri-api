@@ -5,7 +5,7 @@ from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_c
 from beacon.db import client
 from beacon.request.model import AlphanumericFilter, Operator, RequestParams
 from beacon.db.schemas import DefaultSchemas
-from beacon.db.utils import get_documents, query_id, get_count
+from beacon.db.utils import get_documents, query_id, get_count, get_filtering_documents
 from beacon.request.model import RequestParams
 
 LOG = logging.getLogger(__name__)
@@ -170,9 +170,11 @@ def get_filtering_terms_of_analyse(entry_id: Optional[str], qparams: RequestPara
     query = {'collection': 'analyses'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
-    docs = get_documents(
+    remove_id={'_id':0}
+    docs = get_filtering_documents(
         client.beacon.filtering_terms,
         query,
+        remove_id,
         qparams.query.pagination.skip,
         qparams.query.pagination.limit
     )
