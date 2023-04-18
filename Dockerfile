@@ -2,7 +2,8 @@
 ## Build env
 ##########################
 
-FROM python:3.10-buster AS BUILD
+FROM  amd64/python:3.10-buster AS BUILD
+
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -22,7 +23,8 @@ RUN pip install -r /tmp/requirements.txt
 ##########################
 ## Final image
 ##########################
-FROM python:3.10-buster
+
+FROM  amd64/python:3.10-buster 
 
 LABEL maintainer "CRG System Developers"
 LABEL org.label-schema.schema-version="2.0"

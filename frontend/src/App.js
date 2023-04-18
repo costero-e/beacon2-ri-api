@@ -25,6 +25,9 @@ import ListSubheader from '@mui/material/ListSubheader';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
+import { AuthContext } from './components/context/AuthContext';
+import { useContext } from 'react';
+
 import axios from "axios";
 
 
@@ -55,6 +58,8 @@ function Layout() {
 
   const [showFilteringTerms, setShowFilteringTerms] = useState(false)
   const [filteringTerms, setFilteringTerms] = useState(false)
+
+  const { storeToken, refreshToken, authenticateUser, isLoggedIn, setExpirationTime, setExpirationTimeRefresh } = useContext(AuthContext);
 
   const Add = collectionType.map(Add => Add)
 
@@ -183,9 +188,10 @@ function Layout() {
 
     event.preventDefault()
 
+
     setCollectionType(["Select"])
 
-
+    authenticateUser()
 
     setExampleQ([])
 
