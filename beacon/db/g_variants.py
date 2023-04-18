@@ -2,7 +2,7 @@ import logging
 from typing import Dict, List, Optional
 from beacon.db.filters import apply_alphanumeric_filter, apply_filters
 from beacon.db.schemas import DefaultSchemas
-from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query, get_cross_query_variants
+from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query, get_cross_query_variants, get_filtering_documents
 from beacon.request.model import AlphanumericFilter, Operator, RequestParams
 from beacon.db import client
 import json
@@ -105,6 +105,8 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
                 query["$and"].append(apply_alphanumeric_filter({}, filter, collection, allowed_ids))
         elif k == "variantMinLength" or k == "variantMaxLength" or k == "mateName":
             continue
+        elif k == "datasets":
+            pass
         else:
             query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
                 id=VARIANTS_PROPERTY_MAP[k],
@@ -392,9 +394,11 @@ def get_filtering_terms_of_genomicvariation(entry_id: Optional[str], qparams: Re
     query = {'collection': 'genomicVariations'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
-    docs = get_documents(
+    remove_id={'_id':0}
+    docs = get_filtering_documents(
         client.beacon.filtering_terms,
         query,
+        remove_id,
         qparams.query.pagination.skip,
         qparams.query.pagination.limit
     )

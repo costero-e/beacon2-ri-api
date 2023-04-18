@@ -200,11 +200,22 @@ def build_beacon_service_info_response():
 # Filtering terms Response
 ########################################
 
-def build_filtering_terms_response(filtering_terms, resources, qparams: RequestParams):
-    return {
-        "meta": build_meta(qparams, None, Granularity.RECORD),
-        "response": {
-            "resources": resources,
-            "filteringTerms": filtering_terms
-        }
+def build_filtering_terms_response(data,
+                                    num_total_results,
+                                    qparams: RequestParams,
+                                    func_response_type,
+                                    entity_schema: DefaultSchemas):
+    """"
+    Transform data into the Beacon response format.
+    """
+
+    beacon_response = {
+        'meta': build_meta(qparams, entity_schema, Granularity.RECORD),
+        'responseSummary': build_response_summary(num_total_results > 0, num_total_results),
+        # TODO: 'extendedInfo': build_extended_info(),
+        'response': {
+            'filteringTerms': data,
+        },
+        'beaconHandovers': conf.beacon_handovers,
     }
+    return beacon_response

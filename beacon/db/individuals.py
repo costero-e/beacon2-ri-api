@@ -1,7 +1,7 @@
 import logging
 from typing import Dict, List, Optional
 from beacon.db.filters import apply_alphanumeric_filter, apply_filters, INDIVIDUALS_MAP
-from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query
+from beacon.db.utils import query_id, query_ids, get_count, get_documents, get_cross_query, get_filtering_documents
 from beacon.db import client
 from beacon.request.model import AlphanumericFilter, Operator, RequestParams
 from beacon.db.schemas import DefaultSchemas
@@ -223,9 +223,11 @@ def get_filtering_terms_of_individual(entry_id: Optional[str], qparams: RequestP
     query = {'collection': 'individuals'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
-    docs = get_documents(
+    remove_id={'_id':0}
+    docs = get_filtering_documents(
         client.beacon.filtering_terms,
         query,
+        remove_id,
         qparams.query.pagination.skip,
         qparams.query.pagination.limit
     )
