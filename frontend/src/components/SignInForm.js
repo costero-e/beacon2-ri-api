@@ -16,7 +16,7 @@ export default function SignInForm(){
     const [error, setError] = useState('')
  
     const navigate = useNavigate();
-    const { storeToken, refreshToken, authenticateUser, isLoggedIn, setExpirationTime, setStartTime, setExpirationTimeRefresh } = useContext(AuthContext);
+    const { storeToken, setIsLoggedIn, isLoggedIn, refreshTokenFunction, authenticateUser, expirationMessage, setExpirationTime, setStartTime, setExpirationTimeRefresh } = useContext(AuthContext);
 
 
     const handleChange1 = (e) => {
@@ -67,18 +67,19 @@ export default function SignInForm(){
         console.log(readableResponse)
 
         storeToken(readableResponse.access_token)
-        refreshToken(readableResponse.refresh_token)
+        refreshTokenFunction(readableResponse.refresh_token)
 
         
         setExpirationTime(readableResponse.expires_in)
         setExpirationTimeRefresh(readableResponse.refresh_expires_in)
 
-        setStartTime(Date.now())
+   
         //storeToken(response.data.authToken);
         authenticateUser();
         
         if (readableResponse.access_token){
             navigate("/")
+            setIsLoggedIn(true)
         
         } else{
             setError("User not found. Please check the username and the password and retry")
@@ -91,6 +92,7 @@ export default function SignInForm(){
             <div className="login">
                 <div className="appAside" />
                 <div className="appForm">
+                    {expirationMessage != '' && <h3>{expirationMessage}</h3>}
                     <div className="pageSwitcher">
                         <NavLink
                       
@@ -147,8 +149,8 @@ export default function SignInForm(){
                                 </NavLink>
                             </div>
                         </form>
+                    {error !== '' && <h1>{error}</h1>}
                     </div>
-                    {error != ''&& <h1>{error}</h1>}
                 </div>
             </div>
 

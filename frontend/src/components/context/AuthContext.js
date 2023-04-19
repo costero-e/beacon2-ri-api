@@ -1,5 +1,5 @@
 import React, { useState, createContext, useEffect } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const AuthContext = createContext();
 
@@ -7,16 +7,16 @@ function AuthProviderWrapper(props) {
 
    // Store the variables we want to share
    const [user, setUser] = useState(null);
-   const [isLoggedIn, setIsLoggedIn] = useState(false);
-   const [isLoading, setLoading] = useState(true);
-
+   const [expirationMessage, setExpirationMessage] = useState('')
+   const [isLoggedIn, setIsLoggedIn] = useState(false)
+   const navigate = useNavigate();
 
    // Functions to store and delete the token received by the backend in the browser
    const storeToken = (token) => {
       localStorage.setItem('authToken', token);
    }
 
-   const refreshToken = (token) => {
+   const refreshTokenFunction = (token) => {
       console.log(token)
       localStorage.setItem('refreshToken', token)
    }
@@ -41,6 +41,12 @@ function AuthProviderWrapper(props) {
       localStorage.setItem('currentTime', time)
    }
 
+   const logOutUser = () => {
+      removeToken();
+      setExpirationMessage('Session expired due to inactivity. Please log in again')
+      setIsLoggedIn(false)
+      navigate("/sign-in")
+   }
 
    // Function to check if the user is already authenticated or not
    const authenticateUser = async () => {
@@ -52,55 +58,76 @@ function AuthProviderWrapper(props) {
 
       const startTime = localStorage.getItem('startTime')
 
-      const currentTime = localStorage.getItem('currentTime')
-
       console.log(startTime)
-      console.log(expirationTime)
-      console.log(refreshTime)
 
+      setCurrentTime(Date.now())
+    
+      const currentTime = localStorage.getItem('currentTime')
+      console.log(currentTime)
+      console.log("AUTHENTICATING")
 
 
       if ((currentTime - startTime) > expirationTime) {
          ///GET NEW REFRESH TOKEN
-
-         if ((currentTime -startTime) > refreshTime){
+         console.log("UUUU")
+         if ((currentTime - startTime) > refreshTime) {
             logOutUser()
-         } else{
+         } else {
 
-            
+            console.log("HA PASADO EL EXPIRATION TIME")
+
+            var details = {
+               'grant_type': 'refresh_token',
+               'client_id': 'beacon',
+               'client_secret': 'b26ca0f9-1137-4bee-b453-ee51eefbe7ba',
+               'realm': 'Beacon',
+               'scope': 'openid',
+               'requested_token_type': 'urn:ietf:params:oauth:token-type:refresh_token',
+               'refresh_token': `${refreshToken}`
+            };
+
+
+            var formBody = [];
+            for (var property in details) {
+               var encodedKey = encodeURIComponent(property);
+               var encodedValue = encodeURIComponent(details[property]);
+               formBody.push(encodedKey + "=" + encodedValue);
+            }
+            formBody = formBody.join("&");
+
+            const response = await fetch('http://localhost:8080/auth/realms/Beacon/protocol/openid-connect/token', {
+               method: 'POST',
+               headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded'
+               },
+               body: formBody
+            })
+
+            const readableResponse = await response.json()
+            console.log(readableResponse)
+
+            storeToken(readableResponse.access_token)
+            refreshTokenFunction(readableResponse.refresh_token)
+
+            setExpirationTime(readableResponse.expires_in)
+            setExpirationTimeRefresh(readableResponse.refresh_expires_in)
+
+            setStartTime(Date.now())
+            const startTime = localStorage.getItem('startTime')
+            console.log(startTime)
 
          }
 
-      } else
-      if (storedToken) {
-         //try {
-         //const response = await axios.post(`, { headers: { Authorization: `Bearer ${storedToken}` } });
-         setIsLoggedIn(true);
-         setLoading(false);
+      } 
 
-         //} catch (error) {
-         // setIsLoggedIn(false);
-         //setLoading(false);
-         //setUser(null);
-         // }
-      } else {
-         setIsLoggedIn(false);
-         setLoading(false);
-
-      }
    };
 
-   const logOutUser = () => {
-      removeToken();
-      authenticateUser();
-   }
+ 
 
-   useEffect(() => {
-      authenticateUser();
-   }, []);
+
 
    return (
-      <AuthContext.Provider value={{ user, isLoggedIn, setExpirationTime, setExpirationTimeRefresh, storeToken, refreshToken, authenticateUser, setStartTime, setCurrentTime, logOutUser }}>
+      <AuthContext.Provider value={{ setIsLoggedIn,isLoggedIn, setExpirationTime, expirationMessage, setExpirationTimeRefresh, storeToken, refreshTokenFunction, authenticateUser, setStartTime, setCurrentTime, logOutUser }}>
          {props.children}
       </AuthContext.Provider>
    )
