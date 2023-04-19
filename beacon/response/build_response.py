@@ -37,7 +37,7 @@ def build_response_summary(exists, num_total_results):
         }
 
 
-def build_response(data, response_dict, num_total_results, qparams, func):
+def build_response_by_dataset(data, response_dict, num_total_results, qparams, func):
     """"Fills the `response` part with the correct format in `results`"""
     list_of_responses=[]
     for k,v in response_dict.items():
@@ -55,12 +55,46 @@ def build_response(data, response_dict, num_total_results, qparams, func):
 
     return list_of_responses
 
+def build_response(data, num_total_results, qparams, func):
+    """"Fills the `response` part with the correct format in `results`"""
+
+    response = {
+        'id': '', # TODO: Set the name of the dataset/cohort
+        'setType': '', # TODO: Set the type of collection
+        'exists': num_total_results > 0,
+        'resultsCount': num_total_results,
+        'results': data,
+        # 'info': None,
+        'resultsHandover': None,  # build_results_handover
+    }
+
+    return response
+
 
 ########################################
 # Resultset Response
 ########################################
-
 def build_beacon_resultset_response(data,
+                                    num_total_results,
+                                    qparams: RequestParams,
+                                    func_response_type,
+                                    entity_schema: DefaultSchemas):
+    """"
+    Transform data into the Beacon response format.
+    """
+
+    beacon_response = {
+        'meta': build_meta(qparams, entity_schema, Granularity.RECORD),
+        'responseSummary': build_response_summary(num_total_results > 0, num_total_results),
+        # TODO: 'extendedInfo': build_extended_info(),
+        'response': {
+            'resultSets': [build_response(data, num_total_results, qparams, func_response_type)]
+        },
+        'beaconHandovers': conf.beacon_handovers,
+    }
+    return beacon_response
+
+def build_beacon_resultset_response_by_dataset(data,
                                     list_of_dataset_dicts,
                                     num_total_results,
                                     qparams: RequestParams,

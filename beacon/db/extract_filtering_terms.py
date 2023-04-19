@@ -299,7 +299,7 @@ def get_filtering_object(terms_ids: list, collection_name: str):
             print(terms)
         
             
-    path = "filtering_terms/filtering_terms_{}.txt".format(collection_name)
+    path = "/beacon/beacon/db/filtering_terms/filtering_terms_{}.txt".format(collection_name)
     with open(path, 'w') as f:
         for item in list_of_ontologies:
             f.write(item+"\n")
