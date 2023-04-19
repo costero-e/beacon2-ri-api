@@ -7,7 +7,7 @@ import { Component } from 'react';
 
 const apiURL = 'http://localhost:8080/auth/admin/realms/Beacon/users'
 const apiURL2 = 'http://localhost:8080/auth/realms/Beacon/protocol/openid-connect/token'
-const token = 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJreS1tUXNxZ0ZYeHdSUVRfRUhuQlJJUGpmbVhfRXZuUTVEbzZWUTJCazdZIn0.eyJleHAiOjE2ODAxODcxMTEsImlhdCI6MTY4MDE4NjgxMSwianRpIjoiNjIwYWZlYmEtYTA2MS00ZjE4LWE1NTgtYWU5NzMzNjU4MGY4IiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo4MDgwL2F1dGgvcmVhbG1zL0JlYWNvbiIsInN1YiI6IjliM2M3YmM0LTFlNTAtNGQ5Ny1hYmMxLTgwYTI4ODdmNTgzZiIsInR5cCI6IkJlYXJlciIsImF6cCI6ImFkbWluLWNsaSIsImFjciI6IjEiLCJzY29wZSI6InByb2ZpbGUgZW1haWwiLCJjbGllbnRJZCI6ImFkbWluLWNsaSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiY2xpZW50SG9zdCI6IjE3Mi4yMi4wLjEiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJzZXJ2aWNlLWFjY291bnQtYWRtaW4tY2xpIiwiY2xpZW50QWRkcmVzcyI6IjE3Mi4yMi4wLjEifQ.FBOtkZkKRaNM0gM6008MFiLNyJSfyqj1H0qbD-EC9mETa19C8jXQ1Kg0QMTz8s-918zLtuNKHWMuDAIdh-D7McLWR-CUZWVuDwoQtEuanHh2iBVnfro3GaSxSB2BjxqPER84Oj7dXLgpCXiEcoaJa-RfE5Fx0GgMoCP8vOxyBwl7K-YL-1QfSJXTauyHHsEXWe5MtTe4ZKtpLhHobk5GuSFcBmnH7JMRb0LyhJqcYCTRL97I203Nzh0tFn-QhsEmPtBjL1RBb2KAbx_wWe1WF7Fay2JGdA-gPsG94-ADHhZL2iSkFkIJPBE6VpftQWCXf1T4KZW0895P5KrDcgvlJg'
+
 class SignUpForm extends Component {
 
     constructor() {
@@ -55,12 +55,12 @@ class SignUpForm extends Component {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=Kym0Ro1EvOmDrcZT2Azc2JlbBPQIXCNL'
+                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=D8PgdqZsE0WCR2nOtyqGuZn0LRHZKWq0'
            
             })
-    
+            
             const response2 = await resp.json()
-          
+            console.log(response2)
             console.log(response2.access_token)
 
             const yourNewData = {

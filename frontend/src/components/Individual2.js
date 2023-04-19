@@ -3,6 +3,8 @@ import '../App.css';
 import { useState, useEffect } from 'react';
 import axios from "axios";
 
+import { AuthContext } from './context/AuthContext';
+import { useContext } from 'react';
 
 function Individuals2(props) {
 
@@ -27,6 +29,7 @@ function Individuals2(props) {
   const [skipTrigger,setSkipTrigger ] = useState(0)
   const [limitTrigger, setLimitTrigger] = useState(0)
 
+  const {  authenticateUser } = useContext(AuthContext);
 
   const API_ENDPOINT = "http://localhost:5050/api/individuals"
 
@@ -49,6 +52,7 @@ function Individuals2(props) {
       console.log(props.value)
       console.log(props.operator)
 
+  
 
 
       if (props.query != null) {
