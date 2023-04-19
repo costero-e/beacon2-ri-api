@@ -2,8 +2,7 @@
 ## Build env
 ##########################
 
-FROM  amd64/python:3.10-buster AS BUILD
-
+FROM python:3.10-buster AS BUILD
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -15,7 +14,6 @@ RUN apt-get install -y --no-install-recommends \
 
 # python packages
 RUN pip install --upgrade pip
-RUN pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
 COPY requirements.txt /tmp/requirements.txt
 RUN pip install -r /tmp/requirements.txt
 
@@ -23,8 +21,7 @@ RUN pip install -r /tmp/requirements.txt
 ##########################
 ## Final image
 ##########################
-
-FROM  amd64/python:3.10-buster 
+FROM python:3.10-buster
 
 LABEL maintainer "CRG System Developers"
 LABEL org.label-schema.schema-version="2.0"
@@ -65,6 +62,3 @@ RUN groupadd beacon                              && \
 WORKDIR /beacon
 USER beacon
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
-
-WORKDIR /home/beacon
-RUN chmod -R 700 ./
