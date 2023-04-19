@@ -176,12 +176,15 @@ def apply_ontology_filter(query: dict, filter: OntologyFilter, collection: str, 
         LOG.debug(ontology)
         ontology_list=ontology.split(':')
         list_descendant = []
-        path = "./beacon/descendants/{}{}.txt".format(ontology_list[0],ontology_list[1])
-        LOG.debug(path)
-        with open(path, 'r') as f:
-            for line in f:
-                line=line.replace("\n","")
-                list_descendant.append(line)
+        try:
+            path = "./beacon/descendants/{}{}.txt".format(ontology_list[0],ontology_list[1])
+            LOG.debug(path)
+            with open(path, 'r') as f:
+                for line in f:
+                    line=line.replace("\n","")
+                    list_descendant.append(line)
+        except Exception:
+            pass
         try: 
             if query['$or']:
                 pass
