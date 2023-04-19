@@ -118,19 +118,6 @@ def generic_handler(db_fn, request=None):
                 LOG.debug(specific_datasets_unauthorized_and_found)
                 LOG.debug(specific_datasets_unauthorized)
 
-                #specific_datasets_unauthorized.append(specific_datasets)
-                #LOG.debug(specific_datasets_unauthorized)
-                '''
-                for unauth in specific_datasets_unauthorized:
-                    for unauth_spec in unauth:
-                        biosample_ids = [ r['ids'] for r in beacon_datasets if r['id'] == unauth_spec ]
-                        bio_list.append(biosample_ids)
-                
-                for bio in bio_list:                
-                    for biosample_id in bio:
-                        for bio_id in biosample_id['biosampleIds']:
-                            biosample_ids_disallowed.append(bio_id)
-                '''
             else:
                 qparams.query.request_parameters = {}
                 qparams.query.request_parameters['datasets'] = '*******'
@@ -145,12 +132,6 @@ def generic_handler(db_fn, request=None):
                     for unauth_spec in unauth:
                         biosample_ids = [ r['ids'] for r in beacon_datasets if r['id'] == unauth_spec ]
                         bio_list.append(biosample_ids)
-                '''
-                for bio in bio_list:                
-                    for biosample_id in bio:
-                        for bio_id in biosample_id['biosampleIds']:
-                            biosample_ids_disallowed.append(bio_id)
-                '''
                 
                 list_of_dataset_dicts=[]
 

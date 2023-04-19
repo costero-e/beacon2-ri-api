@@ -7,6 +7,8 @@ from beacon.request.model import AlphanumericFilter, Operator, RequestParams
 from beacon.db import client
 import json
 from bson import json_util
+from aiohttp import web
+
 
 LOG = logging.getLogger(__name__)
 
@@ -108,10 +110,13 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
         elif k == "datasets":
             pass
         else:
-            query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
-                id=VARIANTS_PROPERTY_MAP[k],
-                value=v
-            ), collection, allowed_ids))
+            try:
+                query["$and"].append(apply_alphanumeric_filter({}, AlphanumericFilter(
+                    id=VARIANTS_PROPERTY_MAP[k],
+                    value=v
+                ), collection, allowed_ids))
+            except KeyError:
+                raise web.HTTPNotFound
     return query
 
 
