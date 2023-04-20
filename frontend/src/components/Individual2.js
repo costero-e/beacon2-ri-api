@@ -102,11 +102,11 @@ function Individuals2(props) {
           // show all individuals
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true") {
+          if (props.descendantTerm === "true") {
             descendantTerm = true
           }
 
-          if (props.descendantTerm == "false") {
+          if (props.descendantTerm === "false") {
             descendantTerm = false
           }
 
@@ -147,11 +147,11 @@ function Individuals2(props) {
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true") {
+          if (props.descendantTerm === "true") {
             descendantTerm = true
           }
 
-          if (props.descendantTerm == "false") {
+          if (props.descendantTerm === "false") {
             descendantTerm = false
           }
 
@@ -221,11 +221,11 @@ function Individuals2(props) {
 
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true") {
+          if (props.descendantTerm === "true") {
             descendantTerm = true
           }
 
-          if (props.descendantTerm == "false") {
+          if (props.descendantTerm === "false") {
             descendantTerm = false
           }
 
