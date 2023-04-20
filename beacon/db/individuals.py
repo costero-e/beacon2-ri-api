@@ -139,7 +139,7 @@ def get_variants_of_individual(entry_id: Optional[str], qparams: RequestParams):
     LOG.debug(individual_ids)
     individual_ids=get_cross_query(individual_ids,'id','caseLevelData.biosampleId')
     LOG.debug(individual_ids)
-    query = apply_filters(query, qparams.query.filters, collection)
+    query = apply_filters(individual_ids, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
