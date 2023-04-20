@@ -73,7 +73,7 @@ export default function SignInForm(){
         setExpirationTime(readableResponse.expires_in)
         setExpirationTimeRefresh(readableResponse.refresh_expires_in)
 
-   
+        setStartTime(Date.now())
         //storeToken(response.data.authToken);
         authenticateUser();
         

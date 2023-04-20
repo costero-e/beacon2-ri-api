@@ -4,7 +4,7 @@ import './FilteringTerms.css';
 function FilteringTerms(props) {
 
     console.log(props)
-    const [error, setError] = useState(0)
+    const [error, setError] = useState(false)
 
     const [checked, setChecked] = useState(false)
 
@@ -13,30 +13,29 @@ function FilteringTerms(props) {
 
     const [state, setstate] = useState({
         query: '',
-        list: props.FilteringTerms !== undefined ? props.filteringTerms.data.response.resultSets[0].results : error
+        list: props.FilteringTerms !== undefined ? props.filteringTerms.data.response.filteringTerms : "error"
     })
 
 
 
 
     useEffect(() => {
-        if (props.filteringTerms === false || state.list === error){
+        if (state.list === "error"){
             setError(true)
-        } else {
-            setError(false)
         }
 
         setstate({
             query: '',
-            list: props.FilteringTerms !== undefined ? props.filteringTerms.data.response.resultSets[0].results : error
+            list: props.FilteringTerms !== undefined ? props.filteringTerms.data.response.filteringTerms : "error"
         })
 
-
+      
     }, [props.filteringTerms])
 
 
     const handleChange = (e) => {
 
+   
         const results = props.filteringTerms.data.response.resultSets[0].results.filter(post => {
             if (e.target.value === "") {
                 return props.filteringTerms.data.response.resultSets[0].results
@@ -139,7 +138,7 @@ function FilteringTerms(props) {
                             <th className="th4">target schema term</th>
                         </tr>
                     </thead>
-                    {props.filteringTerms.data !== undefined && state.list && state.list.map((term) => {
+                    {props.filteringTerms.data !== undefined && state.list!== "error" && state.list.map((term) => {
                         return (<>
 
 
