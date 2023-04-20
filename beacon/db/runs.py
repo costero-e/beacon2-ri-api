@@ -37,10 +37,10 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
             query["$text"]["$search"]=v
     return query
 
-def get_runs(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_runs(entry_id: Optional[str], qparams: RequestParams):
     collection = 'runs'
     query = apply_request_parameters({}, qparams)
-    query = query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = query = apply_filters(query, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.RUNS
     count = get_count(client.beacon.runs, query)
@@ -77,10 +77,10 @@ def get_runs(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list)
         )
     return schema, count, docs
 
-def get_run_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_run_with_id(entry_id: Optional[str], qparams: RequestParams):
     collection = 'runs'
     query = apply_request_parameters({}, qparams)
-    query = query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = query = apply_filters(query, qparams.query.filters, collection)
     query = query_id(query, entry_id)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.RUNS
@@ -119,16 +119,16 @@ def get_run_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids
     return schema, count, docs
 
 
-def get_variants_of_run(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_variants_of_run(entry_id: Optional[str], qparams: RequestParams):
     collection = 'runs'
     query = {"$and": [{"id": entry_id}]}
     query = apply_request_parameters(query, qparams)
-    query = query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = query = apply_filters(query, qparams.query.filters, collection)
     count = get_count(client.beacon.runs, query)
     run_ids = client.beacon.runs \
         .find_one(query, {"biosampleId": 1, "_id": 0})
     run_ids=get_cross_query(run_ids,'biosampleId','caseLevelData.biosampleId')
-    query = query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(run_ids, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
@@ -165,11 +165,11 @@ def get_variants_of_run(entry_id: Optional[str], qparams: RequestParams, allowed
         )
     return schema, count, docs
 
-def get_analyses_of_run(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_analyses_of_run(entry_id: Optional[str], qparams: RequestParams):
     collection = 'runs'
     query = {"runId": entry_id}
     query = apply_request_parameters(query, qparams)
-    query = query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.ANALYSES
     count = get_count(client.beacon.analyses, query)
@@ -206,8 +206,8 @@ def get_analyses_of_run(entry_id: Optional[str], qparams: RequestParams, allowed
         )
     return schema, count, docs
 
-def get_filtering_terms_of_run(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
-    query = {'collection': 'runs'}
+def get_filtering_terms_of_run(entry_id: Optional[str], qparams: RequestParams):
+    query = {'scope': 'runs'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
     remove_id={'_id':0}
