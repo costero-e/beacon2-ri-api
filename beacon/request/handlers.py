@@ -14,6 +14,7 @@ from beacon.response.build_response import (
     build_beacon_boolean_response,
     build_beacon_count_response,
     build_filtering_terms_response,
+    build_beacon_resultset_response_by_dataset
 )
 from beacon.utils.stream import json_stream
 from beacon.db.datasets import get_datasets

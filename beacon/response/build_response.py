@@ -141,7 +141,7 @@ def build_beacon_resultset_response_by_dataset(data,
         'responseSummary': build_response_summary(num_total_results > 0, num_total_results),
         # TODO: 'extendedInfo': build_extended_info(),
         'response': {
-            'resultSets': [build_response(data, response_dict, num_total_results, qparams, func_response_type)]
+            'resultSets': [build_response_by_dataset(data, response_dict, num_total_results, qparams, func_response_type)]
         },
         'beaconHandovers': conf.beacon_handovers,
     }
