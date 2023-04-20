@@ -202,28 +202,6 @@ def get_label_and_ontology(field: str, ontology:str, collection_name: str):
             0,
             1
         )
-    '''
-    if 'LOINC' in ontology_id:
-        if '3141-9' in ontology_term:
-            label = 'Weight'
-        elif '8308-9' in ontology_term:
-            label = "Height-standing"
-        elif '35925-4' in ontology_term:
-            label = "BMI"
-    else:   
-        url = 'ontologies/{}.obo'.format(ontology_id.upper())
-        url_alt = "https://www.ebi.ac.uk/efo/EFO.obo"
-        label=''
-        try:
-            graph = obonet.read_obo(url)
-        except Exception:
-            graph = obonet.read_obo(url_alt)
-        try:
-            id_to_name = {id_: data.get('name') for id_, data in graph.nodes(data=True)}
-            label = id_to_name['{}:{}'.format(ontology_id,ontology_term)]
-        except Exception:
-            pass
-    '''
 
     try:
         for doc in docs:

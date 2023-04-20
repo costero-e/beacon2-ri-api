@@ -37,10 +37,10 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
             query["$text"]["$search"]=v
     return query
 
-def get_analyses(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_analyses(entry_id: Optional[str], qparams: RequestParams):
     collection = 'analyses'
     query = apply_request_parameters({}, qparams)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.ANALYSES
     count = get_count(client.beacon.analyses, query)
@@ -78,10 +78,10 @@ def get_analyses(entry_id: Optional[str], qparams: RequestParams, allowed_ids: l
     return schema, count, docs
 
 
-def get_analysis_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_analysis_with_id(entry_id: Optional[str], qparams: RequestParams):
     collection = 'analyses'
     query = apply_request_parameters({}, qparams)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     query = query_id(query, entry_id)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.ANALYSES
@@ -120,16 +120,16 @@ def get_analysis_with_id(entry_id: Optional[str], qparams: RequestParams, allowe
     return schema, count, docs
 
 
-def get_variants_of_analysis(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_variants_of_analysis(entry_id: Optional[str], qparams: RequestParams):
     collection = 'analyses'
     query = {"$and": [{"id": entry_id}]}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     count = get_count(client.beacon.analyses, query)
     analysis_ids = client.beacon.analyses \
         .find_one(query, {"biosampleId": 1, "_id": 0})
     analysis_ids=get_cross_query(analysis_ids,'biosampleId','caseLevelData.biosampleId')
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(analysis_ids, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
@@ -166,8 +166,8 @@ def get_variants_of_analysis(entry_id: Optional[str], qparams: RequestParams, al
         )
     return schema, count, docs
 
-def get_filtering_terms_of_analyse(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
-    query = {'collection': 'analyses'}
+def get_filtering_terms_of_analyse(entry_id: Optional[str], qparams: RequestParams):
+    query = {'scope': 'analyses'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
     remove_id={'_id':0}
