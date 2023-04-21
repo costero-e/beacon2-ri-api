@@ -70,7 +70,7 @@ docker exec beacon python beacon/reindex.py
 You can automatically fetch the ontologies and extract the filtering terms running the following script:
 
 ```bash
-docker exec beacon python beacon/extract_filtering_terms.py
+docker exec beacon python beacon/db/extract_filtering_terms.py
 ```
 
 #### Get descendant and semantic similarity terms
@@ -78,7 +78,7 @@ docker exec beacon python beacon/extract_filtering_terms.py
 **If you have the ontologies loaded and the filtering terms extracted**, you can automatically get their descendant and semantic similarity terms running the following script:
 
 ```bash
-docker exec beacon python beacon/get_descendants.py
+docker exec beacon python beacon/db/get_descendants.py
 ```
 
 #### Check the logs

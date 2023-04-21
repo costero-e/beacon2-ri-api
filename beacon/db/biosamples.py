@@ -39,10 +39,10 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
     return query
 
 
-def get_biosamples(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_biosamples(entry_id: Optional[str], qparams: RequestParams):
     collection = 'biosamples'
     query = apply_request_parameters({}, qparams)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.BIOSAMPLES
     count = get_count(client.beacon.biosamples, query)
@@ -80,10 +80,10 @@ def get_biosamples(entry_id: Optional[str], qparams: RequestParams, allowed_ids:
     return schema, count, docs
 
 
-def get_biosample_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_biosample_with_id(entry_id: Optional[str], qparams: RequestParams):
     collection = 'biosamples'
     query = apply_request_parameters({}, qparams)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     query = query_id(query, entry_id)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.BIOSAMPLES
@@ -121,18 +121,18 @@ def get_biosample_with_id(entry_id: Optional[str], qparams: RequestParams, allow
         )
     return schema, count, docs
 
-def get_variants_of_biosample(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_variants_of_biosample(entry_id: Optional[str], qparams: RequestParams):
     collection = 'biosamples'
     query = {"$and": [{"id": entry_id}]}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     count = get_count(client.beacon.biosamples, query)
     biosamples_ids = client.beacon.biosamples \
         .find_one(query, {"id": 1, "_id": 0})
     LOG.debug(biosamples_ids)
     biosamples_ids=get_cross_query(biosamples_ids,'id','caseLevelData.biosampleId')
     LOG.debug(biosamples_ids)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(biosamples_ids, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
@@ -170,11 +170,11 @@ def get_variants_of_biosample(entry_id: Optional[str], qparams: RequestParams, a
     return schema, count, docs
 
 
-def get_analyses_of_biosample(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_analyses_of_biosample(entry_id: Optional[str], qparams: RequestParams):
     collection = 'biosamples'
     query = {"biosampleId": entry_id}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.ANALYSES
     count = get_count(client.beacon.analyses, query)
@@ -211,11 +211,11 @@ def get_analyses_of_biosample(entry_id: Optional[str], qparams: RequestParams, a
         )
     return schema, count, docs
 
-def get_runs_of_biosample(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_runs_of_biosample(entry_id: Optional[str], qparams: RequestParams):
     collection = 'biosamples'
     query = {"biosampleId": entry_id}
     query = apply_request_parameters(query, qparams)
-    query = apply_filters(query, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters(query, qparams.query.filters, collection)
     query = include_resultset_responses(query, qparams)
     schema = DefaultSchemas.RUNS
     count = get_count(client.beacon.runs, query)
@@ -252,8 +252,8 @@ def get_runs_of_biosample(entry_id: Optional[str], qparams: RequestParams, allow
         )
     return schema, count, docs
 
-def get_filtering_terms_of_biosample(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
-    query = {'collection': 'biosamples'}
+def get_filtering_terms_of_biosample(entry_id: Optional[str], qparams: RequestParams):
+    query = {'scope': 'biosamples'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
     remove_id={'_id':0}

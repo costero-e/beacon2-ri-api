@@ -9,9 +9,9 @@ from beacon.db import client
 LOG = logging.getLogger(__name__)
 
 
-def get_cohorts(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_cohorts(entry_id: Optional[str], qparams: RequestParams):
     collection = 'cohorts'
-    query = apply_filters({}, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters({}, qparams.query.filters, collection)
     schema = DefaultSchemas.COHORTS
     count = get_count(client.beacon.cohorts, query)
     docs = get_documents(
@@ -23,9 +23,9 @@ def get_cohorts(entry_id: Optional[str], qparams: RequestParams, allowed_ids: li
     return schema, count, docs
 
 
-def get_cohort_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_cohort_with_id(entry_id: Optional[str], qparams: RequestParams):
     collection = 'cohorts'
-    query = apply_filters({}, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters({}, qparams.query.filters, collection)
     query = query_id(query, entry_id)
     schema = DefaultSchemas.COHORTS
     count = get_count(client.beacon.cohorts, query)
@@ -38,9 +38,9 @@ def get_cohort_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_
     return schema, count, docs
 
 
-def get_individuals_of_cohort(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_individuals_of_cohort(entry_id: Optional[str], qparams: RequestParams):
     collection = 'cohorts'
-    query = apply_filters({}, qparams.query.filters, collection, allowed_ids)
+    query = apply_filters({}, qparams.query.filters, collection)
     query = query_id(query, entry_id)
     count = get_count(client.beacon.cohorts, query)
     cohort_ids = client.beacon.cohorts \
@@ -59,8 +59,8 @@ def get_individuals_of_cohort(entry_id: Optional[str], qparams: RequestParams, a
     return schema, count, docs
 
 
-def get_filtering_terms_of_cohort(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
-    query = {'collection': 'cohorts'}
+def get_filtering_terms_of_cohort(entry_id: Optional[str], qparams: RequestParams):
+    query = {'scope': 'cohorts'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
     remove_id={'_id':0}

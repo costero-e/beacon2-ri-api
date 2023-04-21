@@ -53,7 +53,7 @@ def apply_request_parameters(query: Dict[str, List[dict]], qparams: RequestParam
     LOG.debug(query)
     return query
 
-def get_datasets(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_datasets(entry_id: Optional[str], qparams: RequestParams):
     collection = 'datasets'
     query = apply_request_parameters({}, qparams)
     #query = apply_filters({}, qparams.query.filters, collection)
@@ -68,7 +68,7 @@ def get_datasets(entry_id: Optional[str], qparams: RequestParams, allowed_ids: l
     return schema, count, docs
 
 
-def get_dataset_with_id(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_dataset_with_id(entry_id: Optional[str], qparams: RequestParams):
     collection = 'datasets'
     query = apply_request_parameters({}, qparams)
     #query = apply_filters({}, qparams.query.filters, collection)
@@ -84,10 +84,20 @@ def get_dataset_with_id(entry_id: Optional[str], qparams: RequestParams, allowed
     return schema, count, docs
 
 
-def get_variants_of_dataset(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_variants_of_dataset(entry_id: Optional[str], qparams: RequestParams):
     collection = 'datasets'
-    query = {"_info.datasetId": entry_id}
-    query = apply_filters(query, qparams.query.filters, collection)
+    query = apply_filters({}, qparams.query.filters, collection)
+    query = query_id(query, entry_id)
+    count = get_count(client.beacon.datasets, query)
+    individual_ids = client.beacon.datasets \
+        .find_one(query, {"ids.individualIds": 1, "_id": 0})
+    biosample_ids = client.beacon.datasets \
+        .find_one(query, {"ids.biosampleIds": 1, "_id": 0})
+    #LOG.debug(individual_ids['ids'])
+    individual_ids['ids']['individualIds']=individual_ids['ids']['individualIds']+biosample_ids['ids']['biosampleIds']
+    
+    individual_ids=get_cross_query(individual_ids['ids'],'individualIds','caseLevelData.biosampleId')
+    query = apply_filters(individual_ids, qparams.query.filters, collection)
     schema = DefaultSchemas.GENOMICVARIATIONS
     count = get_count(client.beacon.genomicVariations, query)
     docs = get_documents(
@@ -99,7 +109,7 @@ def get_variants_of_dataset(entry_id: Optional[str], qparams: RequestParams, all
     return schema, count, docs
 
 
-def get_biosamples_of_dataset(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_biosamples_of_dataset(entry_id: Optional[str], qparams: RequestParams):
     collection = 'datasets'
     query = apply_filters({}, qparams.query.filters, collection)
     query = query_id(query, entry_id)
@@ -120,7 +130,7 @@ def get_biosamples_of_dataset(entry_id: Optional[str], qparams: RequestParams, a
     return schema, count, docs
 
 
-def get_individuals_of_dataset(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_individuals_of_dataset(entry_id: Optional[str], qparams: RequestParams):
     collection = 'datasets'
     query = apply_filters({}, qparams.query.filters, collection)
     query = query_id(query, entry_id)
@@ -147,8 +157,8 @@ def filter_public_datasets(requested_datasets_ids):
         .find(query)
 
 
-def get_filtering_terms_of_dataset(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
-    query = {'collection': 'datasets'}
+def get_filtering_terms_of_dataset(entry_id: Optional[str], qparams: RequestParams):
+    query = {'scope': 'datasets'}
     schema = DefaultSchemas.FILTERINGTERMS
     count = get_count(client.beacon.filtering_terms, query)
     docs = get_documents(
@@ -160,7 +170,7 @@ def get_filtering_terms_of_dataset(entry_id: Optional[str], qparams: RequestPara
     return schema, count, docs
 
 
-def get_runs_of_dataset(entry_id: Optional[str], qparams: RequestParams, allowed_ids: list):
+def get_runs_of_dataset(entry_id: Optional[str], qparams: RequestParams):
     collection = 'datasets'
     query = apply_filters({}, qparams.query.filters, collection)
     query = query_id(query, entry_id)

@@ -260,7 +260,7 @@ async def beacon_map(request):
                 "endpoints": {
                     "analysis": {
                         "returnedEntryType": "analysis",
-                        "url": conf.uri + "/api/datasets/{id}/analyses"
+                        "url": conf.uri + "datasets/{id}/analyses"
                     },
                     "biosample": {
                         "returnedEntryType": "biosample",
