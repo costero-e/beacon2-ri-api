@@ -74,6 +74,7 @@ function Layout() {
     setCollection(collectionType[e.target.value])
     setExampleQ([])
     setFilteringTerms(false)
+    setShowFilteringTerms(false)
 
   }
 
@@ -133,12 +134,12 @@ function Layout() {
 
   const handleFilteringTerms = async (e) => {
 
-    
+    console.log(collection)
     if (collection === 'Individuals') {
-      console.log("hi")
+     
       try {
 
-        let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms")
+        let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms?limit=0")
         setFilteringTerms(res)
 
 
@@ -189,7 +190,7 @@ function Layout() {
     event.preventDefault()
 
 
-    setCollectionType(["Select"])
+    setCollectionType([`${collection}`])
 
     authenticateUser()
 
