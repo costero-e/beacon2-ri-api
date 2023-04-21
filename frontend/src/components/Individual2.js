@@ -43,16 +43,6 @@ function Individuals2(props) {
 
   useEffect(() => {
     const apiCall = async () => {
-      console.log(props.query)
-      console.log(props.resultSets)
-      console.log(props.limit)
-      console.log(props.similarity)
-      console.log(props.descendantTerm)
-      console.log(props.similarity)
-      console.log(props.value)
-      console.log(props.operator)
-
-  
 
 
       if (props.query != null) {
@@ -112,11 +102,11 @@ function Individuals2(props) {
           // show all individuals
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true") {
+          if (props.descendantTerm === "true") {
             descendantTerm = true
           }
 
-          if (props.descendantTerm == "false") {
+          if (props.descendantTerm === "false") {
             descendantTerm = false
           }
 
@@ -157,11 +147,11 @@ function Individuals2(props) {
         } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true") {
+          if (props.descendantTerm === "true") {
             descendantTerm = true
           }
 
-          if (props.descendantTerm == "false") {
+          if (props.descendantTerm === "false") {
             descendantTerm = false
           }
 
@@ -231,11 +221,11 @@ function Individuals2(props) {
 
           let descendantTerm = 0
 
-          if (props.descendantTerm == "true") {
+          if (props.descendantTerm === "true") {
             descendantTerm = true
           }
 
-          if (props.descendantTerm == "false") {
+          if (props.descendantTerm === "false") {
             descendantTerm = false
           }
 
@@ -376,7 +366,8 @@ function Individuals2(props) {
   const onSubmit = () => {
     setSkipTrigger(skip)
     setLimitTrigger(limit)
-    setResults([])
+    setTimeOut(false)
+    
   }
 
   return (

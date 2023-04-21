@@ -133,9 +133,9 @@ function Layout() {
 
   const handleFilteringTerms = async (e) => {
 
-
+    
     if (collection === 'Individuals') {
-
+      console.log("hi")
       try {
 
         let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms")
