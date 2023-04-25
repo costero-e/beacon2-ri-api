@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
-import './FilteringTerms.css';
+import './FilteringTerms.css'
+import { TagBox } from 'react-tag-box'
 
 function FilteringTerms(props) {
 
@@ -11,6 +12,11 @@ function FilteringTerms(props) {
 
     const [counter, setCounter] = useState(0)
 
+    const [selected, setSelected] = useState([])
+
+    const [tags, setTags] = useState([])
+
+
 
     const [state, setstate] = useState({
         query: '',
@@ -18,6 +24,34 @@ function FilteringTerms(props) {
     })
 
 
+    const remove = tag => {
+
+        setSelected(selected.filter(t => t.value !== tag.value))
+
+        let inputs = document.getElementsByClassName('select-checkbox');
+        inputs = Array.from(inputs)
+        inputs.forEach(element => {
+            if (tag.value === element.value) {
+                element.checked = false
+            }
+
+        });
+        console.log(inputs)
+        if (props.placeholder.includes(`,${tag.value}`)){
+            props.setPlaceholder(props.placeholder.replace(`,${tag.value}`,""))
+        } else if (props.placeholder.includes(`${tag.value},`)){
+            props.setPlaceholder(props.placeholder.replace(`${tag.value},`,""))
+        } else {
+            props.setPlaceholder(props.placeholder.replace(tag.value,""))
+            props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
+        }
+
+        if (props.placeholder === ''){
+            props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
+        }
+
+
+    }
 
 
     useEffect(() => {
@@ -33,17 +67,37 @@ function FilteringTerms(props) {
         })
 
 
+        if (state.list !== "error") {
+            const sampleTags =
+                state.list.map(t => ({
+                    label: t.id,
+                    value: t.id
+                }))
+
+
+            setTags(sampleTags)
+        }
+
+
+
+
+        //selected.push(state.list[0].id)
+
+        // setSelected(selected)
+        // setTags(state.list)
+
     }, [props.filteringTerms])
 
 
     const handleChange = (e) => {
+
 
         const results = props.filteringTerms.data.response.filteringTerms.filter(post => {
             console.log(post)
             if (e.target.value === "") {
                 return props.filteringTerms.data.response.filteringTerms
             } else {
-                if (post.id != undefined && post.label != undefined)  {
+                if (post.id != undefined && post.label != undefined) {
                     if (post.id.toLowerCase().includes(e.target.value.toLowerCase()) || post.label.toLowerCase().includes(e.target.value.toLowerCase())) {
                         return post
                     }
@@ -59,15 +113,50 @@ function FilteringTerms(props) {
             query: e.target.value,
             list: results
         })
-      
-    
-
 
     }
 
-  
-
     const handleCheck = (e) => {
+        console.log(tags.length)
+        console.log(tags)
+        let count = 0
+        console.log(selected)
+        const alreadySelected = selected.filter(term => term.label === e.target.value)
+   
+        if (alreadySelected.length !== 0){
+           console.log("hola")
+            setSelected(selected.filter(t => t.value !== e.target.value))
+        } else {
+            console.log("Sdasds")
+            for (let i = 0; i < tags.length; i++) {
+
+                console.log(tags[i])
+    
+                if (tags[i].label === e.target.value) {
+    
+                    const newTag = {
+                        label: tags[i].label,
+                        value: tags[i].value || tags[i].label
+                    }
+                    console.log(newTag)
+                    if (count === 0) {
+                        selected.push(newTag)
+                        count = 1
+                        console.log(count)
+                    }
+                    if (count === 1 && i === tags.length - 1) {
+    
+                        count = 0
+                    }
+    
+                }
+                console.log(selected)
+            }
+    
+        }
+      
+
+
 
         if (props.placeholder.includes(e.target.value)) {
 
@@ -85,6 +174,7 @@ function FilteringTerms(props) {
             if (stringQuery === '' || stringQuery === ',') {
                 props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
             } else {
+               
                 props.setPlaceholder(stringQuery)
             }
 
@@ -113,6 +203,13 @@ function FilteringTerms(props) {
 
     return (
         <div>
+            <TagBox
+                tags={state.list}
+                selected={selected}
+                backspaceDelete={true}
+                removeTag={remove}
+                
+            />
             {error && <h3>No filtering terms available. Please select a collection and retry</h3>}
 
             {!error && <div className="tableWrapper">
@@ -148,23 +245,24 @@ function FilteringTerms(props) {
                         return (<>
 
 
+
                             <tbody>
 
                                 {index % 2 === 0 && <tr className="terms1">
+                                    <td className="th2"><input className="select-checkbox" onClick={handleCheck} type="checkbox" id='includeTerm' name="term" value={term.id} />
+                                        {term.id}</td>
+                                    {term.label !== '' ? <td className="th1">{term.label}</td> : <td className="th1">-</td>}
+                                    <td className="th1">{term.type}</td>
+                                    <td className="th1">{term.scope}</td>
+                                </tr>}
+                                {index % 2 == !0 && <tr className="terms2">
                                     <td className="th2"><input className="select-checkbox" onClick={handleCheck} type="checkbox" id="includeTerm" name="term" value={term.id} />
                                         {term.id}</td>
                                     {term.label !== '' ? <td className="th1">{term.label}</td> : <td className="th1">-</td>}
                                     <td className="th1">{term.type}</td>
                                     <td className="th1">{term.scope}</td>
                                 </tr>}
-                                {index % 2 ==! 0 && <tr className="terms2">
-                                    <td className="th2"><input className="select-checkbox"  onClick={handleCheck} type="checkbox" id="includeTerm" name="term" value={term.id} />
-                                        {term.id}</td>
-                                    {term.label !== '' ? <td className="th1">{term.label}</td> : <td className="th1">-</td>}
-                                    <td className="th1">{term.type}</td>
-                                    <td className="th1">{term.scope}</td>
-                                </tr>}
-                            
+
 
                             </tbody>
 

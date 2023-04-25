@@ -1,3 +1,4 @@
+import 'devextreme/dist/css/dx.light.css';
 
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
@@ -20,8 +21,7 @@ import ResultsDatasets from './components/ResultsDatasets';
 import FilteringTerms from './components/FilteringTerms';
 
 import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import ListSubheader from '@mui/material/ListSubheader';
+
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
@@ -29,6 +29,7 @@ import { AuthContext } from './components/context/AuthContext';
 import { useContext } from 'react';
 
 import axios from "axios";
+
 
 
 function Layout() {
@@ -237,6 +238,8 @@ function Layout() {
               </option>)
             }
           </select>
+    
+    
           <form className="d-flex" onSubmit={onSubmit}>
             <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
             {((!showAdvSearch) && (!showAlphanumValue)) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}

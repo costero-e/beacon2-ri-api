@@ -29,7 +29,7 @@ function Individuals2(props) {
   const [skipTrigger, setSkipTrigger] = useState(0)
   const [limitTrigger, setLimitTrigger] = useState(0)
 
-  const { authenticateUser } = useContext(AuthContext);
+  const { getStoredToken } = useContext(AuthContext);
 
   const [queryArray, setQueryArray] = useState([])
   const [arrayFilter, setArrayFilter] = useState([])
@@ -47,6 +47,9 @@ function Individuals2(props) {
   useEffect(() => {
     const apiCall = async () => {
       let descendantTerm = 0
+
+      const token = getStoredToken()
+      console.log(token)
 
       if (props.descendantTerm === "true") {
         descendantTerm = true
@@ -142,7 +145,11 @@ function Individuals2(props) {
           jsonData1 = JSON.stringify(jsonData1)
           console.log(jsonData1)
 
-          res = await axios.post("http://localhost:5050/api/individuals", jsonData1)
+          res = await axios.post("http://localhost:5050/api/individuals",jsonData1, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }})
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
