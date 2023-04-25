@@ -109,35 +109,23 @@ function Layout() {
 
   const handleOperatorChanges = (e) => {
     setOperator(e.target.value)
-    
+
   }
 
   const handleValueChanges = (e) => {
     setValue(e.target.value)
   }
 
-  const handleAlphanumSearch = (e) => {
-    setAlphanumValue(true)
-  }
-
   const handleBasicSearch = (e) => {
-    setAlphanumValue(false)
-  }
-
-  const handleBasicSearch2 = (e) => {
     setAdvSearch(false)
   }
 
-  const handleBasicSearch3 = (e) => {
-    setAdvSearch(false)
-    setAlphanumValue(false)
-  }
 
   const handleFilteringTerms = async (e) => {
 
     console.log(collection)
     if (collection === 'Individuals') {
-     
+
       try {
 
         let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms?limit=0")
@@ -238,11 +226,11 @@ function Layout() {
               </option>)
             }
           </select>
-    
-    
+
+
           <form className="d-flex" onSubmit={onSubmit}>
             <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
-            {((!showAdvSearch) && (!showAlphanumValue)) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+            {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
           </form>
         </div>
 
@@ -270,20 +258,34 @@ function Layout() {
             </button>
 
           </div>
-          {!showAlphanumValue && <button className="advSearch" onClick={handleAlphanumSearch}>
-            Alphanumerical and Numerical queries
-          </button>}
 
 
         </div>
+        <div className='alphanumContainer'>
+            <hr></hr>
+            <div className='alphanumContainer2'>
+              <label><h2>ID</h2></label>
+              <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
 
+
+              <div id="operator">
+                <h2>OPERATOR</h2>
+                <input className="operator"></input>
+
+              </div>
+
+              <label id="value"><h2>Value</h2></label>
+              <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
+            </div>
+
+          </div>
         <form className='advSearchForm' onSubmit={onSubmit}>
 
           {showAdvSearch && <div className='advSearchModule' >
             <hr></hr>
             <div className='resultset'>
-              <div>
-                <label>Include Resultset Responses</label>
+              <div className="advSearch-module">
+                <label><h2>Include Resultset Responses</h2></label>
                 <select className="form-select2" aria-label="" onChange={(e) => handleResultsetChanges(e)}>
                   {
                     Add2.map((resultSet, key) => <option key={key} value={key}>{resultSet}
@@ -292,8 +294,8 @@ function Layout() {
                 </select>
               </div>
 
-              <div>
-                <label>Similarity</label>
+              <div className="advSearch-module">
+                <label><h2>Similarity</h2></label>
                 <select className="form-select2" aria-label="" onChange={e => { handleSimilarityChanges(e) }}>
                   {
                     Add4.map((similarity, key) => <option key={key} value={key}>{similarity}
@@ -301,74 +303,43 @@ function Layout() {
                   }
                 </select>
               </div>
-              <div>
-                <label>Include Descendant Terms</label>
+              <div className="advSearch-module">
+                <label><h2>Include Descendant Terms</h2></label>
                 <select className="form-select2" aria-label="" onChange={e => { handleDescendantTermChanges(e) }}>
                   {
                     Add3.map((descendantTerm, key) => <option key={key} value={key}>{descendantTerm}
                     </option>)
                   }
                 </select>
-              </div>
-              {(!showAlphanumValue && showAdvSearch) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
-
-            </div>
-
-          </div>}
-
-
-
-
-          {showAlphanumValue && <div className='alphanumContainer'>
-            <hr></hr>
-            <div className='alphanumContainer2'>
-              <label>ID</label>
-              <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
-              
-              <div id="operator">
-                <FormControl sx={{ m: 1, minWidth: 120 }}>
-                  <InputLabel htmlFor="grouped-native-select">Operator</InputLabel>
-                  <Select native defaultValue="" id="grouped-native-select" label="Grouping" onChange={(e) => handleOperatorChanges(e)}>
-                    <option aria-label="None" value="" />
-                    <optgroup label="Numerical">
-                      <option value={'='}>=</option>
-                      <option value={'<'}> &lt; </option>
-                      <option value={'>'}> &gt; </option>
-                    </optgroup>
-                    <optgroup label="Alphanumerical">
-                      <option value={'='}>=</option>
-                      <option value={'!'}>!</option>
-                    </optgroup>
-                  </Select>
-                </FormControl>
-                
-              </div>
+                </div>
             
-              <label id="value">Value</label>
-              <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
-              {(showAlphanumValue || showAdvSearch) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+             
+
+
+            </div>
+            <div className="buttonClass">
+            {showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
             </div>
 
           </div>}
-
 
 
 
         </form>
 
+        {showAdvSearch && <button className='returnBasic' onClick={handleBasicSearch}>BACK TO BASIC SEARCH</button>}
 
+        
 
       </nav>
 
-      {(showAlphanumValue && !showAdvSearch) && <button className='returnBasic' onClick={handleBasicSearch}>HIDE</button>}
-      {(showAdvSearch && !showAlphanumValue) && <button className='returnBasic' onClick={handleBasicSearch2}>HIDE</button>}
-      {(showAlphanumValue && showAdvSearch) && <button className='returnBasic' onClick={handleBasicSearch3}>Return to basic search</button>}
+
 
       <hr></hr>
       <div className="results">
         {results === null && !showFilteringTerms && <ResultsDatasets />}
         {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
-        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder}/>}
+        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder} />}
       </div>
 
     </div>

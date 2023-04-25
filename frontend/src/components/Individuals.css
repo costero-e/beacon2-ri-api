@@ -52,8 +52,9 @@ h1 {
 }
 
 h2 {
-    font-size: 14px;
-    color: #0f6fb8;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    color: #7d7d7d;
+    font-size: 13px;
 }
 
 

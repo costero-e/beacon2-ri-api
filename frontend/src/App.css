@@ -19,7 +19,7 @@ html {
   padding-right: 4px;
   padding-left: 4px;
   padding-top: 3px;
-  height: 38px; 
+  height: 38px;
   background: white;
   border: 2px solid #c11524;
   box-shadow: 6px 5px 5px #a3a0a0;
@@ -32,13 +32,11 @@ html {
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
 }
 
-#value{
+#value {
   margin-left: 12px;
 }
 
-#grouped-native-select{
-  height: 20px;
-}
+
 .container-fluid {
   display: flex;
   width: 100%;
@@ -137,8 +135,8 @@ select {
 
 hr {
   width: 75vw;
-  margin-top: 36px;
-  margin-bottom: 36px;
+  margin-top: 25px;
+  margin-bottom: 25px;
   height: 1px;
   background-color: #ccc;
   border: none;
@@ -204,21 +202,29 @@ hr {
 
 .advSearch {
   width: fit-content;
-  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
-  border: none;
-  padding: 10px;
-  box-shadow: 0px 2px 3px #a3a0a0;
-  border-radius: 3px;
-  font-variant: all-petite-caps;
-  font-size: 17px;
-  cursor: pointer;
-  height: 50%;
+    background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+    border: none;
+    padding: 10px;
+    box-shadow: 0px 1px 2px #a3a0a0;
+    border-radius: 3px;
+    font-feature-settings: "pcap", "c2pc", "pcap";
+    font-variant: all-petite-caps;
+    font-size: 17px;
+    cursor: pointer;
+    height: 36%;
+
 }
 
 .advSearch:hover {
   background: #86d2ff;
 }
 
+.buttonClass{
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
 
 .advSearchModule {
   display: flex;
@@ -226,12 +232,15 @@ hr {
   flex-direction: column;
 }
 
+.advSearch-module{
+  display: flex;
+}
+
 
 .resultset {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  justify-content: space-around;
+    align-items: center;
+    justify-content: center;
 }
 
 
@@ -240,9 +249,10 @@ hr {
   border: 2px solid #c11524;
   margin: 20px;
   padding: 6px;
-  box-shadow: 6px 5px 5px #a3a0a0;
-  width: 20%;
-  height: 20px;
+  box-shadow: 1px 1px 2px #a3a0a0;
+  width: 16%;
+  height: 17px;
+  border-radius: 2px;
 }
 
 
@@ -251,9 +261,10 @@ hr {
   border: 2px solid #c11524;
   margin: 20px;
   padding: 6px;
-  box-shadow: 6px 5px 5px #a3a0a0;
-  width: 20%;
-  height: 20px;
+  box-shadow: 1px 1px 2px #a3a0a0;
+  width: 16%;
+  height: 17px;
+  border-radius: 2px;
 
 }
 
@@ -265,25 +276,47 @@ hr {
   flex-wrap: wrap;
 }
 
-#operator{
-  margin-right: 8px;
-  margin-left: 10px;
+#operator {
+    margin-left: 10px;
+    margin-right: 10px;
+    display: flex;
+    flex-direction: column;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    margin-top: -40px;
+}
+
+.operator{
+  background: white;
+  border: 2px solid #c11524;
+  padding: 3px;
+  box-shadow: 1px 1px 2px #a3a0a0;
+  width: 21%;
+  border-radius: 2px;
 }
 
 .returnBasic {
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
-    border: none;
-    margin-top: 42px;
-    padding-right: 19px;
-    padding-left: 19px;
-    padding-top: 10px;
-    padding-bottom: 10px;
-    box-shadow: 0px 2px 3px #a3a0a0;
-    border-radius: 3px;
-    font-feature-settings: "pcap", "c2pc";
-    font-variant: all-petite-caps;
-    font-size: 19px;
-    cursor: pointer;
+  border: none;
+  /* margin-top: 38px; */
+  padding-right: 12px;
+  padding-left: 12px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+  box-shadow: 0px 2px 2px #a3a0a0;
+  border-radius: 3px;
+  font-feature-settings: "pcap", "c2pc";
+  font-variant: all-petite-caps;
+  font-size: 18px;
+  cursor: pointer;
+  width: -moz-fit-content;
+  width: fit-content;
+  /* MARGIN-RIGHT: 60px; */
+  /* margin-right: 67px; */
+  margin: 61px;
+  margin-top: 18px;
+  margin-bottom: 10px;
 }
 
 .returnBasic:hover {
