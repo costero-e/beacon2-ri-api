@@ -44,7 +44,17 @@ class DummyPermissions(Permissions):
         pass
 
     async def get(self, username, requested_datasets=None):
-        datasets = set(self.db.get(username))
+        try:
+            datasets = set(self.db.get(username))
+        except Exception:
+            with open("/beacon/permissions/permissions.yml", 'r') as stream:
+                permissions_dict = yaml.safe_load(stream)
+            permissions_dict[username]=[]
+            with open("/beacon/permissions/permissions.yml", 'w') as file:
+                yaml.dump(permissions_dict, file)
+                self.db = permissions_dict
+            datasets = set(self.db.get(username))
+            
         if requested_datasets:
             return set(requested_datasets).intersection(datasets)
         else:
