@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import './FilteringTerms.css'
 import { TagBox } from 'react-tag-box'
+import { tableFooterClasses } from "@mui/material"
 
 function FilteringTerms(props) {
 
@@ -16,13 +17,14 @@ function FilteringTerms(props) {
 
     const [tags, setTags] = useState([])
 
-
+    const [results, setResults] = useState('')
 
     const [state, setstate] = useState({
         query: '',
         list: props.filteringTerms !== false ? props.filteringTerms.data.response.filteringTerms : "error"
     })
 
+    const [trigger, setTrigger]= useState(false)
 
     const remove = tag => {
 
@@ -36,17 +38,26 @@ function FilteringTerms(props) {
             }
 
         });
-        console.log(inputs)
-        if (props.placeholder.includes(`,${tag.value}`)){
-            props.setPlaceholder(props.placeholder.replace(`,${tag.value}`,""))
-        } else if (props.placeholder.includes(`${tag.value},`)){
-            props.setPlaceholder(props.placeholder.replace(`${tag.value},`,""))
+       
+        props.filteringTerms.data.response.filteringTerms.forEach(element => {
+            if (element.id === tag.value){
+                state.list.unshift(element)
+            }
+        })
+       
+        
+        setTrigger(true)
+       
+        if (props.placeholder.includes(`,${tag.value}`)) {
+            props.setPlaceholder(props.placeholder.replace(`,${tag.value}`, ""))
+        } else if (props.placeholder.includes(`${tag.value},`)) {
+            props.setPlaceholder(props.placeholder.replace(`${tag.value},`, ""))
         } else {
-            props.setPlaceholder(props.placeholder.replace(tag.value,""))
+            props.setPlaceholder(props.placeholder.replace(tag.value, ""))
             props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
         }
 
-        if (props.placeholder === ''){
+        if (props.placeholder === '') {
             props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
         }
 
@@ -61,9 +72,10 @@ function FilteringTerms(props) {
             setError(false)
         }
 
+        console.log(state.list)
         setstate({
             query: '',
-            list: props.filteringTerms !== false ? props.filteringTerms.data.response.filteringTerms : "error"
+            list: props.filteringTerms !== false ? state.list : "error"
         })
 
 
@@ -79,6 +91,8 @@ function FilteringTerms(props) {
         }
 
 
+        console.log(tags)
+
 
 
         //selected.push(state.list[0].id)
@@ -86,7 +100,7 @@ function FilteringTerms(props) {
         // setSelected(selected)
         // setTags(state.list)
 
-    }, [props.filteringTerms])
+    }, [props.filteringTerms,trigger])
 
 
     const handleChange = (e) => {
@@ -97,8 +111,8 @@ function FilteringTerms(props) {
             if (e.target.value === "") {
                 return props.filteringTerms.data.response.filteringTerms
             } else {
-                if (post.id != undefined && post.label != undefined) {
-                    if (post.id.toLowerCase().includes(e.target.value.toLowerCase()) || post.label.toLowerCase().includes(e.target.value.toLowerCase())) {
+                if (post.id != undefined) {
+                    if (post.id.toLowerCase().includes(e.target.value.toLowerCase())) {
                         return post
                     }
                 } else {
@@ -114,26 +128,120 @@ function FilteringTerms(props) {
             list: results
         })
 
+        setResults(results)
+
     }
 
+    const handleChange2 = (e) => {
+
+
+        const results = props.filteringTerms.data.response.filteringTerms.filter(post => {
+            console.log(post)
+            if (e.target.value === "") {
+                return props.filteringTerms.data.response.filteringTerms
+            } else {
+                if (post.label != undefined) {
+                    if (post.label.toLowerCase().includes(e.target.value.toLowerCase())) {
+                        return post
+                    }
+                } else {
+                    if (post.label.toLowerCase().includes(e.target.value.toLowerCase())) {
+                        return post
+                    }
+                }
+            }
+
+        })
+        setstate({
+            query: e.target.value,
+            list: results
+        })
+
+
+
+    }
+
+    const handleChange3 = (e) => {
+
+
+        const results = props.filteringTerms.data.response.filteringTerms.filter(post => {
+            console.log(post)
+            if (e.target.value === "") {
+                return props.filteringTerms.data.response.filteringTerms
+            } else {
+                if (post.type != undefined) {
+                    if (post.type.toLowerCase().includes(e.target.value.toLowerCase())) {
+                        return post
+                    }
+                } else {
+                    if (post.type.toLowerCase().includes(e.target.value.toLowerCase())) {
+                        return post
+                    }
+                }
+            }
+
+        })
+        setstate({
+            query: e.target.value,
+            list: results
+        })
+
+
+
+    }
+
+
+
+    const handleChange4 = (e) => {
+
+
+        const results = props.filteringTerms.data.response.filteringTerms.filter(post => {
+            console.log(post)
+            if (e.target.value === "") {
+                return props.filteringTerms.data.response.filteringTerms
+            } else {
+                if (post.scope != undefined) {
+                    if (post.scope.toLowerCase().includes(e.target.value.toLowerCase())) {
+                        return post
+                    }
+                } else {
+                    if (post.scope.toLowerCase().includes(e.target.value.toLowerCase())) {
+                        return post
+                    }
+                }
+            }
+
+        })
+        setstate({
+            query: e.target.value,
+            list: results
+        })
+
+  
+
+    }
+
+ 
+
     const handleCheck = (e) => {
-        console.log(tags.length)
-        console.log(tags)
+
+
+
         let count = 0
-        console.log(selected)
+        
         const alreadySelected = selected.filter(term => term.label === e.target.value)
-   
-        if (alreadySelected.length !== 0){
-           console.log("hola")
+
+        if (alreadySelected.length !== 0) {
+
             setSelected(selected.filter(t => t.value !== e.target.value))
         } else {
-            console.log("Sdasds")
+
             for (let i = 0; i < tags.length; i++) {
 
                 console.log(tags[i])
-    
+
                 if (tags[i].label === e.target.value) {
-    
+
                     const newTag = {
                         label: tags[i].label,
                         value: tags[i].value || tags[i].label
@@ -145,16 +253,16 @@ function FilteringTerms(props) {
                         console.log(count)
                     }
                     if (count === 1 && i === tags.length - 1) {
-    
+
                         count = 0
                     }
-    
+
                 }
                 console.log(selected)
             }
-    
+
         }
-      
+
 
 
 
@@ -174,7 +282,7 @@ function FilteringTerms(props) {
             if (stringQuery === '' || stringQuery === ',') {
                 props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
             } else {
-               
+
                 props.setPlaceholder(stringQuery)
             }
 
@@ -193,7 +301,16 @@ function FilteringTerms(props) {
 
         }
 
-
+        console.log(state.list)
+        const filteredItems = state.list.filter(item => item.id !== e.target.value)
+        e.target.checked = false
+        
+        setstate({
+            query: '',
+            list: filteredItems
+        })
+        setTrigger(true)
+        console.log(state.list)
 
     }
 
@@ -208,7 +325,7 @@ function FilteringTerms(props) {
                 selected={selected}
                 backspaceDelete={true}
                 removeTag={remove}
-                
+
             />
             {error && <h3>No filtering terms available. Please select a collection and retry</h3>}
 
@@ -221,15 +338,15 @@ function FilteringTerms(props) {
 
                         </tr>
                         <tr className="search-tr">
-                            <th className="search-box sorting" tabIndex="0" aria-controls="DataTables_Table_0" rowSpan="1" colSpan="2" aria-sort="ascending" aria-label=": activate to sort column descending"><form><input className="searchTermInput" type="search" value={state.query} onChange={handleChange} placeholder="Search term" /></form></th>
+                            <th className="search-box sorting" tabIndex="0" aria-controls="DataTables_Table_0" rowSpan="1" colSpan="2" aria-sort="ascending" aria-label=": activate to sort column descending"><form><input className="searchTermInput" type="search" value={state.query2} onChange={handleChange2} placeholder="Search label" /></form></th>
 
                         </tr>
                         <tr className="search-tr">
-                            <th className="search-box sorting" tabIndex="0" aria-controls="DataTables_Table_0" rowSpan="1" colSpan="2" aria-sort="ascending" aria-label=": activate to sort column descending"><form><input className="searchTermInput" type="search" value={state.query} onChange={handleChange} placeholder="Search term" /></form></th>
+                            <th className="search-box sorting" tabIndex="0" aria-controls="DataTables_Table_0" rowSpan="1" colSpan="2" aria-sort="ascending" aria-label=": activate to sort column descending"><form><input className="searchTermInput" type="search" value={state.query3} onChange={handleChange3} placeholder="Search by type" /></form></th>
 
                         </tr>
                         <tr className="search-tr">
-                            <th className="search-box sorting" tabIndex="0" aria-controls="DataTables_Table_0" rowSpan="1" colSpan="2" aria-sort="ascending" aria-label=": activate to sort column descending"><form><input className="searchTermInput" type="search" value={state.query} onChange={handleChange} placeholder="Search term" /></form></th>
+                            <th className="search-box sorting" tabIndex="0" aria-controls="DataTables_Table_0" rowSpan="1" colSpan="2" aria-sort="ascending" aria-label=": activate to sort column descending"><form><input className="searchTermInput" type="search" value={state.query4} onChange={handleChange4} placeholder="Search by scope" /></form></th>
 
                         </tr>
                     </thead>
@@ -245,18 +362,17 @@ function FilteringTerms(props) {
                         return (<>
 
 
-
                             <tbody>
 
                                 {index % 2 === 0 && <tr className="terms1">
-                                    <td className="th2"><input className="select-checkbox" onClick={handleCheck} type="checkbox" id='includeTerm' name="term" value={term.id} />
+                                    <td className="th2"> <input className="select-checkbox"  onClick={handleCheck} type="checkbox" id='includeTerm' name="term" value={term.id} />
                                         {term.id}</td>
                                     {term.label !== '' ? <td className="th1">{term.label}</td> : <td className="th1">-</td>}
                                     <td className="th1">{term.type}</td>
                                     <td className="th1">{term.scope}</td>
                                 </tr>}
                                 {index % 2 == !0 && <tr className="terms2">
-                                    <td className="th2"><input className="select-checkbox" onClick={handleCheck} type="checkbox" id="includeTerm" name="term" value={term.id} />
+                                    <td className="th2">  <input className="select-checkbox" onClick={handleCheck} type="checkbox" id="includeTerm" name="term" value={term.id} />
                                         {term.id}</td>
                                     {term.label !== '' ? <td className="th1">{term.label}</td> : <td className="th1">-</td>}
                                     <td className="th1">{term.type}</td>

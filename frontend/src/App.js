@@ -30,12 +30,12 @@ import { useContext } from 'react';
 
 import axios from "axios";
 
-
+import ReactModal from 'react-modal';
 
 function Layout() {
 
   const [error, setError] = useState(null)
-  const [collectionType, setCollectionType] = useState(["Select", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
+  const [collectionType, setCollectionType] = useState(["Select collection", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
   const [collection, setCollection] = useState('')
   const [placeholder, setPlaceholder] = useState('')
   const [results, setResults] = useState(null)
@@ -70,6 +70,9 @@ function Layout() {
 
   const Add4 = similarityType.map(Add4 => Add4)
 
+  const [isOpenModal1, setIsOpenModal1] = useState(false);
+  const [isOpenModal2, setIsOpenModal2] = useState(false);
+
   const handleAddrTypeChange = (e) => {
 
     setCollection(collectionType[e.target.value])
@@ -80,7 +83,7 @@ function Layout() {
   }
 
   const handleClick = (e) => {
-    setCollectionType(["Select", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
+    setCollectionType(["Select collection", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
     setCollection(collectionType[e.target.value])
   }
 
@@ -120,6 +123,21 @@ function Layout() {
     setAdvSearch(false)
   }
 
+  const handleHelpModal1 = () => {
+    setIsOpenModal1(true)
+  }
+
+  const handleCloseModal1 = () => {
+    setIsOpenModal1(false)
+  }
+
+  const handleHelpModal2 = () => {
+    setIsOpenModal2(true)
+  }
+
+  const handleCloseModal2 = () => {
+    setIsOpenModal2(false)
+  }
 
   const handleFilteringTerms = async (e) => {
 
@@ -218,6 +236,7 @@ function Layout() {
       <a href="https://www.cineca-project.eu/">
         <img className="cinecaLogo" src="./CINECA_logo.png" alt='searchIcon'></img>
       </a>
+      <button className="helpButton" onClick={handleHelpModal2}><img className="questionLogo2" src="./question.png" alt='questionIcon'></img></button>
       <nav className="navbar">
         <div className="container-fluid">
           <select className="form-select" aria-label="Default select example" onClick={handleClick} onChange={e => { handleAddrTypeChange(e) }}>
@@ -262,23 +281,25 @@ function Layout() {
 
         </div>
         <div className='alphanumContainer'>
-            <hr></hr>
-            <div className='alphanumContainer2'>
-              <label><h2>ID</h2></label>
-              <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
+          <hr></hr>
+          <h2>Alphanumerical and numerical queries</h2>
+          <button className="helpButton" onClick={handleHelpModal1}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
+          <div className='alphanumContainer2'>
+            <label><h2>ID</h2></label>
+            <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
 
 
-              <div id="operator">
-                <h2>OPERATOR</h2>
-                <input className="operator"></input>
+            <div id="operator">
+              <h2>OPERATOR</h2>
+              <input className="operator"></input>
 
-              </div>
-
-              <label id="value"><h2>Value</h2></label>
-              <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
             </div>
 
+            <label id="value"><h2>Value</h2></label>
+            <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
           </div>
+
+        </div>
         <form className='advSearchForm' onSubmit={onSubmit}>
 
           {showAdvSearch && <div className='advSearchModule' >
@@ -311,14 +332,14 @@ function Layout() {
                     </option>)
                   }
                 </select>
-                </div>
-            
-             
+              </div>
+
+
 
 
             </div>
             <div className="buttonClass">
-            {showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+              {showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
             </div>
 
           </div>}
@@ -329,10 +350,33 @@ function Layout() {
 
         {showAdvSearch && <button className='returnBasic' onClick={handleBasicSearch}>BACK TO BASIC SEARCH</button>}
 
-        
+
 
       </nav>
 
+      <div>
+       
+        <ReactModal
+          isOpen={isOpenModal1}
+          onRequestClose={handleCloseModal1}
+          shouldCloseOnOverlayClick={true}
+        >
+            <button onClick={handleCloseModal1}>Close</button>
+          
+                  <p>Help for alphanumerical and numerical queries.</p>
+          
+        </ReactModal>
+        <ReactModal
+          isOpen={isOpenModal2}
+          onRequestClose={handleCloseModal2}
+          shouldCloseOnOverlayClick={true}
+        >
+            <button onClick={handleCloseModal2}>Close</button>
+          
+                  <p>Help for queries.</p>
+          
+        </ReactModal>
+      </div>
 
 
       <hr></hr>

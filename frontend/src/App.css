@@ -135,8 +135,8 @@ select {
 
 hr {
   width: 75vw;
-  margin-top: 25px;
-  margin-bottom: 25px;
+  margin-top: 3px;
+  margin-bottom: 8px;
   height: 1px;
   background-color: #ccc;
   border: none;
@@ -159,16 +159,29 @@ hr {
   color: #4fb5f0;
 }
 
+.helpButton{
+  width: 10px;
+}
+
 
 .bulbLogo {
   height: 18px;
   margin-right: 10px;
 }
 
+.questionLogo{
+  width: 19px;
+  margin-left: -5px;
+}
+
+.questionLogo2{
+  width: 19px;
+  margin-bottom: 10px;
+}
+
 .additionalOptions {
   display: flex;
   justify-content: space-between;
-  margin-top: 20px;
   align-items: center;
 }
 
@@ -201,17 +214,19 @@ hr {
 }
 
 .advSearch {
+  margin-top: 5px;
+  margin-left: 11px;
   width: fit-content;
-    background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
-    border: none;
-    padding: 10px;
-    box-shadow: 0px 1px 2px #a3a0a0;
-    border-radius: 3px;
-    font-feature-settings: "pcap", "c2pc", "pcap";
-    font-variant: all-petite-caps;
-    font-size: 17px;
-    cursor: pointer;
-    height: 36%;
+  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+  border: none;
+  padding: 7px;
+  box-shadow: 0px 1px 2px #a3a0a0;
+  border-radius: 3px;
+  font-feature-settings: "pcap", "c2pc", "pcap";
+  font-variant: all-petite-caps;
+  font-size: 17px;
+  cursor: pointer;
+  height: 36%;
 
 }
 
@@ -219,7 +234,7 @@ hr {
   background: #86d2ff;
 }
 
-.buttonClass{
+.buttonClass {
   display: flex;
   width: 100%;
   justify-content: flex-end;
@@ -232,15 +247,15 @@ hr {
   flex-direction: column;
 }
 
-.advSearch-module{
+.advSearch-module {
   display: flex;
 }
 
 
 .resultset {
   display: flex;
-    align-items: center;
-    justify-content: center;
+  align-items: center;
+  justify-content: center;
 }
 
 
@@ -277,17 +292,17 @@ hr {
 }
 
 #operator {
-    margin-left: 10px;
-    margin-right: 10px;
-    display: flex;
-    flex-direction: column;
-    align-content: center;
-    justify-content: center;
-    align-items: center;
-    margin-top: -40px;
+  margin-left: 10px;
+  margin-right: 10px;
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  align-items: center;
+  margin-top: -40px;
 }
 
-.operator{
+.operator {
   background: white;
   border: 2px solid #c11524;
   padding: 3px;
