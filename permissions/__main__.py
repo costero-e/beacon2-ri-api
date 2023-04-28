@@ -65,13 +65,12 @@ def main(path=None):
     server.on_cleanup.append(destroy)
 
     # Configure the endpoints
-    server.add_routes([web.post('/', permission)])  # type: ignore
+    server.add_routes([web.post('/', permission)]) # type: ignore
 
     web.run_app(server,
                 host='0.0.0.0',
                 port=5051,
                 shutdown_timeout=0, ssl_context=None)
-
 
 if __name__ == '__main__':
     main()

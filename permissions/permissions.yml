@@ -1,4 +1,11 @@
-john: [GiabV, dataset-registered, dataset-controlled]
-jane: [GiaB, CINECA_synthetic_cohort_EUROPE_UK1]
-new_user: [GiaB, CINECA_synthetic_cohort_EUROPE_UK1]
-no_permissions_user: [Prova]
+app-user3: []
+jane:
+- GiaB
+- CINECA_synthetic_cohort_EUROPE_UK1
+john:
+- GiabV
+- dataset-registered
+- dataset-controlled
+new_user:
+- GiaB
+- CINECA_synthetic_cohort_EUROPE_UK1
