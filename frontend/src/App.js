@@ -32,6 +32,7 @@ import axios from "axios";
 
 import ReactModal from 'react-modal';
 
+import { ModalHover } from 'react-modal-hover'
 function Layout() {
 
   const [error, setError] = useState(null)
@@ -49,6 +50,7 @@ function Layout() {
   const [ID, setId] = useState("")
   const [operator, setOperator] = useState("")
   const [value, setValue] = useState("")
+
 
 
   const [descendantTermType, setDescendantTermType] = useState(["Select", "true", "false"])
@@ -72,6 +74,7 @@ function Layout() {
 
   const [isOpenModal1, setIsOpenModal1] = useState(false);
   const [isOpenModal2, setIsOpenModal2] = useState(false);
+
 
   const handleAddrTypeChange = (e) => {
 
@@ -167,6 +170,11 @@ function Layout() {
     }
   }
 
+  const handleExQueriesAlphaNum = () => {
+
+  }
+
+
   useEffect(() => {
 
     setResults(null)
@@ -236,7 +244,9 @@ function Layout() {
       <a href="https://www.cineca-project.eu/">
         <img className="cinecaLogo" src="./CINECA_logo.png" alt='searchIcon'></img>
       </a>
-      <button className="helpButton" onClick={handleHelpModal2}><img className="questionLogo2" src="./question.png" alt='questionIcon'></img></button>
+
+
+      <button className="helpButton" onClick={handleHelpModal2}><img className="questionLogo2" src="./question.png" alt='questionIcon'></img><h5>Help for querying</h5></button>
       <nav className="navbar">
         <div className="container-fluid">
           <select className="form-select" aria-label="Default select example" onClick={handleClick} onChange={e => { handleAddrTypeChange(e) }}>
@@ -266,7 +276,8 @@ function Layout() {
 
                 return (<div id='exampleQueries'>
 
-                  <button className="exampleQuery" onClick={() => { setPlaceholder(`${result}`); setQuery(`${result}`); setResults(null) }} >{result}</button>
+
+                  <button className="exampleQuery" onClick={() => { setPlaceholder(`${result}`); setQuery(`${result}`); setResults(null) }}  >{result}</button>
                 </div>)
 
               })}
@@ -284,6 +295,7 @@ function Layout() {
           <hr></hr>
           <h2>Alphanumerical and numerical queries</h2>
           <button className="helpButton" onClick={handleHelpModal1}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
+
           <div className='alphanumContainer2'>
             <label><h2>ID</h2></label>
             <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
@@ -298,7 +310,9 @@ function Layout() {
             <label id="value"><h2>Value</h2></label>
             <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
           </div>
-
+          <div className="exampleQueriesAlph">
+            <button className="exampleQueries" onClick={handleExQueriesAlphaNum}>Query Examples</button>
+          </div>
         </div>
         <form className='advSearchForm' onSubmit={onSubmit}>
 
@@ -355,26 +369,26 @@ function Layout() {
       </nav>
 
       <div>
-       
+
         <ReactModal
           isOpen={isOpenModal1}
           onRequestClose={handleCloseModal1}
           shouldCloseOnOverlayClick={true}
         >
-            <button onClick={handleCloseModal1}>Close</button>
-          
-                  <p>Help for alphanumerical and numerical queries.</p>
-          
+          <button onClick={handleCloseModal1}>Close</button>
+
+          <p>Help for alphanumerical and numerical queries.</p>
+
         </ReactModal>
         <ReactModal
           isOpen={isOpenModal2}
           onRequestClose={handleCloseModal2}
           shouldCloseOnOverlayClick={true}
         >
-            <button onClick={handleCloseModal2}>Close</button>
-          
-                  <p>Help for queries.</p>
-          
+          <button onClick={handleCloseModal2}>Close</button>
+
+          <p>Help for queries.</p>
+
         </ReactModal>
       </div>
 
