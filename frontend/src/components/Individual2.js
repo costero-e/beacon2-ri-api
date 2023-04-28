@@ -26,15 +26,18 @@ function Individuals2(props) {
   const [limit, setLimit] = useState(10)
   const [skip, setSkip] = useState(0)
 
-  const [skipTrigger,setSkipTrigger ] = useState(0)
+  const [skipTrigger, setSkipTrigger] = useState(0)
   const [limitTrigger, setLimitTrigger] = useState(0)
 
-  const {  authenticateUser } = useContext(AuthContext);
+  const { getStoredToken } = useContext(AuthContext);
+
+  const [queryArray, setQueryArray] = useState([])
+  const [arrayFilter, setArrayFilter] = useState([])
 
   const API_ENDPOINT = "http://localhost:5050/api/individuals"
 
   let queryStringTerm = ''
-  let queryArray = []
+
   let keyTerm = []
   let resultsAux = []
   let obj = {}
@@ -43,9 +46,20 @@ function Individuals2(props) {
 
   useEffect(() => {
     const apiCall = async () => {
+      let descendantTerm = 0
 
+      const token = getStoredToken()
+      console.log(token)
 
-      if (props.query != null) {
+      if (props.descendantTerm === "true") {
+        descendantTerm = true
+      }
+
+      if (props.descendantTerm === "false") {
+        descendantTerm = false
+      }
+
+      if (props.query !== null) {
 
         queryStringTerm = props.query.split(',')
         console.log(queryStringTerm)
@@ -53,22 +67,36 @@ function Individuals2(props) {
 
           element = element.trim()
 
-          if (element.includes('=')) {
+          if (element.includes('=') || element.includes('>') || element.includes('<')) {
 
-            queryArray[index] = element.split('=')
+            if (element.includes('=')) {
+              queryArray[index] = element.split('=')
+              queryArray[index].push('=')
+            }
+            else if (element.includes('>')) {
+              queryArray[index] = element.split('>')
+              queryArray[index].push('>')
+            } else {
+              queryArray[index] = element.split('<')
+              queryArray[index].push('<')
+            }
 
-            queryArray[index].push('=')
+            console.log(queryArray)
+            const alphaNumFilter = {
+              "id": queryArray[index][0],
+              "operator": queryArray[index][2],
+              "value": queryArray[index][1],
+            }
+            arrayFilter.push(alphaNumFilter)
 
-          } else if (element.includes('>')) {
-            queryArray[index] = element.split('>')
-            queryArray[index].push('>')
-
-          } else if (element.includes('<')) {
-            queryArray[index] = element.split('<')
-            queryArray[index].push('<')
           } else {
-            queryArray[index] = element
+            const filter2 = {
+              "id": element,
+              "includeDescendantTerms": descendantTerm
+            }
+            arrayFilter.push(filter2)
           }
+
         })
 
         console.log(queryArray)
@@ -76,8 +104,6 @@ function Individuals2(props) {
       }
 
       try {
-
-        let arrayFilter = []
 
         if (props.value != '' && props.operator != '' && props.ID != '') {
 
@@ -94,21 +120,9 @@ function Individuals2(props) {
 
         }
 
-        console.log(arrayFilter)
-
-
         if (props.query === null) {
 
           // show all individuals
-          let descendantTerm = 0
-
-          if (props.descendantTerm === "true") {
-            descendantTerm = true
-          }
-
-          if (props.descendantTerm === "false") {
-            descendantTerm = false
-          }
 
           var jsonData1 = {
 
@@ -131,7 +145,11 @@ function Individuals2(props) {
           jsonData1 = JSON.stringify(jsonData1)
           console.log(jsonData1)
 
-          res = await axios.post("http://localhost:5050/api/individuals", jsonData1)
+          res = await axios.post("http://localhost:5050/api/individuals",jsonData1, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }})
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
@@ -144,30 +162,7 @@ function Individuals2(props) {
 
           })
 
-        } else if (!(props.query.includes('=')) && !(props.query.includes('<')) && !(props.query.includes('>'))) {
-          let descendantTerm = 0
-
-          if (props.descendantTerm === "true") {
-            descendantTerm = true
-          }
-
-          if (props.descendantTerm === "false") {
-            descendantTerm = false
-          }
-
-
-
-          //no operator
-          const filter2 = {
-            "id": props.query,
-            "includeDescendantTerms": descendantTerm
-          }
-
-          console.log("hola")
-          arrayFilter.push(filter2)
-          console.log(arrayFilter)
-
-
+        } else {
 
           var jsonData2 = {
 
@@ -192,9 +187,6 @@ function Individuals2(props) {
           res = await axios.post("http://localhost:5050/api/individuals", jsonData2)
 
 
-
-
-
           setTimeOut(true)
 
 
@@ -215,124 +207,16 @@ function Individuals2(props) {
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
           }
-
-
-        } else {
-
-          let descendantTerm = 0
-
-          if (props.descendantTerm === "true") {
-            descendantTerm = true
-          }
-
-          if (props.descendantTerm === "false") {
-            descendantTerm = false
-          }
-
-
-          let res = null
-
-          for (let i = 0; i < queryArray.length; i++) {
-
-            keyTerm = queryArray[i]
-            console.log(keyTerm)
-            console.log(typeof keyTerm)
-
-            if (typeof keyTerm === "object") {
-
-              if (keyTerm[2] === '<') {
-
-                const filter = {
-                  "id": keyTerm[0],
-                  "operator": "<",
-                  "value": Math.floor(keyTerm[1]),
-                  // "includeDescendantTerms": descendantTerm
-                }
-
-                arrayFilter.push(filter)
-
-              } else if (keyTerm[2] === '>') {
-                const filter = {
-                  "id": keyTerm[0],
-                  "operator": ">",
-                  "value": Math.floor(keyTerm[1]),
-                  // "includeDescendantTerms": descendantTerm
-                }
-
-                arrayFilter.push(filter)
-
-              } else {
-                const filter = {
-                  "id": keyTerm[1]
-                }
-                arrayFilter.push(filter)
-
-              }
-
-
-            } else {
-
-              const filter = {
-                "id": keyTerm,
-              }
-              arrayFilter.push(filter)
-
-            }
-          }
-
-
-
-
-
-          console.log(arrayFilter)
-
-          var jsonData = {
-
-            "meta": {
-              "apiVersion": "2.0"
-            },
-            "query": {
-              "filters": arrayFilter,
-              "includeResultsetResponses": `${props.resultSets}`,
-              "pagination": {
-                "skip": skip,
-                "limit": limit
-              },
-              "testMode": false,
-              "requestedGranularity": "record",
-            }
-          }
-
-          jsonData = JSON.stringify(jsonData)
-          console.log(jsonData)
-
-          res = await axios.post("http://localhost:5050/api/individuals", jsonData)
-          setTimeOut(true)
-
-
-
-          setNumberResults(res.data.responseSummary.numTotalResults)
-          setBoolean(res.data.responseSummary.exists)
-
-          res.data.response.resultSets[0].results.forEach((element, index) => {
-
-            results.push(res.data.response.resultSets[0].results[index])
-
-
-          })
-
-          let entries = Object.entries(results[0])
-          console.log(entries)
-
+      
         }
 
       } catch (error) {
-
+        setTimeOut(true)
         setError("No results found. Please check the query and retry")
       }
     };
     apiCall();
-  }, [skipTrigger,limitTrigger])
+  }, [skipTrigger, limitTrigger])
 
 
   const handleTypeResults1 = () => {
@@ -367,26 +251,26 @@ function Individuals2(props) {
     setSkipTrigger(skip)
     setLimitTrigger(limit)
     setTimeOut(false)
-    
+
   }
 
   return (
 
     <div>
       <form className='skipLimit'>
-      <div className='skipAndLimit'>
-        <div>
-          <label>SKIP</label>
-          <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
+        <div className='skipAndLimit'>
+          <div>
+            <label>SKIP</label>
+            <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
+          </div>
+          <div>
+            <label>LIMIT</label>
+            <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
+          </div>
+          <button type="button" onClick={onSubmit} className="skipLimitButton">APPLY</button>
         </div>
-        <div>
-          <label>LIMIT</label>
-          <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
-        </div>
-        <button type="button" onClick= {onSubmit} className="skipLimitButton">APPLY</button>
-      </div>
-     
-     
+
+
       </form>
 
       <div> {timeOut &&

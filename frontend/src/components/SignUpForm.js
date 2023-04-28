@@ -55,7 +55,7 @@ class SignUpForm extends Component {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=D8PgdqZsE0WCR2nOtyqGuZn0LRHZKWq0'
+                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=pzcbde4q90We7WOU9h3DdVOp5bdUccEJ'
            
             })
             
@@ -64,12 +64,13 @@ class SignUpForm extends Component {
             console.log(response2.access_token)
 
             const yourNewData = {
-                "firstName": "Holii2",
-                "lastName": "TestUI1_2",
-                "email": "testUI1_2@test.com",
+                "firstName": "Holi3",
+                "lastName": "Test3",
+                "email": "testUI1_2@test4.com",
                 "enabled": "true",
-                "username": "test-UI1_2",
-                "credentials": [{ "type": "password", "value": "UI1", "temporary": false }]
+                "username": "Gemma3",
+                "credentials": [{ "type": "password", "value": "UI1", "temporary": false }],
+                
             }
 
             const response = await fetch(apiURL, {

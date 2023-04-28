@@ -34,7 +34,7 @@ export default function SignInForm(){
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        console.log(userName)
         var details = {
             'grant_type': 'password',
             'client_id': 'beacon',
@@ -64,7 +64,7 @@ export default function SignInForm(){
         })
 
         const readableResponse = await response.json()
-        console.log(readableResponse)
+        console.log(readableResponse.access_token)
 
         storeToken(readableResponse.access_token)
         refreshTokenFunction(readableResponse.refresh_token)

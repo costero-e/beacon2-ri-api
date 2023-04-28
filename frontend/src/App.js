@@ -1,3 +1,4 @@
+import 'devextreme/dist/css/dx.light.css';
 
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
@@ -20,8 +21,7 @@ import ResultsDatasets from './components/ResultsDatasets';
 import FilteringTerms from './components/FilteringTerms';
 
 import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import ListSubheader from '@mui/material/ListSubheader';
+
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 
@@ -30,11 +30,13 @@ import { useContext } from 'react';
 
 import axios from "axios";
 
+import ReactModal from 'react-modal';
 
+import { ModalHover } from 'react-modal-hover'
 function Layout() {
 
   const [error, setError] = useState(null)
-  const [collectionType, setCollectionType] = useState(["Select", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
+  const [collectionType, setCollectionType] = useState(["Select collection", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
   const [collection, setCollection] = useState('')
   const [placeholder, setPlaceholder] = useState('')
   const [results, setResults] = useState(null)
@@ -48,6 +50,7 @@ function Layout() {
   const [ID, setId] = useState("")
   const [operator, setOperator] = useState("")
   const [value, setValue] = useState("")
+
 
 
   const [descendantTermType, setDescendantTermType] = useState(["Select", "true", "false"])
@@ -69,16 +72,21 @@ function Layout() {
 
   const Add4 = similarityType.map(Add4 => Add4)
 
+  const [isOpenModal1, setIsOpenModal1] = useState(false);
+  const [isOpenModal2, setIsOpenModal2] = useState(false);
+
+
   const handleAddrTypeChange = (e) => {
 
     setCollection(collectionType[e.target.value])
     setExampleQ([])
     setFilteringTerms(false)
+    setShowFilteringTerms(false)
 
   }
 
   const handleClick = (e) => {
-    setCollectionType(["Select", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
+    setCollectionType(["Select collection", "Individuals", "Cohorts", "Datasets", "Biosamples", "Analyses", "Runs", "Variant"])
     setCollection(collectionType[e.target.value])
   }
 
@@ -107,38 +115,41 @@ function Layout() {
 
   const handleOperatorChanges = (e) => {
     setOperator(e.target.value)
-    
+
   }
 
   const handleValueChanges = (e) => {
     setValue(e.target.value)
   }
 
-  const handleAlphanumSearch = (e) => {
-    setAlphanumValue(true)
-  }
-
   const handleBasicSearch = (e) => {
-    setAlphanumValue(false)
-  }
-
-  const handleBasicSearch2 = (e) => {
     setAdvSearch(false)
   }
 
-  const handleBasicSearch3 = (e) => {
-    setAdvSearch(false)
-    setAlphanumValue(false)
+  const handleHelpModal1 = () => {
+    setIsOpenModal1(true)
+  }
+
+  const handleCloseModal1 = () => {
+    setIsOpenModal1(false)
+  }
+
+  const handleHelpModal2 = () => {
+    setIsOpenModal2(true)
+  }
+
+  const handleCloseModal2 = () => {
+    setIsOpenModal2(false)
   }
 
   const handleFilteringTerms = async (e) => {
 
-    
+    console.log(collection)
     if (collection === 'Individuals') {
-      console.log("hi")
+
       try {
 
-        let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms")
+        let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms?limit=0")
         setFilteringTerms(res)
 
 
@@ -158,6 +169,11 @@ function Layout() {
       setExampleQ(['sex= male, ethnicity=White and Black Caribbean', 'sex=female,cardiomyopathy', 'ethnicity=NCIT:C16352,LOINC:3141-9>50', 'NCIT:C42331'])
     }
   }
+
+  const handleExQueriesAlphaNum = () => {
+
+  }
+
 
   useEffect(() => {
 
@@ -189,7 +205,7 @@ function Layout() {
     event.preventDefault()
 
 
-    setCollectionType(["Select"])
+    setCollectionType([`${collection}`])
 
     authenticateUser()
 
@@ -228,6 +244,9 @@ function Layout() {
       <a href="https://www.cineca-project.eu/">
         <img className="cinecaLogo" src="./CINECA_logo.png" alt='searchIcon'></img>
       </a>
+
+
+      <button className="helpButton" onClick={handleHelpModal2}><img className="questionLogo2" src="./question.png" alt='questionIcon'></img><h5>Help for querying</h5></button>
       <nav className="navbar">
         <div className="container-fluid">
           <select className="form-select" aria-label="Default select example" onClick={handleClick} onChange={e => { handleAddrTypeChange(e) }}>
@@ -236,9 +255,11 @@ function Layout() {
               </option>)
             }
           </select>
+
+
           <form className="d-flex" onSubmit={onSubmit}>
             <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
-            {((!showAdvSearch) && (!showAlphanumValue)) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+            {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
           </form>
         </div>
 
@@ -255,7 +276,8 @@ function Layout() {
 
                 return (<div id='exampleQueries'>
 
-                  <button className="exampleQuery" onClick={() => { setPlaceholder(`${result}`); setQuery(`${result}`); setResults(null) }} >{result}</button>
+
+                  <button className="exampleQuery" onClick={() => { setPlaceholder(`${result}`); setQuery(`${result}`); setResults(null) }}  >{result}</button>
                 </div>)
 
               })}
@@ -266,20 +288,39 @@ function Layout() {
             </button>
 
           </div>
-          {!showAlphanumValue && <button className="advSearch" onClick={handleAlphanumSearch}>
-            Alphanumerical and Numerical queries
-          </button>}
 
 
         </div>
+        <div className='alphanumContainer'>
+          <hr></hr>
+          <h2>Alphanumerical and numerical queries</h2>
+          <button className="helpButton" onClick={handleHelpModal1}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
 
+          <div className='alphanumContainer2'>
+            <label><h2>ID</h2></label>
+            <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
+
+
+            <div id="operator">
+              <h2>OPERATOR</h2>
+              <input className="operator"></input>
+
+            </div>
+
+            <label id="value"><h2>Value</h2></label>
+            <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
+          </div>
+          <div className="exampleQueriesAlph">
+            <button className="exampleQueries" onClick={handleExQueriesAlphaNum}>Query Examples</button>
+          </div>
+        </div>
         <form className='advSearchForm' onSubmit={onSubmit}>
 
           {showAdvSearch && <div className='advSearchModule' >
             <hr></hr>
             <div className='resultset'>
-              <div>
-                <label>Include Resultset Responses</label>
+              <div className="advSearch-module">
+                <label><h2>Include Resultset Responses</h2></label>
                 <select className="form-select2" aria-label="" onChange={(e) => handleResultsetChanges(e)}>
                   {
                     Add2.map((resultSet, key) => <option key={key} value={key}>{resultSet}
@@ -288,8 +329,8 @@ function Layout() {
                 </select>
               </div>
 
-              <div>
-                <label>Similarity</label>
+              <div className="advSearch-module">
+                <label><h2>Similarity</h2></label>
                 <select className="form-select2" aria-label="" onChange={e => { handleSimilarityChanges(e) }}>
                   {
                     Add4.map((similarity, key) => <option key={key} value={key}>{similarity}
@@ -297,8 +338,8 @@ function Layout() {
                   }
                 </select>
               </div>
-              <div>
-                <label>Include Descendant Terms</label>
+              <div className="advSearch-module">
+                <label><h2>Include Descendant Terms</h2></label>
                 <select className="form-select2" aria-label="" onChange={e => { handleDescendantTermChanges(e) }}>
                   {
                     Add3.map((descendantTerm, key) => <option key={key} value={key}>{descendantTerm}
@@ -306,65 +347,57 @@ function Layout() {
                   }
                 </select>
               </div>
-              {(!showAlphanumValue && showAdvSearch) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
 
+
+
+
+            </div>
+            <div className="buttonClass">
+              {showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
             </div>
 
           </div>}
-
-
-
-
-          {showAlphanumValue && <div className='alphanumContainer'>
-            <hr></hr>
-            <div className='alphanumContainer2'>
-              <label>ID</label>
-              <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
-              
-              <div id="operator">
-                <FormControl sx={{ m: 1, minWidth: 120 }}>
-                  <InputLabel htmlFor="grouped-native-select">Operator</InputLabel>
-                  <Select native defaultValue="" id="grouped-native-select" label="Grouping" onChange={(e) => handleOperatorChanges(e)}>
-                    <option aria-label="None" value="" />
-                    <optgroup label="Numerical">
-                      <option value={'='}>=</option>
-                      <option value={'<'}> &lt; </option>
-                      <option value={'>'}> &gt; </option>
-                    </optgroup>
-                    <optgroup label="Alphanumerical">
-                      <option value={'='}>=</option>
-                      <option value={'!'}>!</option>
-                    </optgroup>
-                  </Select>
-                </FormControl>
-                
-              </div>
-            
-              <label id="value">Value</label>
-              <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
-              {(showAlphanumValue || showAdvSearch) && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
-            </div>
-
-          </div>}
-
 
 
 
         </form>
 
+        {showAdvSearch && <button className='returnBasic' onClick={handleBasicSearch}>BACK TO BASIC SEARCH</button>}
+
 
 
       </nav>
 
-      {(showAlphanumValue && !showAdvSearch) && <button className='returnBasic' onClick={handleBasicSearch}>HIDE</button>}
-      {(showAdvSearch && !showAlphanumValue) && <button className='returnBasic' onClick={handleBasicSearch2}>HIDE</button>}
-      {(showAlphanumValue && showAdvSearch) && <button className='returnBasic' onClick={handleBasicSearch3}>Return to basic search</button>}
+      <div>
+
+        <ReactModal
+          isOpen={isOpenModal1}
+          onRequestClose={handleCloseModal1}
+          shouldCloseOnOverlayClick={true}
+        >
+          <button onClick={handleCloseModal1}>Close</button>
+
+          <p>Help for alphanumerical and numerical queries.</p>
+
+        </ReactModal>
+        <ReactModal
+          isOpen={isOpenModal2}
+          onRequestClose={handleCloseModal2}
+          shouldCloseOnOverlayClick={true}
+        >
+          <button onClick={handleCloseModal2}>Close</button>
+
+          <p>Help for queries.</p>
+
+        </ReactModal>
+      </div>
+
 
       <hr></hr>
       <div className="results">
         {results === null && !showFilteringTerms && <ResultsDatasets />}
         {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
-        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder}/>}
+        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder} />}
       </div>
 
     </div>

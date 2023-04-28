@@ -12,6 +12,10 @@ function AuthProviderWrapper(props) {
    const navigate = useNavigate();
 
    // Functions to store and delete the token received by the backend in the browser
+   const getStoredToken = () => {
+      return localStorage.getItem('authToken');
+   }
+
    const storeToken = (token) => {
       localStorage.setItem('authToken', token);
    }
@@ -43,7 +47,6 @@ function AuthProviderWrapper(props) {
 
    const logOutUser = () => {
       removeToken();
-      setExpirationMessage('Session expired due to inactivity. Please log in again')
       setIsLoggedIn(false)
       navigate("/sign-in")
    }
@@ -71,6 +74,7 @@ function AuthProviderWrapper(props) {
          ///GET NEW REFRESH TOKEN
          console.log("UUUU")
          if ((currentTime - startTime) > refreshTime) {
+            setExpirationMessage('Session expired due to inactivity. Please log in again')
             logOutUser()
          } else {
 
@@ -127,7 +131,7 @@ function AuthProviderWrapper(props) {
 
 
    return (
-      <AuthContext.Provider value={{ setIsLoggedIn,isLoggedIn, setExpirationTime, expirationMessage, setExpirationTimeRefresh, storeToken, refreshTokenFunction, authenticateUser, setStartTime, setCurrentTime, logOutUser }}>
+      <AuthContext.Provider value={{ setIsLoggedIn,isLoggedIn, getStoredToken, setExpirationTime, expirationMessage, setExpirationTimeRefresh, storeToken, refreshTokenFunction, authenticateUser, setStartTime, setCurrentTime, logOutUser }}>
          {props.children}
       </AuthContext.Provider>
    )
