@@ -29,18 +29,25 @@
     margin: 20px;
 }
 
+label{
+    font-size: 14px;
+}
+
+
 .skipLimitButton{
     width: fit-content;
-    background: linear-gradient(356deg, #bb1c29 50%, #c11524 80%);
-    border: none;
+    background-color: rgb(175, 173, 173);
+    /* border: none; */
     padding: 6px;
     box-shadow: 0px 2px 3px #a3a0a0;
     border-radius: 3px;
+    font-feature-settings: "pcap", "c2pc";
     font-variant: all-petite-caps;
-    font-size: 17px;
+    font-size: 16px;
     cursor: pointer;
-    height: 50%;
-    color: rgb(227, 226, 226);
+    /* height: 50%; */
+    margin-left: 21px;
+    color: rgb(0, 0, 0);
 }
 
 .skipLimitButton:hover{
@@ -61,6 +68,9 @@ h2 {
 h3 {
     color: #c11524;
     text-transform: uppercase;
+    margin-left: 50px;
+    margin-top: 40px;
+    font-size: 16px;
 }
 
 h4 {
@@ -104,8 +114,7 @@ h4 {
     margin: 8px;
     padding: 4px;
     box-shadow: 6px 5px 5px #a3a0a0;
-    width: 20%;
-    height: 18px;
+    width: 30px;
   }
 
 
@@ -118,6 +127,14 @@ h4 {
     margin-bottom: 30px;
     align-items: center;
   }
+
+  .moduleSkip{
+    width: 105px;
+  }
+
+  .moduleLimit{
+    width: 105px;
+  }
   
   .limitForm {
     background: white;
@@ -125,8 +142,7 @@ h4 {
     margin: 8px;
     padding: 4px;
     box-shadow: 6px 5px 5px #a3a0a0;
-    width: 20%;
-    height: 18px;
+    width: 30px;
   }
   
 .resultsContainer {

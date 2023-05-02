@@ -18,12 +18,9 @@ import History from './components/History';
 import SignInForm from './components/SignInForm';
 import SignUpForm from './components/SignUpForm';
 import ResultsDatasets from './components/ResultsDatasets';
-import FilteringTerms from './components/FilteringTerms';
+import FilteringTermsIndividuals from './components/FilteringTermsIndividuals';
 
-import InputLabel from '@mui/material/InputLabel';
 
-import FormControl from '@mui/material/FormControl';
-import Select from '@mui/material/Select';
 
 import { AuthContext } from './components/context/AuthContext';
 import { useContext } from 'react';
@@ -32,7 +29,8 @@ import axios from "axios";
 
 import ReactModal from 'react-modal';
 
-import { ModalHover } from 'react-modal-hover'
+
+import FilteringTermsCohorts from './components/FilteringTermsCohorts';
 function Layout() {
 
   const [error, setError] = useState(null)
@@ -47,11 +45,13 @@ function Layout() {
   const [resultSetType, setResultsetType] = useState(["Select", "HIT", "MISS", "NONE", "ALL"])
   const [resultSet, setResultset] = useState("HIT")
 
+  const [cohorts, setShowCohorts] = useState(false)
+
   const [ID, setId] = useState("")
   const [operator, setOperator] = useState("")
   const [value, setValue] = useState("")
 
-
+  const [popUp, setPopUp] = useState(false)
 
   const [descendantTermType, setDescendantTermType] = useState(["Select", "true", "false"])
   const [descendantTerm, setDescendantTerm] = useState("true")
@@ -75,6 +75,8 @@ function Layout() {
   const [isOpenModal1, setIsOpenModal1] = useState(false);
   const [isOpenModal2, setIsOpenModal2] = useState(false);
 
+  const [showAlph, setShowAlph] = useState(false)
+  const [showAdvButton, setShowAdvButton] = useState(false)
 
   const handleAddrTypeChange = (e) => {
 
@@ -142,6 +144,11 @@ function Layout() {
     setIsOpenModal2(false)
   }
 
+  const handleCloseModal3 = () => {
+    setPopUp(false)
+  }
+
+
   const handleFilteringTerms = async (e) => {
 
     console.log(collection)
@@ -151,7 +158,18 @@ function Layout() {
 
         let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms?limit=0")
         setFilteringTerms(res)
+        setResults(null)
 
+      } catch (error) {
+        console.log(error)
+      }
+    } else if (collection === 'Cohorts') {
+
+      try {
+
+        let res = await axios.get("http://localhost:5050/api/cohorts/filtering_terms?limit=0")
+        setFilteringTerms(res)
+        setResults(null)
 
       } catch (error) {
         console.log(error)
@@ -174,17 +192,28 @@ function Layout() {
 
   }
 
+  useEffect(() => {
+
+    const timer = setTimeout(() => setPopUp(true), 1000);
+    setPopUp(false)
+    return () => clearTimeout(timer);
+  }, [])
 
   useEffect(() => {
 
+    setShowCohorts(false)
     setResults(null)
 
     if (collection === 'Individuals') {
       setPlaceholder('key=value, key><=value, or filtering term comma-separated')
+      setShowAlph(true)
+      setShowAdvButton(true)
     } else if (collection === 'Biosamples') {
       setPlaceholder('key=value, key><=value, or filtering term comma-separated')
     } else if (collection === 'Cohorts') {
-      setPlaceholder('Search for any cohort')
+      setShowCohorts(true)
+      setShowAlph(false)
+      setShowAdvButton(false)
     } else if (collection === "Variant") {
       setPlaceholder('chr : pos ref > alt')
     } else if (collection === "Analyses") {
@@ -222,6 +251,7 @@ function Layout() {
       }
       if (collection === 'Individuals') {
         setResults('Individuals')
+
       } else if (collection === 'Cohorts') {
         setResults('Cohorts')
       }
@@ -245,6 +275,18 @@ function Layout() {
         <img className="cinecaLogo" src="./CINECA_logo.png" alt='searchIcon'></img>
       </a>
 
+      {popUp && <ReactModal
+        isOpen={popUp}
+        onRequestClose={handleCloseModal3}
+        shouldCloseOnOverlayClick={true}
+      >
+        <button onClick={handleCloseModal3}><img className="closeLogo" src="./cancel.png" alt='cancelIcon'></img></button>
+
+        <p>Please, bear in mind that you might have to log in to get information from some datasets.</p>
+
+      </ReactModal>
+
+      }
 
       <button className="helpButton" onClick={handleHelpModal2}><img className="questionLogo2" src="./question.png" alt='questionIcon'></img><h5>Help for querying</h5></button>
       <nav className="navbar">
@@ -256,32 +298,49 @@ function Layout() {
             }
           </select>
 
+          {cohorts === false &&
+            <form className="d-flex" onSubmit={onSubmit}>
+              <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
+              {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+            </form>}
+       
+        {cohorts &&
+       
+            <form className="d-flex2" onSubmit={onSubmit}>
+              <button className="searchButton2" type="submit"><img className="forwardIcon" src="./adelante.png" alt='searchIcon'></img></button>
+            </form>
+          }
+        {cohorts && results === 'Cohorts' &&
 
-          <form className="d-flex" onSubmit={onSubmit}>
-            <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
-            {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
-          </form>
-        </div>
+          <div> 
+            <Cohorts />
+          </div>}
+          </div>
 
         <div className="additionalOptions">
 
-          {!showAdvSearch && <button className="advSearch" onClick={handleAdvancedSearch}>
+          {!showAdvSearch && showAdvButton && <button className="advSearch" onClick={handleAdvancedSearch}>
             Advanced search
           </button>}
+
           <div className="example">
-            <button className="exampleQueries" onClick={handleExQueries}>Query Examples</button>
-            <img className="bulbLogo" src="../light-bulb.png" alt='bulbIcon'></img>
-            <div>
-              {exampleQ[0] && exampleQ.map((result) => {
+            {cohorts === false &&
+              <div className="bulbExample">
+                <button className="exampleQueries" onClick={handleExQueries}>Query Examples</button>
+                <img className="bulbLogo" src="../light-bulb.png" alt='bulbIcon'></img>
+                <div>
+                  {exampleQ[0] && exampleQ.map((result) => {
 
-                return (<div id='exampleQueries'>
+                    return (<div id='exampleQueries'>
 
 
-                  <button className="exampleQuery" onClick={() => { setPlaceholder(`${result}`); setQuery(`${result}`); setResults(null) }}  >{result}</button>
-                </div>)
+                      <button className="exampleQuery" onClick={() => { setPlaceholder(`${result}`); setQuery(`${result}`); setResults(null) }}  >{result}</button>
+                    </div>)
 
-              })}
-            </div>
+                  })}
+                </div>
+              </div>
+            }
 
             <button className="filters" onClick={handleFilteringTerms}>
               Filtering Terms
@@ -291,7 +350,7 @@ function Layout() {
 
 
         </div>
-        <div className='alphanumContainer'>
+        {showAlph && <div className='alphanumContainer'>
           <hr></hr>
           <h2>Alphanumerical and numerical queries</h2>
           <button className="helpButton" onClick={handleHelpModal1}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
@@ -313,7 +372,7 @@ function Layout() {
           <div className="exampleQueriesAlph">
             <button className="exampleQueries" onClick={handleExQueriesAlphaNum}>Query Examples</button>
           </div>
-        </div>
+        </div>}
         <form className='advSearchForm' onSubmit={onSubmit}>
 
           {showAdvSearch && <div className='advSearchModule' >
@@ -375,7 +434,7 @@ function Layout() {
           onRequestClose={handleCloseModal1}
           shouldCloseOnOverlayClick={true}
         >
-          <button onClick={handleCloseModal1}>Close</button>
+          <button onClick={handleCloseModal1}><img className="closeLogo" src="./cancel.png" alt='cancelIcon'></img></button>
 
           <p>Help for alphanumerical and numerical queries.</p>
 
@@ -385,7 +444,7 @@ function Layout() {
           onRequestClose={handleCloseModal2}
           shouldCloseOnOverlayClick={true}
         >
-          <button onClick={handleCloseModal2}>Close</button>
+          <button onClick={handleCloseModal2}><img className="closeLogo" src="./cancel.png" alt='cancelIcon'></img></button>
 
           <p>Help for queries.</p>
 
@@ -397,7 +456,8 @@ function Layout() {
       <div className="results">
         {results === null && !showFilteringTerms && <ResultsDatasets />}
         {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
-        {results === null && showFilteringTerms && <FilteringTerms filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder} />}
+        {results === null && collection === 'Individuals' && showFilteringTerms && <FilteringTermsIndividuals filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder} />}
+        {results === null && collection === 'Cohorts' && showFilteringTerms && <FilteringTermsCohorts filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder} />}
       </div>
 
     </div>

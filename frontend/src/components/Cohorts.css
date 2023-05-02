@@ -7,11 +7,6 @@
 }
 
 
-#chartSex {
-    width: 400px;
-    margin: 50px;
-
-  }
 
 #chartEthnicity {
     width: 900px;
@@ -20,8 +15,12 @@
 
 
 #chartGeo{ 
-    width: 600px;
-    margin: 50px;
+    width: 500px;
+    margin: 28px;
+    height: 400px ;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 #apexcharts3avqrkqj{
@@ -42,6 +41,8 @@
    display: flex;
    justify-content: center;
    align-items: center;
+   width: 400px;
+   margin: 28px;
 }
 
 #chartDiseases{
