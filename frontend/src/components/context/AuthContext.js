@@ -55,7 +55,9 @@ function AuthProviderWrapper(props) {
    const authenticateUser = async () => {
 
       const storedToken = localStorage.getItem('authToken');
-     
+      if (storedToken !== null){
+         setIsLoggedIn(true)
+      }
       const refreshToken = localStorage.getItem('refreshToken')
       const expirationTime = localStorage.getItem('expirationTime');
       const refreshTime = localStorage.getItem('refreshExpirationTime')

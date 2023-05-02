@@ -15,6 +15,10 @@ html {
   height: 100vh;
 }
 
+.skipLimit{
+  margin-top: 10px;
+}
+
 .searchButton {
   padding-right: 4px;
   padding-left: 4px;
@@ -189,7 +193,7 @@ hr {
 }
 
 .helpButton {
-  width: 195px;
+  width: 138px;
   display: flex;
   align-items: center;
 
@@ -236,6 +240,7 @@ hr {
 }
 
 .additionalOptions {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -284,7 +289,7 @@ hr {
 
 .advSearch {
   margin-top: 5px;
-  margin-left: 23px;
+  margin-left: 11px;
   width: fit-content;
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
   border: none;
@@ -311,24 +316,34 @@ h5 {
   display: flex;
   width: 100%;
   justify-content: flex-end;
-  margin-top: 10px;
 }
 
 .advSearchModule {
   display: flex;
   width: 100%;
-  flex-direction: column;
+  flex-direction: column-reverse
 }
 
 .advSearch-module {
   display: flex;
 }
 
+.helpButton2{
+  display: flex;
+    justify-content: flex-start;
+    align-content: center;
+    align-items: center;
+    margin-left: 1px;
+    margin-top: -9px;
+    margin-bottom: 3px;
+}
 
 .resultset {
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 9px;
+  flex-direction: row-reverse;
 }
 
 
@@ -388,8 +403,8 @@ h5 {
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
   border: none;
   /* margin-top: 38px; */
-  padding-right: 12px;
-  padding-left: 12px;
+  padding-right: 10px;
+  padding-left: 10px;
   padding-top: 9px;
   padding-bottom: 9px;
   box-shadow: 0px 2px 2px #a3a0a0;
@@ -402,11 +417,10 @@ h5 {
   width: fit-content;
   /* MARGIN-RIGHT: 60px; */
   /* margin-right: 67px; */
-  margin: 61px;
-  margin-top: 18px;
-  margin-bottom: 10px;
+  /* margin: 61px; */
+  margin-top: 28px;
+  margin-bottom: 19px;
 }
-
 .returnBasic:hover {
   background: #86d2ff;
 }

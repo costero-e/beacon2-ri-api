@@ -33,10 +33,14 @@ label{
     font-size: 14px;
 }
 
+.skipLimit{
+    width: 100vw;
+}
+
 
 .skipLimitButton{
     width: fit-content;
-    background-color: rgb(175, 173, 173);
+    background-color: rgb(228 223 223);
     /* border: none; */
     padding: 6px;
     box-shadow: 0px 2px 3px #a3a0a0;
@@ -46,12 +50,12 @@ label{
     font-size: 16px;
     cursor: pointer;
     /* height: 50%; */
-    margin-left: 21px;
+    margin-left: 9px;
     color: rgb(0, 0, 0);
 }
 
 .skipLimitButton:hover{
-    background: #e24c59;
+    background: #60bced;
 }
 
 h1 {
@@ -78,8 +82,16 @@ h4 {
     color: rgba(12, 16, 64, 0.606);
 }
 
+.selectGranularity h5{
+    font-size: 14px;
+}
+
+.selectGranularity h4{
+    font-size: 14px;
+}
+
 .selectGranularity button:hover {
-    color: rgb(81, 240, 142);
+    color: rgb(81, 179, 240);
 }
 
 .p1 {
@@ -113,19 +125,19 @@ h4 {
     border: 2px solid #c11524;
     margin: 8px;
     padding: 4px;
-    box-shadow: 6px 5px 5px #a3a0a0;
+    box-shadow: 2px 1px 3px #a3a0a0;
     width: 30px;
   }
 
 
   .skipAndLimit{
     display: flex;
-    width: 100vw;
     align-content: flex-start;
     /* align-items: center; */
     margin-left: 43px;
     margin-bottom: 30px;
     align-items: center;
+    width: 90%;
   }
 
   .moduleSkip{
@@ -141,7 +153,7 @@ h4 {
     border: 2px solid #c11524;
     margin: 8px;
     padding: 4px;
-    box-shadow: 6px 5px 5px #a3a0a0;
+    box-shadow: 2px 1px 3px #a3a0a0;
     width: 30px;
   }
   
@@ -151,6 +163,9 @@ h4 {
 }
 
 .selectGranularity {
+    align-items: center;
     display: flex;
     justify-content: center;
+    padding-bottom: 24px;
+    margin-top: -44px;
 }

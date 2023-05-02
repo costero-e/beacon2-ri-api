@@ -4,12 +4,14 @@ import { Router } from 'react-router-dom';
 import axios from 'axios';
 import { Route, Routes } from 'react-router-dom';
 import { Component } from 'react';
+import { useState } from 'react';
 
 const apiURL = 'http://localhost:8080/auth/admin/realms/Beacon/users'
 const apiURL2 = 'http://localhost:8080/auth/realms/Beacon/protocol/openid-connect/token'
 
-class SignUpForm extends Component {
 
+class SignUpForm extends Component {
+   
     constructor() {
         super();
 
@@ -18,11 +20,13 @@ class SignUpForm extends Component {
             password: "",
             userName: "",
             name: "",
-            surname: ""
+            surname: "",
+            error: ""
         };
 
         this.handleChange = this.handleChange.bind(this);
      
+        
     }
 
     handleChange(event) {
@@ -55,7 +59,7 @@ class SignUpForm extends Component {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=GIab10PSySWRFVIKJQUtyJoI1QkMd5FI'
+                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=QOzMITQmtaoDrOenXu38pyDq2x0feCoO'
            
             })
             
@@ -65,14 +69,15 @@ class SignUpForm extends Component {
 
 
             const yourNewData = {
-                "firstName": this.name,
-                "lastName": this.surname,
-                "email": this.email,
+                "firstName": this.state.name,
+                "lastName": this.state.surname,
+                "email": this.state.email,
                 "enabled": "true",
-                "username": this.userName,
-                "credentials": [{ "type": "password", "value": this.password, "temporary": false }],
+                "username": this.state.userName,
+                "credentials": [{ "type": "password", "value": this.state.password, "temporary": false }],
                 
             }
+            console.log(yourNewData)
 
             const response = await fetch(apiURL, {
                 method: 'POST',
@@ -82,13 +87,22 @@ class SignUpForm extends Component {
                 },
                 body: JSON.stringify(yourNewData)
             })
+            console.log(response)
 
-            const permissionsRes= await fetch(
-                "http://localhost:5051", {
+            if (response.status === 409){
+              
+                this.setState({
+                    ["error"]: "This username already exsists. Please try with a different one"
+                });
+                
+            }
+
+           const permissionsRes= await fetch(
+               "http://localhost:5051/", {
                 method: 'POST',
                 headers: {
-                    'Content-type': 'application/json;',
-                    'Authorization': `Bearer ${response2.access_token}`, // notice the Bearer before your token
+                  'Content-type': 'application/json;',
+                'Authorization': `Bearer ${response2.access_token}`, // notice the Bearer before your token
                 },
             })
             
@@ -152,6 +166,7 @@ class SignUpForm extends Component {
                                 <label className="formFieldLabel" htmlFor="userName">
                                     Username
                                 </label>
+                                {this.state.error !== '' && <h3>{this.state.error}</h3>}
                                 <input
                                     type="username"
                                     id="username"
@@ -192,7 +207,7 @@ class SignUpForm extends Component {
                                 />
                             </div>
 
-
+                           
                             <div className="formField">
 
                                 <button className="formFieldButton"> Sign Up</button>
@@ -207,6 +222,7 @@ class SignUpForm extends Component {
                         </form>
                     </div>
                 </div>
+               
             </div>
 
         )

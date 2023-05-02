@@ -31,7 +31,7 @@ function Individuals2(props) {
   const [skipTrigger, setSkipTrigger] = useState(0)
   const [limitTrigger, setLimitTrigger] = useState(0)
 
-  const { getStoredToken } = useContext(AuthContext);
+  const { getStoredToken, authenticateUser } = useContext(AuthContext);
 
   const [queryArray, setQueryArray] = useState([])
   const [arrayFilter, setArrayFilter] = useState([])
@@ -49,11 +49,11 @@ function Individuals2(props) {
   useEffect(() => {
     const apiCall = async () => {
       let descendantTerm = 0
-
+      authenticateUser()
       const token = getStoredToken()
       console.log(token)
       if (token !== undefined) {
-        console.log("asdasjd")
+      
         setLoginRequired(false)
       } else {
         setMessageLogin("PLEASE CREATE AN ACCOUNT AND LOG IN FOR QUERYING")
@@ -153,13 +153,10 @@ function Individuals2(props) {
 
           jsonData1 = JSON.stringify(jsonData1)
           console.log(jsonData1)
+          console.log(token)
 
-          res = await axios.post("http://localhost:5050/api/individuals", jsonData1, {
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`
-            }
-          })
+          res = await axios.post("http://localhost:5050/api/individuals", jsonData1)
+         
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
@@ -287,9 +284,10 @@ function Individuals2(props) {
 
           <div> {timeOut &&
             <div className='selectGranularity'>
-              <button className='typeResults' onClick={handleTypeResults1}> Boolean</button>
-              <button className='typeResults' onClick={handleTypeResults2}>Count</button>
-              <button className='typeResults' onClick={handleTypeResults3}>Full</button>
+              <h4>Granularity:</h4>
+              <button className='typeResults' onClick={handleTypeResults1}><h5>Boolean</h5></button>
+              <button className='typeResults' onClick={handleTypeResults2}><h5>Count</h5></button>
+              <button className='typeResults' onClick={handleTypeResults3}><h5>Full response</h5></button>
             </div>}
 
             <div className='resultsContainer'>
