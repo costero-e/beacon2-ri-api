@@ -31,7 +31,7 @@
 
 .skipLimitButton{
     width: fit-content;
-    background: linear-gradient(356deg, #bb1c29 50%, #c11524 80%);
+    background-color: rgb(175, 173, 173);
     border: none;
     padding: 6px;
     box-shadow: 0px 2px 3px #a3a0a0;
@@ -40,7 +40,7 @@
     font-size: 17px;
     cursor: pointer;
     height: 50%;
-    color: rgb(227, 226, 226);
+    color: rgb(0, 0, 0);
 }
 
 .skipLimitButton:hover{
@@ -61,6 +61,9 @@ h2 {
 h3 {
     color: #c11524;
     text-transform: uppercase;
+    margin-left: 50px;
+    margin-top: 40px;
+    font-size: 16px;
 }
 
 h4 {

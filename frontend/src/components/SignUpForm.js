@@ -55,7 +55,7 @@ class SignUpForm extends Component {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=pzcbde4q90We7WOU9h3DdVOp5bdUccEJ'
+                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=tcoIeOyzL53tRhSU4OcAsh70Z9HjYZMI'
            
             })
             
@@ -63,13 +63,14 @@ class SignUpForm extends Component {
             console.log(response2)
             console.log(response2.access_token)
 
+
             const yourNewData = {
-                "firstName": "Holi3",
-                "lastName": "Test3",
-                "email": "testUI1_2@test4.com",
+                "firstName": this.name,
+                "lastName": this.surname,
+                "email": this.email,
                 "enabled": "true",
-                "username": "Gemma3",
-                "credentials": [{ "type": "password", "value": "UI1", "temporary": false }],
+                "username": this.userName,
+                "credentials": [{ "type": "password", "value": this.password, "temporary": false }],
                 
             }
 
@@ -80,6 +81,15 @@ class SignUpForm extends Component {
                     'Authorization': `Bearer ${response2.access_token}`, // notice the Bearer before your token
                 },
                 body: JSON.stringify(yourNewData)
+            })
+
+            const permissionsRes= await fetch(
+                "http://localhost:5051", {
+                method: 'POST',
+                headers: {
+                    'Content-type': 'application/json;',
+                    'Authorization': `Bearer ${response2.access_token}`, // notice the Bearer before your token
+                },
             })
             
       

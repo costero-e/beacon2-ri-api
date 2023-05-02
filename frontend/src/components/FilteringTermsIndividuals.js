@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import './FilteringTerms.css'
 import { TagBox } from 'react-tag-box'
-import { tableFooterClasses } from "@mui/material"
 
-function FilteringTerms(props) {
+
+function FilteringTermsIndividuals(props) {
 
     console.log(props)
 
@@ -398,4 +398,4 @@ function FilteringTerms(props) {
     )
 }
 
-export default FilteringTerms
+export default FilteringTermsIndividuals

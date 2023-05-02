@@ -32,6 +32,18 @@ html {
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
 }
 
+.searchButton2 {
+  cursor: pointer;
+  /* margin-left: 26px; */
+  margin: 16px;
+  margin-top: 26px;
+}
+
+.searchButton2:hover {
+  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+  border-radius: 14px;
+}
+
 #value {
   margin-left: 12px;
 }
@@ -48,7 +60,6 @@ html {
 
 .form-select {
   height: 40px;
-  width: 25%;
   margin-right: 3px;
   cursor: pointer;
 }
@@ -66,6 +77,11 @@ html {
   display: flex;
 }
 
+.d-flex2 {
+  display: flex;
+  justify-content: flex-end;
+}
+
 .formSearch {
   width: 60vw;
   margin-right: 3px;
@@ -78,6 +94,10 @@ html {
 
 .searchIcon {
   height: 20px;
+}
+
+.forwardIcon{
+  width: 29px;
 }
 
 .navbar {
@@ -117,7 +137,7 @@ html {
 select {
   background: white;
   border: 2px solid #c11524;
-  font-size: large;
+  font-size: medium;
   border-radius: 2px;
   box-shadow: 6px 5px 5px #a3a0a0;
 }
@@ -157,7 +177,7 @@ hr {
   color: #4fb5f0;
 }
 
-.helpButton{
+.helpButton {
   width: 148px;
   display: flex;
   align-items: center;
@@ -173,16 +193,17 @@ hr {
   margin-right: 10px;
 }
 
-.questionLogo{
+.questionLogo {
   width: 19px;
   margin-left: -5px;
 }
+
 .questionLogo:hover {
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
   border-radius: 9px;
 }
 
-.questionLogo2{
+.questionLogo2 {
   width: 19px;
   /* margin-bottom: 10px; */
   margin-right: 7px;
@@ -191,6 +212,16 @@ hr {
 .questionLogo2:hover {
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
   border-radius: 9px;
+}
+
+.closeLogo{
+  width: 25px;
+  margin-left: -5px;
+}
+
+.closeLogo:hover {
+  background: white;
+  border-radius: 14px;
 }
 
 .additionalOptions {
@@ -219,14 +250,15 @@ hr {
   padding: 5px;
   cursor: pointer;
 }
-.exampleQueriesAlph{
+
+.exampleQueriesAlph {
   width: 95%;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
 
-.exampleQueriesAlph button{
+.exampleQueriesAlph button {
   margin-bottom: 10px;
 }
 
@@ -259,7 +291,7 @@ hr {
   background: #86d2ff;
 }
 
-h5{
+h5 {
   font-size: 12px;
 }
 
@@ -375,6 +407,27 @@ h5{
 .filters:hover {
 
   color: #4fb5f0;
+}
+
+.ReactModal__Content--after-open {
+  width: 26%;
+  height: 29%;
+  position: absolute !important;
+  inset: 35%!important;
+  border: 1px solid rgb(204, 204, 204) !important;
+  background: #973d44 !important;
+  overflow: auto !important;
+  border-radius: 4px !important;
+  outline: none !important;
+  padding: 20px !important;
+}
+
+.ReactModal__Content--after-open p {
+  font-size: 23px;
+  font-weight: normal;
+  color: white;
+  line-height: 42px;
+  padding: 4px;
 }
 
 
