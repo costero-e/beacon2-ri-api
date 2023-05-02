@@ -325,7 +325,7 @@ function Layout() {
 
           <div className="example">
             {cohorts === false &&
-              <div>
+              <div className="bulbExample">
                 <button className="exampleQueries" onClick={handleExQueries}>Query Examples</button>
                 <img className="bulbLogo" src="../light-bulb.png" alt='bulbIcon'></img>
                 <div>

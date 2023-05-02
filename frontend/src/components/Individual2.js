@@ -22,6 +22,8 @@ function Individuals2(props) {
   const [operator, setOperator] = useState([])
   const [timeOut, setTimeOut] = useState(false)
 
+  const [logInRequired, setLoginRequired] = useState(true)
+  const [messageLogin, setMessageLogin]= useState('')
 
   const [limit, setLimit] = useState(10)
   const [skip, setSkip] = useState(0)
@@ -50,6 +52,13 @@ function Individuals2(props) {
 
       const token = getStoredToken()
       console.log(token)
+      if (token !== undefined) {
+        console.log("asdasjd")
+        setLoginRequired(false)
+      } else {
+        setMessageLogin("PLEASE CREATE AN ACCOUNT AND LOG IN FOR QUERYING")
+        console.log("ERROR")
+      }
 
       if (props.descendantTerm === "true") {
         descendantTerm = true
@@ -145,11 +154,12 @@ function Individuals2(props) {
           jsonData1 = JSON.stringify(jsonData1)
           console.log(jsonData1)
 
-          res = await axios.post("http://localhost:5050/api/individuals",jsonData1, {
+          res = await axios.post("http://localhost:5050/api/individuals", jsonData1, {
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }})
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          })
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
@@ -207,7 +217,7 @@ function Individuals2(props) {
             setNumberResults(res.data.responseSummary.numTotalResults)
             setBoolean(res.data.responseSummary.exists)
           }
-      
+
         }
 
       } catch (error) {
@@ -255,109 +265,113 @@ function Individuals2(props) {
   }
 
   return (
-
     <div>
-      <form className='skipLimit'>
-        <div className='skipAndLimit'>
-          <div>
-            <label>SKIP</label>
-            <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
-          </div>
-          <div>
-            <label>LIMIT</label>
-            <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
-          </div>
-          <button type="button" onClick={onSubmit} className="skipLimitButton">APPLY</button>
-        </div>
+      {logInRequired === false &&
+
+        <div>
+          <form className='skipLimit'>
+            <div className='skipAndLimit'>
+              <div className='moduleSkip'>
+                <label>SKIP</label>
+                <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
+              </div>
+              <div className='moduleLimit'>
+                <label>LIMIT</label>
+                <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
+              </div>
+              <button type="button" onClick={onSubmit} className="skipLimitButton">APPLY</button>
+            </div>
 
 
-      </form>
+          </form>
 
-      <div> {timeOut &&
-        <div className='selectGranularity'>
-          <button className='typeResults' onClick={handleTypeResults1}> Boolean</button>
-          <button className='typeResults' onClick={handleTypeResults2}>Count</button>
-          <button className='typeResults' onClick={handleTypeResults3}>Full</button>
+          <div> {timeOut &&
+            <div className='selectGranularity'>
+              <button className='typeResults' onClick={handleTypeResults1}> Boolean</button>
+              <button className='typeResults' onClick={handleTypeResults2}>Count</button>
+              <button className='typeResults' onClick={handleTypeResults3}>Full</button>
+            </div>}
+
+            <div className='resultsContainer'>
+              {show1 && boolean && <p className='p1'>YES</p>}
+              {show1 && !boolean && <p className='p1'>N0</p>}
+
+              {show2 && numberResults !== 1 && <p className='p1'>{numberResults} &nbsp; Results</p>}
+              {show2 && numberResults === 1 && <p className='p1'>{numberResults} &nbsp; Result</p>}
+
+              {show3 && <div className="results">
+
+                {!error && results[0] && results.map((result) => {
+
+
+                  return (
+                    <div className="resultsIndividuals">
+
+                      <div>
+                        {result.id && <h2>ID</h2>}
+                        {result.id && <h3>{result.id}</h3>}
+                        {result.diseases && <h2>Disease</h2>}
+
+                        {result.diseases && result.diseases.map((value) => {
+                          return (
+                            <div className='diseasesContainer'>
+                              <h3>{value.diseaseCode.id}</h3>
+                              <h3>{value.diseaseCode.label}</h3>
+                            </div>)
+                        })}
+
+                      </div>
+
+                      <div>
+                        {result.ethnicity && <h2>Ethnicity</h2>}
+                        {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
+                        {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
+                        {result.geographicOrigin && <h2>Geographic Origin</h2>}
+                        {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
+                        {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
+                        {result.sex && <h2>Sex</h2>}
+                        {result.sex.id && <h3>{result.sex.id}</h3>}
+                        {result.sex.label && <h3>{result.sex.label}</h3>}
+                      </div>
+                      <div className='measuresContainer'>
+                        {result.measures && <h2>Measures</h2>}
+                        {result.measures.map((value) => {
+                          return (
+                            <div className='measures'>
+                              <div>
+                                <h4>assayCode ID:</h4>
+                                <h3>{value.assayCode.id}</h3>
+                              </div>
+                              <div>
+                                <h4>assayCode label:</h4>
+                                <h3>{value.assayCode.label}</h3>
+                              </div>
+
+                              <div>
+                                <h4>Measurament value quantity ID and label:</h4>
+                                <h3>{value.measurementValue.quantity.unit.id}</h3>
+                                <h3>{value.measurementValue.quantity.unit.label}</h3>
+                              </div>
+                              <div>
+                                <h4>Measurament value quantity value:</h4>
+                                <h3>{value.measurementValue.quantity.value}</h3>
+                              </div>
+                            </div>)
+                        })}
+                      </div>
+
+                    </div>
+                  )
+
+                })}
+
+                {error && <h3>&nbsp; {error} </h3>}
+              </div>
+              }
+            </div>
+          </div >
         </div>}
-
-        <div className='resultsContainer'>
-          {show1 && boolean && <p className='p1'>YES</p>}
-          {show1 && !boolean && <p className='p1'>N0</p>}
-
-          {show2 && numberResults !== 1 && <p className='p1'>{numberResults} &nbsp; Results</p>}
-          {show2 && numberResults === 1 && <p className='p1'>{numberResults} &nbsp; Result</p>}
-
-          {show3 && <div className="results">
-
-            {!error && results[0] && results.map((result) => {
-
-
-              return (
-                <div className="resultsIndividuals">
-
-                  <div>
-                    {result.id && <h2>ID</h2>}
-                    {result.id && <h3>{result.id}</h3>}
-                    {result.diseases && <h2>Disease</h2>}
-
-                    {result.diseases && result.diseases.map((value) => {
-                      return (
-                        <div className='diseasesContainer'>
-                          <h3>{value.diseaseCode.id}</h3>
-                          <h3>{value.diseaseCode.label}</h3>
-                        </div>)
-                    })}
-
-                  </div>
-
-                  <div>
-                    {result.ethnicity && <h2>Ethnicity</h2>}
-                    {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
-                    {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
-                    {result.geographicOrigin && <h2>Geographic Origin</h2>}
-                    {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
-                    {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
-                    {result.sex && <h2>Sex</h2>}
-                    {result.sex.id && <h3>{result.sex.id}</h3>}
-                    {result.sex.label && <h3>{result.sex.label}</h3>}
-                  </div>
-                  <div className='measuresContainer'>
-                    {result.measures && <h2>Measures</h2>}
-                    {result.measures.map((value) => {
-                      return (
-                        <div className='measures'>
-                          <div>
-                            <h4>assayCode ID:</h4>
-                            <h3>{value.assayCode.id}</h3>
-                          </div>
-                          <div>
-                            <h4>assayCode label:</h4>
-                            <h3>{value.assayCode.label}</h3>
-                          </div>
-
-                          <div>
-                            <h4>Measurament value quantity ID and label:</h4>
-                            <h3>{value.measurementValue.quantity.unit.id}</h3>
-                            <h3>{value.measurementValue.quantity.unit.label}</h3>
-                          </div>
-                          <div>
-                            <h4>Measurament value quantity value:</h4>
-                            <h3>{value.measurementValue.quantity.value}</h3>
-                          </div>
-                        </div>)
-                    })}
-                  </div>
-
-                </div>
-              )
-
-            })}
-
-            {error && <h3>&nbsp; {error} </h3>}
-          </div>
-          }
-        </div>
-      </div >
+      {logInRequired === true && <h3>{messageLogin}</h3>}
     </div>
   )
 }

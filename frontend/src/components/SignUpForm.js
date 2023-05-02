@@ -55,7 +55,7 @@ class SignUpForm extends Component {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 },
-                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=tcoIeOyzL53tRhSU4OcAsh70Z9HjYZMI'
+                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=GIab10PSySWRFVIKJQUtyJoI1QkMd5FI'
            
             })
             

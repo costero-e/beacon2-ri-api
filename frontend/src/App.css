@@ -18,18 +18,13 @@ html {
 .searchButton {
   padding-right: 4px;
   padding-left: 4px;
-  padding-top: 3px;
-  height: 38px;
-  background: white;
-  border: 2px solid #c11524;
-  box-shadow: 6px 5px 5px #a3a0a0;
   cursor: pointer;
-  margin-left: 26px;
-  width: 39px;
+  margin-left: 16px;
 }
 
 .searchButton:hover {
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
+  border-radius: 4px;
 }
 
 .searchButton2 {
@@ -55,11 +50,11 @@ html {
   margin-right: 10px;
   margin-left: 10px;
   justify-content: center;
+  height: 35px;
 }
 
 
 .form-select {
-  height: 40px;
   margin-right: 3px;
   cursor: pointer;
 }
@@ -93,10 +88,11 @@ html {
 }
 
 .searchIcon {
-  height: 20px;
+  width: 34px;
+
 }
 
-.forwardIcon{
+.forwardIcon {
   width: 29px;
 }
 
@@ -169,6 +165,12 @@ hr {
   margin-left: 10px;
 }
 
+.bulbExample {
+  display: flex;
+  margin-right: 11px;
+  margin-left: -23px;
+}
+
 .exampleQuery:hover {
   color: #4fb5f0;
 }
@@ -214,7 +216,7 @@ hr {
   border-radius: 9px;
 }
 
-.closeLogo{
+.closeLogo {
   width: 25px;
   margin-left: -5px;
 }
@@ -272,7 +274,7 @@ hr {
 
 .advSearch {
   margin-top: 5px;
-  margin-left: 11px;
+  margin-left: 23px;
   width: fit-content;
   background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
   border: none;
@@ -410,12 +412,12 @@ h5 {
 }
 
 .ReactModal__Content--after-open {
-  width: 26%;
+  width: 30vw;
   height: 29%;
   position: absolute !important;
-  inset: 35%!important;
+  inset: 35% !important;
   border: 1px solid rgb(204, 204, 204) !important;
-  background: #973d44 !important;
+  background: #dc434e !important;
   overflow: auto !important;
   border-radius: 4px !important;
   outline: none !important;
@@ -423,10 +425,10 @@ h5 {
 }
 
 .ReactModal__Content--after-open p {
-  font-size: 23px;
+  font-size: 21px;
   font-weight: normal;
   color: white;
-  line-height: 42px;
+  line-height: 38px;
   padding: 4px;
 }
 
@@ -440,9 +442,6 @@ h5 {
     width: 70%;
   }
 
-  .form-select {
-    height: 30px;
-  }
 
   .searchButton {
     height: 30px;
