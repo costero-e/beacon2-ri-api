@@ -30,8 +30,9 @@ html {
 .searchButton2 {
   cursor: pointer;
   /* margin-left: 26px; */
-  margin: 16px;
-  margin-top: 26px;
+ margin-left: 5px;
+ display: flex;
+ align-items: center;
 }
 
 .searchButton2:hover {
@@ -100,6 +101,13 @@ html {
   display: flex;
   flex-direction: column;
   align-content: center;
+  align-items: center;
+}
+
+.divFlex{
+  width: 168%;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .container1 {
@@ -136,6 +144,7 @@ select {
   font-size: medium;
   border-radius: 2px;
   box-shadow: 6px 5px 5px #a3a0a0;
+  width: 150px;
 }
 
 
@@ -180,7 +189,7 @@ hr {
 }
 
 .helpButton {
-  width: 148px;
+  width: 195px;
   display: flex;
   align-items: center;
 
@@ -235,8 +244,9 @@ hr {
 .example {
   display: flex;
   align-items: center;
-  /* justify-content: space-around; */
-  margin: 32px;
+  margin-top: 25px;
+  margin-bottom: 16px;
+  margin-right: 108px;
 }
 
 .container1 a {

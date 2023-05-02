@@ -303,19 +303,19 @@ function Layout() {
               <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
               {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
             </form>}
-        </div>
+       
         {cohorts &&
-          <div>
+       
             <form className="d-flex2" onSubmit={onSubmit}>
               <button className="searchButton2" type="submit"><img className="forwardIcon" src="./adelante.png" alt='searchIcon'></img></button>
             </form>
-          </div>}
+          }
         {cohorts && results === 'Cohorts' &&
 
           <div> 
             <Cohorts />
           </div>}
-
+          </div>
 
         <div className="additionalOptions">
 
