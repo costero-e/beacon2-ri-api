@@ -54,11 +54,11 @@ function FilteringTermsIndividuals(props) {
             props.setPlaceholder(props.placeholder.replace(`${tag.value},`, ""))
         } else {
             props.setPlaceholder(props.placeholder.replace(tag.value, ""))
-            props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
+            props.setPlaceholder('filtering term comma-separated, ID><=value')
         }
 
         if (props.placeholder === '') {
-            props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
+            props.setPlaceholder('filtering term comma-separated, ID><=value')
         }
 
 
@@ -280,7 +280,7 @@ function FilteringTermsIndividuals(props) {
 
 
             if (stringQuery === '' || stringQuery === ',') {
-                props.setPlaceholder('key=value, key><=value, or filtering term comma-separated')
+                props.setPlaceholder('filtering term comma-separated, ID><=value')
             } else {
 
                 props.setPlaceholder(stringQuery)
@@ -288,13 +288,13 @@ function FilteringTermsIndividuals(props) {
 
 
         } else {
-            if ((e.target.value != props.placeholder) && (props.placeholder != 'key=value, key><=value, or filtering term comma-separated')) {
+            if ((e.target.value != props.placeholder) && (props.placeholder != 'filtering term comma-separated, ID><=value')) {
                 let stringQuery = `${props.placeholder},` + e.target.value
-                stringQuery = stringQuery.replace('key=value, key><=value, or filtering term comma-separated', '')
+                stringQuery = stringQuery.replace('filtering term comma-separated, ID><=value', '')
                 props.setPlaceholder(stringQuery)
             } else {
                 let stringQuery = e.target.value
-                stringQuery = stringQuery.replace('key=value, key><=value, or filtering term comma-separated', '')
+                stringQuery = stringQuery.replace('filtering term comma-separated, ID><=value', '')
                 props.setPlaceholder(stringQuery)
             }
 

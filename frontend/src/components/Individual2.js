@@ -99,6 +99,7 @@ function Individuals2(props) {
             arrayFilter.push(alphaNumFilter)
 
           } else {
+            
             const filter2 = {
               "id": element,
               "includeDescendantTerms": descendantTerm
