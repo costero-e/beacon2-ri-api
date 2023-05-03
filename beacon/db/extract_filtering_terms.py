@@ -60,6 +60,10 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
             if isinstance(v, str): 
                 if v == ontology_id + ':' + term_id:
                     field = k
+                    for key, value in result.items():
+                        if key == 'label':
+                            label = value
+                        break
                     break
             elif isinstance(v, dict):
                 for k2, v2 in v.items():
@@ -68,50 +72,86 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                             if isinstance(item_list, str): 
                                 if item_list == ontology_id + ':' + term_id:
                                     field = k + '.' + k2
+                                    for key, value in v.items():
+                                        if key == 'label':
+                                            label = value
+                                            break
                                     break
                             elif isinstance(item_list, dict):
                                 for k21, v21 in item_list.items():
                                     if isinstance(v21, str):
                                         if v21 == ontology_id + ':' + term_id:
                                             field = k + '.' + k2 + '.' + k21
+                                            for key, value in item_list.items():
+                                                if key == 'label':
+                                                    label = value
+                                                    break
                                             break
                                     elif isinstance(v21,dict):
                                         for k22, v22 in v21.items():
                                             if v22 == v21 == ontology_id + ':' + term_id:
                                                 field = k + '.' + k2 + '.' + k22
+                                                for key, value in v21.items():
+                                                    if key == 'label':
+                                                        label = value
+                                                        break
                                                 break
                     elif v2 == ontology_id + ':' + term_id:
                         field = k + '.' + k2
-                        break 
+                        for key, value in v.items():
+                            if key == 'label':
+                                label = value
+                                break
+                        break
             elif isinstance(v, list):
                 for item in v:
                     if isinstance(item, str): 
                         if item == ontology_id + ':' + term_id:
                             field = k
+                            for key, value in result.items():
+                                if key == 'label':
+                                    label = value
+                                    break
                             break
                     elif isinstance(item, dict):
                         for k2, v2 in item.items():
                             if isinstance(v2, str):
                                 if v2 == ontology_id + ':' + term_id:
                                     field = k + '.' + k2
-                                    break 
+                                    for key, value in item.items():
+                                        if k == 'label':
+                                            label = v
+                                            break
+                                    break
                             elif isinstance(v2, dict):
                                 for k3, v3 in v2.items():
                                     if isinstance(v3, str):
                                         if v3 == ontology_id + ':' + term_id:
                                             field = k + '.' + k2 + '.' + k3
+                                            for key, value in v2.items():
+                                                if key == 'label':
+                                                    label = value
+                                                    break
                                             break 
                                     elif isinstance(v3, dict):
                                         for k4, v4 in v3.items():
                                             if isinstance(v4, str):
                                                 if v4 == ontology_id + ':' + term_id:
                                                     field = k + '.' + k2 + '.' + k3 + '.' + k4
-                                                break 
+                                                    for key, value in v3.items():
+                                                        if key == 'label':
+                                                            label = value
+                                                            break
+                                                    break 
                                             elif isinstance(v4, dict):
                                                 for k5, v5 in v4.items():
                                                     if v5 == ontology_id + ':' + term_id:
                                                         field = k + '.' + k2 + '.' + k3 + '.' + k4 + '.' + k5
-                                                        break
+                                                        for key, value in v4.items():
+                                                            if key == 'label':
+                                                                label = value
+                                                                break
+                                                        break 
 
 
         if '.' in field:
@@ -123,9 +163,13 @@ def get_ontology_field_name(ontology_id:str, term_id:str, collection:str):
                     final_field = item
                 else:
                     final_field = final_field + '.' + item
-            return final_field
+            final_dict={}
+            final_dict['field']=final_field
+            final_dict['label']=label
+            return final_dict
         else:
             pass
+
 
 def insert_all_ontology_terms_used():
     collections = client.beacon.list_collection_names()
@@ -137,88 +181,6 @@ def insert_all_ontology_terms_used():
         terms = get_filtering_object(terms_ids, c_name)
         if len(terms) > 0:
             client.beacon.filtering_terms.insert_many(terms)
-
-def get_label_and_ontology(field: str, ontology:str, collection_name: str):
-    query={}
-    field_id = field + '.id'
-    query[field_id]=ontology
-    print(query)
-    label_field = field + '.label'
-    remove_id={label_field:1,'_id':0}
-    print(remove_id)
-    if collection_name == 'individuals':
-        docs = get_filtering_documents(
-            client.beacon.individuals,
-            query,
-            remove_id,
-            0,
-            1
-        )
-    elif collection_name == 'analyses':
-        docs = get_filtering_documents(
-            client.beacon.analyses,
-            query,
-            remove_id,
-            0,
-            1
-        )
-    elif collection_name == 'biosamples':
-        docs = get_filtering_documents(
-            client.beacon.biosamples,
-            query,
-            remove_id,
-            0,
-            1
-        )
-    elif collection_name == 'cohorts':
-        docs = get_filtering_documents(
-            client.beacon.cohorts,
-            query,
-            remove_id,
-            0,
-            1
-        )
-    elif collection_name == 'datasets':
-        docs = get_filtering_documents(
-            client.beacon.datasets,
-            query,
-            remove_id,
-            0,
-            1
-        )
-    elif collection_name == 'genomicVariations':
-        docs = get_filtering_documents(
-            client.beacon.genomicVariations,
-            query,
-            remove_id,
-            0,
-            1
-        )
-    elif collection_name == 'runs':
-        docs = get_filtering_documents(
-            client.beacon.runs,
-            query,
-            remove_id,
-            0,
-            1
-        )
-
-    try:
-        for doc in docs:
-            print('doc is: {}'.format(doc))
-            doc = str(doc)
-            doc_list = doc.split(':')
-            label_dict = doc_list[-1]
-            label_list = label_dict.split('}')
-            label = label_list[0]
-            label = label.split("'")
-            label = label[1]
-    except Exception:
-        pass
-    try:
-        return label
-    except Exception:
-        pass
 
 def find_ontology_terms_used(collection_name: str) -> List[Dict]:
     print(collection_name)
@@ -243,38 +205,40 @@ def get_filtering_object(terms_ids: list, collection_name: str):
         term_id = ontology[1]
         #if ontology_id not in ontologies:
             #ontologies[ontology_id] = load_ontology(ontology_id)
-        field = get_ontology_field_name(ontology_id, term_id, collection_name)
-        print(field)
-        if field is not None:
-            label = get_label_and_ontology(field, onto, collection_name)
-            print(label)
-            if onto not in list_of_ontologies:
-                list_of_ontologies.append(onto)
-                if label:
-                    terms.append({
-                                    'type': 'Ontology filter',
-                                    'id': onto,
-                                    'label': label,
-                                    # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
-                                    #'count': get_ontology_term_count(collection_name, onto),
-                                    'scope': collection_name                    
-                                })
+        field_dict = get_ontology_field_name(ontology_id, term_id, collection_name)
+        try:
+            field = field_dict['field']
+            label = field_dict['label']
+            if field is not None:
+                if onto not in list_of_ontologies:
+                    list_of_ontologies.append(onto)
+                    if label:
+                        terms.append({
+                                        'type': 'ontology',
+                                        'id': onto,
+                                        'label': label,
+                                        # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                                        #'count': get_ontology_term_count(collection_name, onto),
+                                        'scope': collection_name                    
+                                    })
 
-                    terms.append({
-                                            'type': 'Alphanumeric filter',
-                                            'id': field,
-                                            # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
-                                            #'count': get_ontology_term_count(collection_name, onto),
-                                            'scope': collection_name
-                                        })
-                    terms.append({
-                                    'type': 'Custom filter',
-                                    'id': '{}:{}'.format(field,label),
-                                    # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
-                                    #'count': get_ontology_term_count(collection_name, onto),
-                                    'scope': collection_name                    
-                                })
-            print(terms)
+                        terms.append({
+                                                'type': 'alphanumeric',
+                                                'id': field,
+                                                # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                                                #'count': get_ontology_term_count(collection_name, onto),
+                                                'scope': collection_name
+                                            })
+                        terms.append({
+                                        'type': 'custom',
+                                        'id': '{}:{}'.format(field,label),
+                                        # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
+                                        #'count': get_ontology_term_count(collection_name, onto),
+                                        'scope': collection_name                    
+                                    })
+                print(terms)
+        except Exception:
+            pass
         
             
     path = "/beacon/beacon/db/filtering_terms/filtering_terms_{}.txt".format(collection_name)
