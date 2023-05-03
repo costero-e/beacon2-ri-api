@@ -23,7 +23,7 @@ function Individuals2(props) {
   const [timeOut, setTimeOut] = useState(false)
 
   const [logInRequired, setLoginRequired] = useState(true)
-  const [messageLogin, setMessageLogin]= useState('')
+  const [messageLogin, setMessageLogin] = useState('')
 
   const [limit, setLimit] = useState(10)
   const [skip, setSkip] = useState(0)
@@ -53,7 +53,7 @@ function Individuals2(props) {
       const token = getStoredToken()
       console.log(token)
       if (token !== undefined) {
-      
+
         setLoginRequired(false)
       } else {
         setMessageLogin("PLEASE CREATE AN ACCOUNT AND LOG IN FOR QUERYING")
@@ -76,7 +76,7 @@ function Individuals2(props) {
 
           element = element.trim()
 
-          if (element.includes('=') || element.includes('>') || element.includes('<')) {
+          if (element.includes('=') || element.includes('>') || element.includes('<') || element.includes('!') || element.includes('%')) {
 
             if (element.includes('=')) {
               queryArray[index] = element.split('=')
@@ -85,9 +85,15 @@ function Individuals2(props) {
             else if (element.includes('>')) {
               queryArray[index] = element.split('>')
               queryArray[index].push('>')
-            } else {
+            } else if (element.includes('<')) {
               queryArray[index] = element.split('<')
               queryArray[index].push('<')
+            } else if (element.includes('!')) {
+              queryArray[index] = element.split('!')
+              queryArray[index].push('!')
+            } else {
+              queryArray[index] = element.split('%')
+              queryArray[index].push('%')
             }
 
             console.log(queryArray)
@@ -99,7 +105,7 @@ function Individuals2(props) {
             arrayFilter.push(alphaNumFilter)
 
           } else {
-            
+
             const filter2 = {
               "id": element,
               "includeDescendantTerms": descendantTerm
@@ -115,7 +121,7 @@ function Individuals2(props) {
 
       try {
 
-        if (props.value != '' && props.operator != '' && props.ID != '') {
+        if (props.value !== '' && props.operator !== '' && props.ID !== '') {
 
           //alphanumerical query
 
@@ -157,7 +163,7 @@ function Individuals2(props) {
           console.log(token)
 
           res = await axios.post("http://localhost:5050/api/individuals", jsonData1)
-         
+
 
 
           setNumberResults(res.data.responseSummary.numTotalResults)
@@ -267,28 +273,31 @@ function Individuals2(props) {
       {logInRequired === false &&
 
         <div>
-          <form className='skipLimit'>
-            <div className='skipAndLimit'>
-              <div className='moduleSkip'>
-                <label>SKIP</label>
-                <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
-              </div>
-              <div className='moduleLimit'>
-                <label>LIMIT</label>
-                <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
-              </div>
-              <button type="button" onClick={onSubmit} className="skipLimitButton">APPLY</button>
-            </div>
 
-
-          </form>
 
           <div> {timeOut &&
-            <div className='selectGranularity'>
-              <h4>Granularity:</h4>
-              <button className='typeResults' onClick={handleTypeResults1}><h5>Boolean</h5></button>
-              <button className='typeResults' onClick={handleTypeResults2}><h5>Count</h5></button>
-              <button className='typeResults' onClick={handleTypeResults3}><h5>Full response</h5></button>
+            <div>
+              <form className='skipLimit'>
+                <div className='skipAndLimit'>
+                  <div className='moduleSkip'>
+                    <label>SKIP</label>
+                    <input className="skipForm" type="number" autoComplete='on' placeholder={0} onChange={(e) => handleSkipChanges(e)} aria-label="Skip" />
+                  </div>
+                  <div className='moduleLimit'>
+                    <label>LIMIT</label>
+                    <input className="limitForm" type="number" autoComplete='on' placeholder={10} onChange={(e) => handleLimitChanges(e)} aria-label="Limit" />
+                  </div>
+                  <button type="button" onClick={onSubmit} className="skipLimitButton">APPLY</button>
+                </div>
+
+
+              </form>
+              <div className='selectGranularity'>
+                <h4>Granularity:</h4>
+                <button className='typeResults' onClick={handleTypeResults1}><h5>Boolean</h5></button>
+                <button className='typeResults' onClick={handleTypeResults2}><h5>Count</h5></button>
+                <button className='typeResults' onClick={handleTypeResults3}><h5>Full response</h5></button>
+              </div>
             </div>}
 
             <div className='resultsContainer'>

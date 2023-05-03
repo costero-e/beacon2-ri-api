@@ -61,6 +61,7 @@ html {
 .form-select {
   margin-right: 3px;
   cursor: pointer;
+  border: 2px solid #e16e00;
 }
 
 .form-select2 {
@@ -187,7 +188,7 @@ ul {
   /* width: 400px; */
   height: 68px;
   align-items: center;
-  margin-top: 59px;
+  margin-top: 51px;
 
 }
 .container1 a{
@@ -200,10 +201,8 @@ ul {
 }
 
 .elixirLogo {
-  height: 62px;
-  margin-top: 48px;
-  background-color: #023452;
-  padding: 10px;
+  height: 124px;
+  margin-top: 35px;
 }
 
 select {
@@ -324,7 +323,7 @@ hr {
     flex-direction: row-reverse;
     justify-content: center;
     margin-bottom: 18px;
-    margin-top: 16px;
+    margin-top: 11px;
 }
 
 
@@ -372,16 +371,18 @@ hr {
 .additionalOptions {
   width: 100vw;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
 }
+
 
 .example {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 20px;
-  margin-bottom: 10px;
+  margin-top: 30px;
+  margin-bottom: 15px;
+  margin-left: 161px;
 }
 
 .extraSections {
@@ -526,32 +527,6 @@ h5 {
   width: 246px;
 }
 
-.returnBasic {
-  background: linear-gradient(356deg, #6ac5ff 50%, #86d2ff 80%);
-  border: none;
-  /* margin-top: 38px; */
-  padding-right: 10px;
-  padding-left: 10px;
-  padding-top: 9px;
-  padding-bottom: 9px;
-  box-shadow: 0px 2px 2px #a3a0a0;
-  border-radius: 3px;
-  font-feature-settings: "pcap", "c2pc";
-  font-variant: all-petite-caps;
-  font-size: 18px;
-  cursor: pointer;
-  width: -moz-fit-content;
-  width: fit-content;
-  /* MARGIN-RIGHT: 60px; */
-  /* margin-right: 67px; */
-  /* margin: 61px; */
-  margin-top: 28px;
-  margin-bottom: 19px;
-}
-
-.returnBasic:hover {
-  background: #86d2ff;
-}
 
 .filters {
   padding: 4px;
