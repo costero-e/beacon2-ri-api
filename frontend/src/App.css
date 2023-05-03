@@ -190,11 +190,13 @@ ul {
   margin-top: 59px;
 
 }
-
-.logos a {
-  padding: 0px;
-  margin: 0px;
-  width: 65px;
+.container1 a{
+  display: flex;
+  align-content: center;
+  justify-content: center;
+  width: 20%;
+  margin-right: 80px;
+  margin-left: 80px;
 }
 
 .elixirLogo {
@@ -393,13 +395,6 @@ hr {
 
 }
 
-
-.container1 a {
-  display: flex;
-  align-content: center;
-  justify-content: center;
-  width: 35%;
-}
 
 .exampleQuery {
   border: none;
