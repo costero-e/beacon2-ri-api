@@ -209,6 +209,14 @@ def get_filtering_object(terms_ids: list, collection_name: str):
         try:
             field = field_dict['field']
             label = field_dict['label']
+            if label == 'Weight':
+                ontology_label = 'Weight in Kilograms'
+            elif label == 'Height-standing':
+                ontology_label = 'Height-standing in Centimeters'
+            elif label == 'BMI':
+                ontology_label = 'BMI in Kilograms per Square Meter'
+            else:
+                ontology_label = label
             if field is not None:
                 if onto not in list_of_ontologies:
                     list_of_ontologies.append(onto)
@@ -216,7 +224,7 @@ def get_filtering_object(terms_ids: list, collection_name: str):
                         terms.append({
                                         'type': 'ontology',
                                         'id': onto,
-                                        'label': label,
+                                        'label': ontology_label,
                                         # TODO: Use conf.py -> beaconGranularity to not disclouse counts in the filtering terms
                                         #'count': get_ontology_term_count(collection_name, onto),
                                         'scope': collection_name                    
