@@ -6,7 +6,6 @@
 .appAside {
     width: 50%;
     background-color: #0b5e81;
-    height: 100vh;
 }
 
 .appForm {
@@ -44,7 +43,13 @@
     padding-bottom: 5px;
 }
 
-
+.appForm h3{
+    color: #e16e00;
+    text-transform: uppercase;
+    margin-left: 105px;
+    margin-top: 17px;
+    font-size: 14px;
+}
 
 .formTitleLink-active {
     color: white;
@@ -56,6 +61,10 @@
 
 .formField {
     margin-bottom: 40px;
+}
+
+.formFields{
+    margin-left: 89px;
 }
 
 .formFieldLabel {

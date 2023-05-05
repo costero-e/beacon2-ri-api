@@ -1,12 +1,17 @@
 import './SignUpForm.css'
 import { NavLink } from 'react-router-dom';
-import { Router } from 'react-router-dom';
+import { Router, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Route, Routes } from 'react-router-dom';
 import { Component } from 'react';
+import { useState } from 'react';
+import { Navigate } from 'react-router-dom';
+import { AuthContext } from './context/AuthContext';
+import { useContext } from 'react';
 
 const apiURL = 'http://localhost:8080/auth/admin/realms/Beacon/users'
 const apiURL2 = 'http://localhost:8080/auth/realms/Beacon/protocol/openid-connect/token'
+
 
 class SignUpForm extends Component {
 
@@ -18,21 +23,13 @@ class SignUpForm extends Component {
             password: "",
             userName: "",
             name: "",
-            surname: ""
+            surname: "",
+            error: ""
         };
 
         this.handleChange = this.handleChange.bind(this);
-     
-    }
 
-    handleChange(event) {
-        let target = event.target;
-        let value = target.type === "checkbox" ? target.checked : target.value;
-        let name = target.name;
 
-        this.setState({
-            [name]: value
-        });
     }
 
 
@@ -45,54 +42,77 @@ class SignUpForm extends Component {
             [name]: value
         });
     }
+
+
+    handleChange(event) {
+        let target = event.target;
+        let value = target.type === "checkbox" ? target.checked : target.value;
+        let name = target.name;
+
+        this.setState({
+            [name]: value
+        });
+    }
+
 
     handleSubmit = async (e) => {
-      
-            e.preventDefault();
 
-            const resp = await fetch(apiURL2, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=GIab10PSySWRFVIKJQUtyJoI1QkMd5FI'
-           
-            })
-            
-            const response2 = await resp.json()
-            console.log(response2)
-            console.log(response2.access_token)
+        e.preventDefault();
+
+        const resp = await fetch(apiURL2, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'grant_type=client_credentials&client_id=admin-cli&client_secret=QOzMITQmtaoDrOenXu38pyDq2x0feCoO'
+
+        })
+
+        const response2 = await resp.json()
+        console.log(response2)
+        console.log(response2.access_token)
 
 
-            const yourNewData = {
-                "firstName": this.name,
-                "lastName": this.surname,
-                "email": this.email,
-                "enabled": "true",
-                "username": this.userName,
-                "credentials": [{ "type": "password", "value": this.password, "temporary": false }],
-                
-            }
+        const yourNewData = {
+            "firstName": this.state.name,
+            "lastName": this.state.surname,
+            "email": this.state.email,
+            "enabled": "true",
+            "username": this.state.userName,
+            "credentials": [{ "type": "password", "value": this.state.password, "temporary": false }],
 
-            const response = await fetch(apiURL, {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json;charset=UTF-8',
-                    'Authorization': `Bearer ${response2.access_token}`, // notice the Bearer before your token
-                },
-                body: JSON.stringify(yourNewData)
-            })
+        }
+        console.log(yourNewData)
 
-            const permissionsRes= await fetch(
-                "http://localhost:5051", {
-                method: 'POST',
-                headers: {
-                    'Content-type': 'application/json;',
-                    'Authorization': `Bearer ${response2.access_token}`, // notice the Bearer before your token
-                },
-            })
-            
-      
+        const response = await fetch(apiURL, {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json;charset=UTF-8',
+                'Authorization': `Bearer ${response2.access_token}`, // notice the Bearer before your token
+            },
+            body: JSON.stringify(yourNewData)
+        })
+        console.log(response)
+
+
+        if (response.status === 409) {
+
+            this.setState({
+                ["error"]: "This username already exsists. Please try with a different one"
+            });
+
+        }
+
+        const permissionsRes = await fetch(
+            "http://localhost:5051/", {
+            method: 'POST',
+            headers: {
+                'Content-type': 'application/json;',
+                'Authorization': `Bearer ${response2.access_token}`, // notice the Bearer before your token
+            },
+        })
+        console.log(permissionsRes)
+
     }
 
 
@@ -152,6 +172,7 @@ class SignUpForm extends Component {
                                 <label className="formFieldLabel" htmlFor="userName">
                                     Username
                                 </label>
+                                {this.state.error !== '' && <h3>{this.state.error}</h3>}
                                 <input
                                     type="username"
                                     id="username"
@@ -193,7 +214,7 @@ class SignUpForm extends Component {
                             </div>
 
 
-                            <div className="formField">
+                            <div className="formField2">
 
                                 <button className="formFieldButton"> Sign Up</button>
 
@@ -207,6 +228,7 @@ class SignUpForm extends Component {
                         </form>
                     </div>
                 </div>
+
             </div>
 
         )

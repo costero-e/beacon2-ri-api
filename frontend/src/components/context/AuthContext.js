@@ -48,14 +48,16 @@ function AuthProviderWrapper(props) {
    const logOutUser = () => {
       removeToken();
       setIsLoggedIn(false)
-      navigate("/sign-in")
+      navigate("/")
    }
 
    // Function to check if the user is already authenticated or not
    const authenticateUser = async () => {
-
+    
       const storedToken = localStorage.getItem('authToken');
-     
+      if (storedToken !== undefined){
+         setIsLoggedIn(true)
+      }
       const refreshToken = localStorage.getItem('refreshToken')
       const expirationTime = localStorage.getItem('expirationTime');
       const refreshTime = localStorage.getItem('refreshExpirationTime')

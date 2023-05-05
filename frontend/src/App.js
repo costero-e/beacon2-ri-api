@@ -3,7 +3,6 @@ import 'devextreme/dist/css/dx.light.css';
 import './App.css';
 import { Route, Routes } from 'react-router-dom';
 import React, { useState, useEffect } from 'react';
-import Individuals from './components/Individuals';
 import Individuals2 from './components/Individual2';
 import GenomicVariations from './components/GenomicVariations';
 import Biosamples from './components/Biosamples';
@@ -20,7 +19,7 @@ import SignUpForm from './components/SignUpForm';
 import ResultsDatasets from './components/ResultsDatasets';
 import FilteringTermsIndividuals from './components/FilteringTermsIndividuals';
 
-
+import Select from 'react-select'
 
 import { AuthContext } from './components/context/AuthContext';
 import { useContext } from 'react';
@@ -28,9 +27,10 @@ import { useContext } from 'react';
 import axios from "axios";
 
 import ReactModal from 'react-modal';
+import makeAnimated from 'react-select/animated';
 
 
-import FilteringTermsCohorts from './components/FilteringTermsCohorts';
+
 function Layout() {
 
   const [error, setError] = useState(null)
@@ -40,7 +40,7 @@ function Layout() {
   const [results, setResults] = useState(null)
   const [query, setQuery] = useState(null)
   const [exampleQ, setExampleQ] = useState([])
-  const [showAdvSearch, setAdvSearch] = useState(false)
+  const [showAdv, setShowAdv] = useState(false)
   const [showAlphanumValue, setAlphanumValue] = useState(false)
   const [resultSetType, setResultsetType] = useState(["Select", "HIT", "MISS", "NONE", "ALL"])
   const [resultSet, setResultset] = useState("HIT")
@@ -49,6 +49,8 @@ function Layout() {
 
   const [ID, setId] = useState("")
   const [operator, setOperator] = useState("")
+  const [valueFree, setValueFree] = useState("")
+
   const [value, setValue] = useState("")
 
   const [popUp, setPopUp] = useState(false)
@@ -62,7 +64,7 @@ function Layout() {
   const [showFilteringTerms, setShowFilteringTerms] = useState(false)
   const [filteringTerms, setFilteringTerms] = useState(false)
 
-  const { storeToken, refreshToken, authenticateUser, isLoggedIn, setExpirationTime, setExpirationTimeRefresh } = useContext(AuthContext);
+  const { storeToken, refreshToken, getStoredToken, authenticateUser, setExpirationTime, setExpirationTimeRefresh } = useContext(AuthContext);
 
   const Add = collectionType.map(Add => Add)
 
@@ -74,9 +76,31 @@ function Layout() {
 
   const [isOpenModal1, setIsOpenModal1] = useState(false);
   const [isOpenModal2, setIsOpenModal2] = useState(false);
+  const [isOpenModal4, setIsOpenModal4] = useState(false);
+  const [isOpenModal5, setIsOpenModal5] = useState(false);
+  const [isOpenModal6, setIsOpenModal6] = useState(false);
 
   const [showAlph, setShowAlph] = useState(false)
   const [showAdvButton, setShowAdvButton] = useState(false)
+
+  const animatedComponents = makeAnimated();
+
+  const [state, setstate] = useState({
+    query: '',
+    list: []
+  })
+
+
+
+  const [options, setOptions] = useState([
+    { value: 'CINECA_synthetic_cohort_UK1', label: 'CINECA_synthetic_cohort_UK1' },
+    { value: 'Fake cohort 1', label: 'Fake cohort 1' },
+    { value: 'Fake cohort 2', label: 'Fake cohort 2' }
+  ])
+
+  const [arrayFilteringTerms, setArrayFilteringTerms] = useState([])
+
+  const [showIds, setShowIds] = useState(false)
 
   const handleAddrTypeChange = (e) => {
 
@@ -106,13 +130,37 @@ function Layout() {
   }
 
 
-  const handleAdvancedSearch = (e) => {
-    setAdvSearch(true)
-  }
-
 
   const handleIdChanges = (e) => {
+    setShowIds(true)
     setId(e.target.value)
+    const results = arrayFilteringTerms.filter(post => {
+
+      if (e.target.value === "") {
+        return arrayFilteringTerms
+      } else {
+        if (post !== undefined) {
+          if (post.toLowerCase().includes(e.target.value.toLowerCase())) {
+            return post
+          }
+        } else {
+          if (post.toLowerCase().includes(e.target.value.toLowerCase())) {
+            return post
+          }
+        }
+      }
+
+    })
+    setstate({
+      query: e.target.value,
+      list: results
+    })
+
+    if (e.target.value === '') {
+      setShowIds(false)
+    }
+
+
   }
 
   const handleOperatorChanges = (e) => {
@@ -121,12 +169,10 @@ function Layout() {
   }
 
   const handleValueChanges = (e) => {
-    setValue(e.target.value)
+    setValueFree(e.target.value)
   }
 
-  const handleBasicSearch = (e) => {
-    setAdvSearch(false)
-  }
+
 
   const handleHelpModal1 = () => {
     setIsOpenModal1(true)
@@ -148,6 +194,30 @@ function Layout() {
     setPopUp(false)
   }
 
+  const handleHelpModal4 = () => {
+    setIsOpenModal4(true)
+  }
+  const handleCloseModal4 = () => {
+    setIsOpenModal4(false)
+  }
+
+  const handleHelpModal5 = () => {
+    setIsOpenModal5(true)
+  }
+  const handleCloseModal5 = () => {
+    setIsOpenModal5(false)
+  }
+
+  const handleHelpModal6 = () => {
+    setIsOpenModal6(true)
+  }
+  const handleCloseModal6 = () => {
+    setIsOpenModal6(false)
+  }
+
+
+
+
 
   const handleFilteringTerms = async (e) => {
 
@@ -159,6 +229,7 @@ function Layout() {
         let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms?limit=0")
         setFilteringTerms(res)
         setResults(null)
+
 
       } catch (error) {
         console.log(error)
@@ -182,9 +253,12 @@ function Layout() {
 
   }
 
+  const handleFilteringTermsAll = async (e) => {
+  }
+
   const handleExQueries = () => {
     if (collection === 'Individuals') {
-      setExampleQ(['sex= male, ethnicity=White and Black Caribbean', 'sex=female,cardiomyopathy', 'ethnicity=NCIT:C16352,LOINC:3141-9>50', 'NCIT:C42331'])
+      setExampleQ(['Weight>100', 'NCIT:C16352', 'geographicOrigin=%land%', 'geographicOrigin!England', 'NCIT:C42331'])
     }
   }
 
@@ -192,11 +266,51 @@ function Layout() {
 
   }
 
-  useEffect(() => {
+  const Operatorchange = (e) => {
+    setOperator(e.target.value)
+    console.log()
+  }
 
-    const timer = setTimeout(() => setPopUp(true), 1000);
-    setPopUp(false)
-    return () => clearTimeout(timer);
+  useEffect(() => {
+    const token = getStoredToken()
+
+    if (token === null) {
+      const timer = setTimeout(() => setPopUp(true), 1000);
+      setPopUp(false)
+      return () => clearTimeout(timer);
+    }
+
+
+
+    // declare the data fetching function
+    const fetchData = async () => {
+
+      try {
+        let res = await axios.get("http://localhost:5050/api/individuals/filtering_terms?limit=0")
+        if (res !== null) {
+          res.data.response.filteringTerms.forEach(element => {
+            arrayFilteringTerms.push(element.id)
+          })
+
+          setstate({
+            query: '',
+            list: arrayFilteringTerms
+          })
+        }
+      } catch (error) {
+        console.log(error)
+      }
+
+
+    }
+
+    // call the function
+    fetchData()
+      // make sure to catch any error
+      .catch(console.error);
+
+
+
   }, [])
 
   useEffect(() => {
@@ -205,15 +319,16 @@ function Layout() {
     setResults(null)
 
     if (collection === 'Individuals') {
-      setPlaceholder('key=value, key><=value, or filtering term comma-separated')
+      setPlaceholder('filtering term comma-separated, ID><=value')
       setShowAlph(true)
-      setShowAdvButton(true)
+      setShowAdv(true)
     } else if (collection === 'Biosamples') {
       setPlaceholder('key=value, key><=value, or filtering term comma-separated')
     } else if (collection === 'Cohorts') {
       setShowCohorts(true)
       setShowAlph(false)
-      setShowAdvButton(false)
+      setShowAdv(false)
+      setPlaceholder('Search for any cohort')
     } else if (collection === "Variant") {
       setPlaceholder('chr : pos ref > alt')
     } else if (collection === "Analyses") {
@@ -241,8 +356,6 @@ function Layout() {
     setExampleQ([])
 
 
-
-    setAdvSearch(false)
     setAlphanumValue(false)
 
     try {
@@ -250,13 +363,14 @@ function Layout() {
         setQuery(null)
       }
       if (collection === 'Individuals') {
+      
         setResults('Individuals')
 
       } else if (collection === 'Cohorts') {
         setResults('Cohorts')
       }
 
-
+    
     } catch (error) {
       console.log(error)
       setError(error.response.data.errorMessage)
@@ -265,28 +379,34 @@ function Layout() {
 
   function search(e) {
     setQuery(e.target.value)
+   
     setResults(null)
-
   }
 
   return (
     <div className="container1">
-      <a href="https://www.cineca-project.eu/">
-        <img className="cinecaLogo" src="./CINECA_logo.png" alt='searchIcon'></img>
-      </a>
+      <div className='logos'>
+        <a href="https://www.cineca-project.eu/">
+          <img className="cinecaLogo" src="./CINECA_logo.png" alt='cinecaLogo'></img>
+        </a>
+        <a href="https://elixir-europe.org/">
+          <img className="elixirLogo" src="./white-orange-logo.png" alt='elixirLogo'></img>
+        </a>
+      </div>
 
-      {popUp && <ReactModal
-        isOpen={popUp}
-        onRequestClose={handleCloseModal3}
-        shouldCloseOnOverlayClick={true}
-      >
-        <button onClick={handleCloseModal3}><img className="closeLogo" src="./cancel.png" alt='cancelIcon'></img></button>
+      <div className='Modal1'>
+        {popUp && <ReactModal
+          isOpen={popUp}
+          onRequestClose={handleCloseModal3}
+          shouldCloseOnOverlayClick={true}
+        >
+          <button onClick={handleCloseModal3}><img className="closeLogo" src="./cancel.png" alt='cancelIcon'></img></button>
 
-        <p>Please, bear in mind that you might have to log in to get information from some datasets.</p>
+          <p>Please, bear in mind that you might have to log in to get information from some datasets.</p>
 
-      </ReactModal>
-
-      }
+        </ReactModal>
+        }
+      </div>
 
       <button className="helpButton" onClick={handleHelpModal2}><img className="questionLogo2" src="./question.png" alt='questionIcon'></img><h5>Help for querying</h5></button>
       <nav className="navbar">
@@ -300,31 +420,32 @@ function Layout() {
 
           {cohorts === false &&
             <form className="d-flex" onSubmit={onSubmit}>
-              <input className="formSearch" type="search" placeholder={placeholder} onChange={(e) => search(e)} aria-label="Search" />
-              {!showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
+              <input className="formSearch" type="search" placeholder={placeholder} value={query} onChange={(e) => search(e)} aria-label="Search" />
+              <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>
             </form>}
-       
-        {cohorts &&
-       
+
+          {cohorts &&
+
             <form className="d-flex2" onSubmit={onSubmit}>
-              <button className="searchButton2" type="submit"><img className="forwardIcon" src="./adelante.png" alt='searchIcon'></img></button>
+
+              {results !== 'Cohorts' && <button className="searchButton2" type="submit"><img className="forwardIcon" src="./adelante.png" alt='searchIcon'></img></button>}
             </form>
           }
-        {cohorts && results === 'Cohorts' &&
+          {results === "Cohorts" && <Select
+            closeMenuOnSelect={false}
+            components={animatedComponents}
+            defaultValue={[options[0]]}
+            isMulti
+            options={options}
+          />}
 
-          <div> 
-            <Cohorts />
-          </div>}
-          </div>
+        </div>
+
 
         <div className="additionalOptions">
 
-          {!showAdvSearch && showAdvButton && <button className="advSearch" onClick={handleAdvancedSearch}>
-            Advanced search
-          </button>}
-
           <div className="example">
-            {cohorts === false &&
+            {cohorts === false && collection !== '' &&
               <div className="bulbExample">
                 <button className="exampleQueries" onClick={handleExQueries}>Query Examples</button>
                 <img className="bulbLogo" src="../light-bulb.png" alt='bulbIcon'></img>
@@ -334,7 +455,7 @@ function Layout() {
                     return (<div id='exampleQueries'>
 
 
-                      <button className="exampleQuery" onClick={() => { setPlaceholder(`${result}`); setQuery(`${result}`); setResults(null) }}  >{result}</button>
+                      <button className="exampleQuery" onClick={() => { setPlaceholder(`${result}`); setQuery(`${result}`); setResults(null); setValue(`${result}`) }}  >{result}</button>
                     </div>)
 
                   })}
@@ -342,88 +463,122 @@ function Layout() {
               </div>
             }
 
-            <button className="filters" onClick={handleFilteringTerms}>
+            {collection !== '' && <button className="filters" onClick={handleFilteringTerms}>
               Filtering Terms
-            </button>
+            </button>}
+
+            {collection === '' && <button className="filters" onClick={handleFilteringTermsAll}>
+              Filtering terms of all collections
+            </button>}
 
           </div>
 
 
         </div>
-        {showAlph && <div className='alphanumContainer'>
-          <hr></hr>
-          <h2>Alphanumerical and numerical queries</h2>
-          <button className="helpButton" onClick={handleHelpModal1}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
+        <hr></hr>
+        <div className='extraSections'>
 
-          <div className='alphanumContainer2'>
-            <label><h2>ID</h2></label>
-            <input className="IdForm" type="text" autoComplete='on' placeholder={"write the ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
+          {showAlph && <div className='alphanumContainer'>
+
+            <div className='tittleAlph'>
+              <h2>Alphanumerical and numerical queries</h2>
+              <button className="helpButton" onClick={handleHelpModal1}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
+            </div>
+            <div className='alphanumContainer2'>
+              <div className="listTerms">
+                <label><h2>ID</h2></label>
+                <input className="IdForm" type="text" value={state.query} autoComplete='on' placeholder={"write and filter by ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
 
 
-            <div id="operator">
-              <h2>OPERATOR</h2>
-              <input className="operator"></input>
+                <div id="operator" >
 
+                  <select className="selectedOperator"onChange={Operatorchange} name="selectedOperator" >
+                    <option value="=" >= </option>
+                    <option value=">" >&lt;</option>
+                    <option value="<" >&gt;</option>
+                    <option value="!" >!</option>
+                    <option value="%" >%</option>
+                  </select>
+
+                </div>
+
+                <label id="value"><h2>Value</h2></label>
+                <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
+              </div>
+              {showIds && query !== '' &&
+                <ul className="ulIds">
+                  {state.list.map(item => (
+                    <li value={item}>
+                      {item}
+                    </li>
+                  ))}
+                </ul>}
             </div>
 
-            <label id="value"><h2>Value</h2></label>
-            <input className="ValueForm" type="text" autoComplete='on' placeholder={"free text/ value"} onChange={(e) => handleValueChanges(e)} aria-label="Value" />
-          </div>
-          <div className="exampleQueriesAlph">
-            <button className="exampleQueries" onClick={handleExQueriesAlphaNum}>Query Examples</button>
-          </div>
-        </div>}
-        <form className='advSearchForm' onSubmit={onSubmit}>
+            <div className="bulbExample">
+              <button className="exampleQueries" onClick={handleExQueries}>Query Examples</button>
+              <img className="bulbLogo" src="../light-bulb.png" alt='bulbIcon'></img>
 
-          {showAdvSearch && <div className='advSearchModule' >
-            <hr></hr>
-            <div className='resultset'>
-              <div className="advSearch-module">
-                <label><h2>Include Resultset Responses</h2></label>
-                <select className="form-select2" aria-label="" onChange={(e) => handleResultsetChanges(e)}>
-                  {
-                    Add2.map((resultSet, key) => <option key={key} value={key}>{resultSet}
-                    </option>)
-                  }
-                </select>
-              </div>
-
-              <div className="advSearch-module">
-                <label><h2>Similarity</h2></label>
-                <select className="form-select2" aria-label="" onChange={e => { handleSimilarityChanges(e) }}>
-                  {
-                    Add4.map((similarity, key) => <option key={key} value={key}>{similarity}
-                    </option>)
-                  }
-                </select>
-              </div>
-              <div className="advSearch-module">
-                <label><h2>Include Descendant Terms</h2></label>
-                <select className="form-select2" aria-label="" onChange={e => { handleDescendantTermChanges(e) }}>
-                  {
-                    Add3.map((descendantTerm, key) => <option key={key} value={key}>{descendantTerm}
-                    </option>)
-                  }
-                </select>
-              </div>
-
-
-
-
-            </div>
-            <div className="buttonClass">
-              {showAdvSearch && <button className="searchButton" type="submit"><img className="searchIcon" src="./magnifier.png" alt='searchIcon'></img></button>}
             </div>
 
           </div>}
+          {showAdv &&
+            <div className='advContainer'>
+              <form className='advSearchForm' onSubmit={onSubmit}>
+
+                <div>
+
+
+                  <div className='resultset'>
 
 
 
-        </form>
+                    <div className="advSearch-module">
+                      <button className="helpButton2" onClick={handleHelpModal4}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
+                      <label><h2>Include Resultset Responses</h2></label>
+                      <select className="form-select2" aria-label="" onChange={(e) => handleResultsetChanges(e)}>
+                        {
+                          Add2.map((resultSet, key) => <option key={key} value={key}>{resultSet}
+                          </option>)
+                        }
+                      </select>
+                    </div>
 
-        {showAdvSearch && <button className='returnBasic' onClick={handleBasicSearch}>BACK TO BASIC SEARCH</button>}
+                    <div className="advSearch-module">
+                      <button className="helpButton2" onClick={handleHelpModal5}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
+                      <label><h2>Similarity</h2></label>
+                      <select className="form-select2" aria-label="" onChange={e => { handleSimilarityChanges(e) }}>
+                        {
+                          Add4.map((similarity, key) => <option key={key} value={key}>{similarity}
+                          </option>)
+                        }
+                      </select>
+                    </div>
+                    <div className="advSearch-module">
+                      <button className="helpButton2" onClick={handleHelpModal6}><img className="questionLogo" src="./question.png" alt='questionIcon'></img></button>
+                      <label><h2>Include Descendant Terms</h2></label>
+                      <select className="form-select2" aria-label="" onChange={e => { handleDescendantTermChanges(e) }}>
+                        {
+                          Add3.map((descendantTerm, key) => <option key={key} value={key}>{descendantTerm}
+                          </option>)
+                        }
+                      </select>
+                    </div>
 
 
+
+
+                  </div>
+
+
+                </div>
+
+
+
+              </form>
+
+            </div>}
+        </div>
 
       </nav>
 
@@ -455,9 +610,13 @@ function Layout() {
       <hr></hr>
       <div className="results">
         {results === null && !showFilteringTerms && <ResultsDatasets />}
-        {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} ID={ID} operator={operator} value={value} descendantTerm={descendantTerm} similarity={similarity} />}
-        {results === null && collection === 'Individuals' && showFilteringTerms && <FilteringTermsIndividuals filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder} />}
-        {results === null && collection === 'Cohorts' && showFilteringTerms && <FilteringTermsCohorts filteringTerms={filteringTerms} setPlaceholder={setPlaceholder} placeholder={placeholder} />}
+        {results === 'Individuals' && <Individuals2 query={query} resultSets={resultSet} ID={ID} operator={operator} valueFree={valueFree} descendantTerm={descendantTerm} similarity={similarity} />}
+        {results === null && showFilteringTerms && <FilteringTermsIndividuals filteringTerms={filteringTerms} collection={collection} setPlaceholder={setPlaceholder} placeholder={placeholder} />}
+        {cohorts && results === 'Cohorts' &&
+
+          <div>
+            <Cohorts />
+          </div>}
       </div>
 
     </div>
@@ -471,7 +630,7 @@ function App() {
       <Navbar />
       <Routes>
         <Route path='/' element={<Layout />} />
-        <Route path='/individuals' element={<Individuals />} />
+        <Route path='/individuals' element={<Individuals2 />} />
         <Route path='/genomicVariations' element={<GenomicVariations />} />
         <Route path='/biosamples' element={<Biosamples />} />
         <Route path='/runs' element={<Runs />} />
