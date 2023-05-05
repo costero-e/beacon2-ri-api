@@ -6,6 +6,8 @@ import axios from "axios";
 import { AuthContext } from './context/AuthContext';
 import { useContext } from 'react';
 
+import TableResultsIndividuals from './TableResultsIndividuals';
+
 function Individuals2(props) {
 
 
@@ -35,6 +37,8 @@ function Individuals2(props) {
 
   const [queryArray, setQueryArray] = useState([])
   const [arrayFilter, setArrayFilter] = useState([])
+
+  const [CardMode, setCardMode] = useState(true)
 
   const API_ENDPOINT = "http://localhost:5050/api/individuals"
 
@@ -120,9 +124,10 @@ function Individuals2(props) {
       }
 
       try {
-
+        console.log(props.operator)
         if (props.value !== '' && props.operator !== '' && props.ID !== '') {
 
+          console.log("holiii")
           //alphanumerical query
 
           const alphaNumFilter = {
@@ -161,10 +166,12 @@ function Individuals2(props) {
           jsonData1 = JSON.stringify(jsonData1)
           console.log(jsonData1)
           console.log(token)
-
-          res = await axios.post("http://localhost:5050/api/individuals", jsonData1)
-
-
+          //ORIOL 
+          //res = await axios.post("http://localhost:5050/api/individuals", jsonData1)
+          console.log(token)
+          const headers = { 'Authorization': `Bearer ${token}` , 'Content-Type': "application/json",}
+          res = axios.post('http://localhost:5050/api/individuals', { headers }, jsonData1)
+            .then(response => console.log(response));
 
           setNumberResults(res.data.responseSummary.numTotalResults)
           setBoolean(res.data.responseSummary.exists)
@@ -194,15 +201,12 @@ function Individuals2(props) {
               "requestedGranularity": "record",
             }
           }
-
           jsonData2 = JSON.stringify(jsonData2)
           console.log(jsonData2)
 
           res = await axios.post("http://localhost:5050/api/individuals", jsonData2)
 
-
           setTimeOut(true)
-
 
           if (res.data.response.resultSets[0].results[0] === undefined) {
             setError("No results. Please check the query and retry")
@@ -214,8 +218,6 @@ function Individuals2(props) {
             res.data.response.resultSets[0].results.forEach((element, index) => {
 
               results.push(res.data.response.resultSets[0].results[index])
-
-
             })
 
             setNumberResults(res.data.responseSummary.numTotalResults)
@@ -233,6 +235,9 @@ function Individuals2(props) {
   }, [skipTrigger, limitTrigger])
 
 
+  const handleResultsMode = () => {
+    setCardMode(!CardMode)
+  }
   const handleTypeResults1 = () => {
     setShow1(true)
     setShow2(false)
@@ -300,83 +305,92 @@ function Individuals2(props) {
               </div>
             </div>}
 
-            <div className='resultsContainer'>
-              {show1 && boolean && <p className='p1'>YES</p>}
-              {show1 && !boolean && <p className='p1'>N0</p>}
-
-              {show2 && numberResults !== 1 && <p className='p1'>{numberResults} &nbsp; Results</p>}
-              {show2 && numberResults === 1 && <p className='p1'>{numberResults} &nbsp; Result</p>}
-
-              {show3 && <div className="results">
-
-                {!error && results[0] && results.map((result) => {
+            {!CardMode && <div>
+              <button className="cardTableButton" onClick={handleResultsMode}><h2>Change to card mode</h2></button>
+              <TableResultsIndividuals results={results} ></TableResultsIndividuals>
+            </div>}
 
 
-                  return (
-                    <div className="resultsIndividuals">
+            {CardMode &&
+              <div className='resultsContainer'>
 
-                      <div>
-                        {result.id && <h2>ID</h2>}
-                        {result.id && <h3>{result.id}</h3>}
-                        {result.diseases && <h2>Disease</h2>}
+                {show1 && boolean && <p className='p1'>YES</p>}
+                {show1 && !boolean && <p className='p1'>N0</p>}
 
-                        {result.diseases && result.diseases.map((value) => {
-                          return (
-                            <div className='diseasesContainer'>
-                              <h3>{value.diseaseCode.id}</h3>
-                              <h3>{value.diseaseCode.label}</h3>
-                            </div>)
-                        })}
+                {show2 && numberResults !== 1 && <p className='p1'>{numberResults} &nbsp; Results</p>}
+                {show2 && numberResults === 1 && <p className='p1'>{numberResults} &nbsp; Result</p>}
+
+                {show3 && <div className="results">
+
+                  <button className="cardTableButton" onClick={handleResultsMode}><h2>Change to table mode</h2></button>
+                  {!error && results[0] && results.map((result) => {
+
+
+                    return (
+                      <div className="resultsIndividuals">
+
+                        <div>
+                          {result.id && <h2>ID</h2>}
+                          {result.id && <h3>{result.id}</h3>}
+                          {result.diseases && <h2>Disease</h2>}
+
+                          {result.diseases && result.diseases.map((value) => {
+                            return (
+                              <div className='diseasesContainer'>
+                                <h3>{value.diseaseCode.id}</h3>
+                                <h3>{value.diseaseCode.label}</h3>
+                              </div>)
+                          })}
+
+                        </div>
+
+                        <div>
+                          {result.ethnicity && <h2>Ethnicity</h2>}
+                          {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
+                          {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
+                          {result.geographicOrigin && <h2>Geographic Origin</h2>}
+                          {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
+                          {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
+                          {result.sex && <h2>Sex</h2>}
+                          {result.sex.id && <h3>{result.sex.id}</h3>}
+                          {result.sex.label && <h3>{result.sex.label}</h3>}
+                        </div>
+                        <div className='measuresContainer'>
+                          {result.measures && <h2>Measures</h2>}
+                          {result.measures.map((value) => {
+                            return (
+                              <div className='measures'>
+                                <div>
+                                  <h4>assayCode ID:</h4>
+                                  <h3>{value.assayCode.id}</h3>
+                                </div>
+                                <div>
+                                  <h4>assayCode label:</h4>
+                                  <h3>{value.assayCode.label}</h3>
+                                </div>
+
+                                <div>
+                                  <h4>Measurament value quantity ID and label:</h4>
+                                  <h3>{value.measurementValue.quantity.unit.id}</h3>
+                                  <h3>{value.measurementValue.quantity.unit.label}</h3>
+                                </div>
+                                <div>
+                                  <h4>Measurament value quantity value:</h4>
+                                  <h3>{value.measurementValue.quantity.value}</h3>
+                                </div>
+                              </div>)
+                          })}
+                        </div>
 
                       </div>
+                    )
 
-                      <div>
-                        {result.ethnicity && <h2>Ethnicity</h2>}
-                        {result.ethnicity && <h3>{result.ethnicity.id}</h3>}
-                        {result.ethnicity && <h3>{result.ethnicity.label}</h3>}
-                        {result.geographicOrigin && <h2>Geographic Origin</h2>}
-                        {result.geographicOrigin && <h3>{result.geographicOrigin.id}</h3>}
-                        {result.geographicOrigin && <h3>{result.geographicOrigin.label}</h3>}
-                        {result.sex && <h2>Sex</h2>}
-                        {result.sex.id && <h3>{result.sex.id}</h3>}
-                        {result.sex.label && <h3>{result.sex.label}</h3>}
-                      </div>
-                      <div className='measuresContainer'>
-                        {result.measures && <h2>Measures</h2>}
-                        {result.measures.map((value) => {
-                          return (
-                            <div className='measures'>
-                              <div>
-                                <h4>assayCode ID:</h4>
-                                <h3>{value.assayCode.id}</h3>
-                              </div>
-                              <div>
-                                <h4>assayCode label:</h4>
-                                <h3>{value.assayCode.label}</h3>
-                              </div>
+                  })}
 
-                              <div>
-                                <h4>Measurament value quantity ID and label:</h4>
-                                <h3>{value.measurementValue.quantity.unit.id}</h3>
-                                <h3>{value.measurementValue.quantity.unit.label}</h3>
-                              </div>
-                              <div>
-                                <h4>Measurament value quantity value:</h4>
-                                <h3>{value.measurementValue.quantity.value}</h3>
-                              </div>
-                            </div>)
-                        })}
-                      </div>
-
-                    </div>
-                  )
-
-                })}
-
-                {error && <h3>&nbsp; {error} </h3>}
-              </div>
-              }
-            </div>
+                  {error && <h3>&nbsp; {error} </h3>}
+                </div>
+                }
+              </div>}
           </div >
         </div>}
       {logInRequired === true && <h3>{messageLogin}</h3>}

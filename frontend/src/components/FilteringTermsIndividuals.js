@@ -137,20 +137,23 @@ function FilteringTermsIndividuals(props) {
 
         const results = props.filteringTerms.data.response.filteringTerms.filter(post => {
             console.log(post)
-            if (e.target.value === "") {
-                return props.filteringTerms.data.response.filteringTerms
-            } else {
-                if (post.label != undefined) {
-                    if (post.label.toLowerCase().includes(e.target.value.toLowerCase())) {
-                        return post
-                    }
+            if (post.label !=='' && post.label !== undefined ){
+                if (e.target.value === '') {
+                    return props.filteringTerms.data.response.filteringTerms
                 } else {
-                    if (post.label.toLowerCase().includes(e.target.value.toLowerCase())) {
-                        return post
+                    if (post.label !== 'undefined') {
+                        if (post.label.toLowerCase().includes(e.target.value.toLowerCase())) {
+                            return post
+                        }
+                    } else {
+                        if (post.label.toLowerCase().includes(e.target.value.toLowerCase())) {
+                            return post
+                        }
                     }
                 }
+    
             }
-
+          
         })
         setstate({
             query: e.target.value,

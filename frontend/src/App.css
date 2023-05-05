@@ -75,7 +75,7 @@ html {
 
 .selectedOperator {
   background: white;
-  border: 2px solid #e16e00;
+  border: 2px solid #366ef5;
   font-size: medium;
   border-radius: 2px;
   width: 43px;
@@ -208,7 +208,7 @@ ul {
 select {
 
   background: white;
-  border: 2px solid #e16e00;
+  border: 2px solid #366ef5;
   font-size: medium;
   border-radius: 2px;
   width: 150px;
@@ -473,7 +473,7 @@ h5 {
 
 .IdForm {
   background: white;
-  border: 2px solid #e16e00;
+  border: 2px solid #366ef5;
   margin: 4px;
   padding: 6px;
   box-shadow: 1px 1px 2px #a3a0a0;
@@ -485,7 +485,7 @@ h5 {
 
 .ValueForm {
   background: white;
-  border: 2px solid #e16e00;
+  border: 2px solid #366ef5;
   margin: 20px;
   padding: 6px;
   box-shadow: 1px 1px 2px #a3a0a0;
@@ -510,7 +510,7 @@ h5 {
 
 .operator {
   background: white;
-  border: 2px solid #e16e00;
+  border: 2px solid #366ef5;
   padding: 3px;
   box-shadow: 1px 1px 2px #a3a0a0;
   width: 21%;

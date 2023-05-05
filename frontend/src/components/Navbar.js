@@ -11,7 +11,7 @@ function Navbar() {
     const [selected, setIsSelected] = useState('')
     const [openModal1, setIsOpenModal1]= useState(false)
     
-    const { isLoggedIn, user, logOutUser, authenticateUser, getStoredToken } = useContext(AuthContext);
+    const { isLoggedIn, setIsLoggedIn, logOutUser, authenticateUser, getStoredToken } = useContext(AuthContext);
 
     const handleHelpModal1 = () => {
         setIsOpenModal1(true)
@@ -19,15 +19,11 @@ function Navbar() {
     const logOut = (e) => {
 
         logOutUser()
-
+        setIsLoggedIn(false)
+        console.log(isLoggedIn)
     }
 
-    authenticateUser()
-
-
     return (
-
-
 
         <nav id="nav">
             <div className="nav left">
@@ -44,7 +40,7 @@ function Navbar() {
                 {!isLoggedIn && <NavLink to="/sign-up" className={selected ? 'nav-link' : 'nav-link'} onClick={() => { setIsSelected(true) }}><span className="nav-link-span"><span className="u-nav">Sign Up</span></span> </NavLink>}
                 {!isLoggedIn && <NavLink to="/sign-in" className={selected ? 'nav-link' : 'nav-link'} onClick={() => { setIsSelected(true) }}> <span className="nav-link-span"><span className="u-nav">Sign In</span></span></NavLink>}
 
-                {isLoggedIn && <NavLink to="/sign-in" className={selected ? 'nav-link' : 'nav-link'} onClick={logOut}><span className="nav-link-span"><span className="u-nav">LOG OUT</span></span> </NavLink>}
+                {isLoggedIn && <NavLink to="/" className={selected ? 'nav-link' : 'nav-link'} onClick={logOut}><span className="nav-link-span"><span className="u-nav">LOG OUT</span></span> </NavLink>}
             </div>
         </nav>
 

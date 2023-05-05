@@ -133,6 +133,7 @@ function Layout() {
 
   const handleIdChanges = (e) => {
     setShowIds(true)
+    setId(e.target.value)
     const results = arrayFilteringTerms.filter(post => {
 
       if (e.target.value === "") {
@@ -265,6 +266,11 @@ function Layout() {
 
   }
 
+  const Operatorchange = (e) => {
+    setOperator(e.target.value)
+    console.log()
+  }
+
   useEffect(() => {
     const token = getStoredToken()
 
@@ -357,13 +363,14 @@ function Layout() {
         setQuery(null)
       }
       if (collection === 'Individuals') {
+      
         setResults('Individuals')
 
       } else if (collection === 'Cohorts') {
         setResults('Cohorts')
       }
 
-
+    
     } catch (error) {
       console.log(error)
       setError(error.response.data.errorMessage)
@@ -372,8 +379,8 @@ function Layout() {
 
   function search(e) {
     setQuery(e.target.value)
+   
     setResults(null)
-
   }
 
   return (
@@ -483,16 +490,15 @@ function Layout() {
                 <input className="IdForm" type="text" value={state.query} autoComplete='on' placeholder={"write and filter by ID"} onChange={(e) => handleIdChanges(e)} aria-label="ID" />
 
 
-                <div id="operator">
+                <div id="operator" >
 
-                  <select className="selectedOperator" name="selectedOperator">
-                    <option value="=">=</option>
-                    <option value=">">&lt;</option>
-                    <option value="<">&gt;</option>
-                    <option value="!">!</option>
-                    <option value="%">%</option>
+                  <select className="selectedOperator"onChange={Operatorchange} name="selectedOperator" >
+                    <option value="=" >= </option>
+                    <option value=">" >&lt;</option>
+                    <option value="<" >&gt;</option>
+                    <option value="!" >!</option>
+                    <option value="%" >%</option>
                   </select>
-
 
                 </div>
 

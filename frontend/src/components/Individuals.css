@@ -1,6 +1,9 @@
 .resultsIndividuals {
     display: flex;
-    margin: 40px;
+    margin-top: 9px;
+    margin-bottom: 40px;
+    margin-left: 40px;
+    margin-right: 40px;
     padding: 10px;
     /* width: 30vw; */
     justify-content: center;
