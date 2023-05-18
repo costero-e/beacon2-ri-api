@@ -1,3 +1,5 @@
+# This repository is deprecated, please click this [LINK](https://github.com/EGA-archive/beacon2-ri-api) to go to the mantained EGA repository.
+
 # Beacon v2.x
 
 <!-- [![Testsuite](https://github.com/EGA-archive/beacon-2.x/workflows/Testsuite/badge.svg)](https://github.com/EGA-archive/beacon-2.x/actions) -->
